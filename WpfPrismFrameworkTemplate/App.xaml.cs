@@ -1,0 +1,37 @@
+﻿using Prism.Ioc;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.UI.WebControls;
+using System.Windows;
+using WpfPrismFrameworkTemplate.Helper;
+using WpfPrismFrameworkTemplate.ViewModels;
+using WpfPrismFrameworkTemplate.Views;
+
+namespace WpfPrismFrameworkTemplate
+{
+	/// <summary>
+	/// App.xaml 的交互逻辑
+	/// </summary>
+	public partial class App
+	{
+		protected override Window CreateShell()
+		{
+			return Container.Resolve<MainWindow>();
+		}
+
+		protected override void RegisterTypes(IContainerRegistry containerRegistry)
+		{
+            containerRegistry.RegisterSingleton<MainWindowViewModel>();
+            containerRegistry.RegisterSingleton<IFamilyRepository, FamilyRepository>();
+            containerRegistry.RegisterDialog<AssignmentWindow>(nameof(AssignmentWindow));
+            containerRegistry.RegisterDialog<CommonAssignmentWindow>(nameof(CommonAssignmentWindow));
+            containerRegistry.RegisterDialog<FamilyTreeWindow>(nameof(FamilyTreeWindow));
+            containerRegistry.RegisterSingleton<GenealogyUserControl>();
+            containerRegistry.RegisterForNavigation<GenealogyUserControl, GenealogyUserControlViewModel>("Genealogy");
+        }
+	}
+}

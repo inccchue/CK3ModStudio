@@ -1,0 +1,180 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using WpfPrismFrameworkTemplate.Model;
+using static System.ComponentModel.TypeConverter;
+
+namespace WpfPrismFrameworkTemplate.Converter
+{
+    public class BirthDeathConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ObservableCollection<LifeEvent> events)
+            {
+                var birthEvent = events.FirstOrDefault(e => e.EventType == LifeEventType.Birth);
+                var deathEvent = events.FirstOrDefault(e => e.EventType == LifeEventType.Death);
+
+                string birthDate = birthEvent?.EventDate.ToString() ?? "?";
+                string deathDate = deathEvent?.EventDate.ToString() ?? "?";
+
+                if(birthEvent == null&& deathEvent == null)
+                {
+                    return "";
+                }
+
+                return $"{birthDate} - {deathDate}";
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class GenderToImageConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is GenderType gender)
+            {
+                return gender == GenderType.Male ? "/Images/Male.png" : "/Images/Female.png";
+            }
+            return "Images/Male.png"; // 备用图片
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class EnumToCollectionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Enum.GetValues(value as Type ?? typeof(LifeEventType));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class PersonToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is People person)
+            {
+                return person.ToString();
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class FamilyToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Family family)
+            {
+                return family.ToString();
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class AllFamilyToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ObservableCollection<Family> familyList)
+            {
+                string content = "";
+                foreach (var family in familyList)
+                {
+                    content += family.ToString();
+                    content += "\r\n";
+                }
+               
+                return content;
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class GenderTypeConverter : EnumConverter
+    {
+        public GenderTypeConverter(Type type) : base(type) { }
+
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value != null)
+            {
+                FieldInfo fi = value.GetType().GetField(value.ToString());
+                if (fi != null)
+                {
+                    DescriptionAttribute attribute = (DescriptionAttribute)Attribute.GetCustomAttribute(fi, typeof(DescriptionAttribute));
+                    if (attribute != null)
+                        return attribute.Description;
+                }
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return base.GetStandardValues(context);
+        }
+
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+
+        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+        {
+            return true;
+        }
+    }
+
+    public class TypeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null)
+                return false;
+
+            string typeName = parameter.ToString();
+            return value.GetType().Name == typeName;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
