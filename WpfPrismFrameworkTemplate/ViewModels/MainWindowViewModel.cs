@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Google.Protobuf.Compiler;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.Metrics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -30,8 +32,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 {
     public class MainWindowViewModel : BindableBase, IDestructible
     {
-        public ObservableCollection<string> _FemaleList = new ObservableCollection<string>() { "" };
-        public ObservableCollection<string> _MaleList = new ObservableCollection<string>() { ""};
+        public ObservableCollection<People> _FemaleList = new ObservableCollection<People>() { new People()};
+        public ObservableCollection<People> _MaleList = new ObservableCollection<People>() { new People()};
         public ObservableCollection<Family> _FamilyList =new ObservableCollection<Family>();
         private ObservableCollection<string> _religionOptions = new ObservableCollection<string>();
         private ObservableCollection<string> _CultureOptions = new ObservableCollection<string>();
@@ -111,12 +113,12 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
         }
 
-        public ObservableCollection<string> MaleList
+        public ObservableCollection<People> MaleList
         {
             get => _MaleList;
             set => SetProperty(ref _MaleList, value);
         }
-        public ObservableCollection<string> FemaleList
+        public ObservableCollection<People> FemaleList
         {
             get => _FemaleList;
             set => SetProperty(ref _FemaleList, value);
@@ -181,6 +183,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             get => _SelectPeople;
             set
             {
+                
                 SetProperty(ref _SelectPeople, value);
                 GetFamilyForSelectedPeople();
                 UpdateFemaleAndMaleList();
@@ -217,8 +220,16 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
             else
             {
+                if(SelectFamily == null)
+                {
+                    MessageBox.Show("请先选择一个家族", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
                 var parameters = new NavigationParameters();
-                parameters.Add("FamilyList", FamilyList);
+                parameters.Add("RootFamily", SelectFamily);
+                parameters.Add("CultureOptions", CultureOptions);
+                parameters.Add("ReligionOptions", ReligionOptions);
                 _regionManager.RequestNavigate("ContentRegion", "Genealogy", parameters);
             }
                 
@@ -273,8 +284,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
 
             // 创建一个临时集合来存储所有应该在列表中的项目
-            HashSet<string> shouldBeInFemaleList = new HashSet<string>();
-            HashSet<string> shouldBeInMaleList = new HashSet<string>();
+            HashSet<People> shouldBeInFemaleList = new HashSet<People> ();
+            HashSet<People> shouldBeInMaleList = new HashSet<People> ();
 
             if (SelectPeople != null)
             {
@@ -300,11 +311,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                             }
                             if (person.Gender == GenderType.Female)
                             {
-                                shouldBeInFemaleList.Add(person.IdName);
+                                shouldBeInFemaleList.Add(person);
                             }
                             else if (person.Gender == GenderType.Male)
                             {
-                                shouldBeInMaleList.Add(person.IdName);
+                                shouldBeInMaleList.Add(person);
                             }
                         }
                     }
@@ -319,11 +330,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
                             if (person.Gender == GenderType.Female)
                             {
-                                shouldBeInFemaleList.Add(person.IdName);
+                                shouldBeInFemaleList.Add(person);
                             }
                             else if (person.Gender == GenderType.Male)
                             {
-                                shouldBeInMaleList.Add(person.IdName);
+                                shouldBeInMaleList.Add(person);
                             }
                         }
                     }
@@ -339,11 +350,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
                         if (person.Gender == GenderType.Female)
                         {
-                            shouldBeInFemaleList.Add(person.IdName);
+                            shouldBeInFemaleList.Add(person);
                         }
                         else if (person.Gender == GenderType.Male)
                         {
-                            shouldBeInMaleList.Add(person.IdName);
+                            shouldBeInMaleList.Add(person);
                         }
                     }
                 }
@@ -358,18 +369,18 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 if (SelectPeople.Gender == GenderType.Female)
                 {
-                    shouldBeInFemaleList.Remove(SelectPeople.IdName);
+                    shouldBeInFemaleList.Remove(SelectPeople);
                 }
                 else
                 {
-                    shouldBeInMaleList.Remove(SelectPeople.IdName);
+                    shouldBeInMaleList.Remove(SelectPeople);
                 }
             }
 
             // 移除不应该在列表中的项目
             for (int i = FemaleList.Count - 1; i >= 0; i--)
             {
-                if (!shouldBeInFemaleList.Contains(FemaleList[i])&& FemaleList[i]!="")
+                if (!shouldBeInFemaleList.Contains(FemaleList[i]))
                 {
                     FemaleList.RemoveAt(i);
                 }
@@ -377,7 +388,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             for (int i = MaleList.Count - 1; i >= 0; i--)
             {
-                if (!shouldBeInMaleList.Contains(MaleList[i]) && MaleList[i] != "")
+                if (!shouldBeInMaleList.Contains(MaleList[i]))
                 {
                     MaleList.RemoveAt(i);
                 }
@@ -674,6 +685,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             try
             {
                 FamilyList = JsonHelper.LoadData();
+                EventCorrelation();
                 PopulateReligionOptions();
                 PopulateCultureOptions();
 
@@ -682,6 +694,26 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 // 处理错误
                 //MessageBox.Show($"加载家族数据失败：{ex.Message}");
+            }
+        }
+
+        private void EventCorrelation()
+        {
+            // 订阅 FamilyList 的 CollectionChanged 事件
+            FamilyList.CollectionChanged += FamilyList_CollectionChanged;
+            // 遍历 FamilyList 中的每个 Family
+            foreach (var family in FamilyList)
+            {
+                // 订阅每个 Family 的 MembersChanged 事件
+                family.MembersChanged += Family_MembersChanged;
+
+
+                // 遍历每个 Family 中的 Members
+                foreach(var people in family.Members)
+                {
+                    people.Init();
+                    people.ChildrenChanged += family.Person_ChildrenChanged;
+                }
             }
         }
 

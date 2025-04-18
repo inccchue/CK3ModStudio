@@ -18,14 +18,10 @@ namespace WpfPrismFrameworkTemplate.Views
         {
             if (DataContext is GenealogyUserControlViewModel viewModel)
             {
-                //if (e.NewValue is People)
-                //{
-                //    viewModel.SelectPeople = (People)e.NewValue;
-                //}
-                //else if (e.NewValue is Family)
-                //{
-                //    viewModel.SelectFamily = (Family)e.NewValue;
-                //}
+                if (e.NewValue is People)
+                {
+                    viewModel.SelectPeople = (People)e.NewValue;
+                }
 
             }
         }

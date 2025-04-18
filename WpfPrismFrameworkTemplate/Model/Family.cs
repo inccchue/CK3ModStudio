@@ -52,8 +52,66 @@ namespace WpfPrismFrameworkTemplate.Model
         public Family(string familyName= "Family")
         {
             FamilyName = familyName;
-            Members = new ObservableCollection<People>();
+            Init();
+        }
+
+        public Family()
+        {
+            Init();
+        }
+
+        public void Init()
+        {
+            if(_members == null)
+            {
+                _members = new ObservableCollection<People>();
+            }
             _members.CollectionChanged += Members_CollectionChanged;
+
+        }
+
+        // 添加一个方法来管理成员
+        public void AddMember(People person)
+        {
+            if (!Members.Contains(person))
+            {
+                Members.Add(person);
+
+                // 订阅此人的 Children 集合变更事件
+                person.ChildrenChanged += Person_ChildrenChanged;
+
+                // 将此人已有的子女添加到 Members 中
+                foreach (var child in person.Children)
+                {
+                    AddMember(child);
+                }
+            }
+        }
+
+        public void RemoveMember(People person)
+        {
+            if (Members.Contains(person))
+            {
+                // 取消订阅事件
+                person.ChildrenChanged -= Person_ChildrenChanged;
+                Members.Remove(person);
+            }
+        }
+
+        public void Person_ChildrenChanged(object sender, PeopleChildrenChangedEventArgs e)
+        {
+            if (e.AddedChild != null)
+            {
+                AddMember(e.AddedChild);
+            }
+            else if (e.RemovedChild != null)
+            {
+                // 检查这个人是否还是其他人的子女，如果是则不删除
+                if (!Members.Any(m => m != e.RemovedChild && m.Children.Contains(e.RemovedChild)))
+                {
+                    RemoveMember(e.RemovedChild);
+                }
+            }
         }
 
 

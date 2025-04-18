@@ -131,9 +131,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                         <!-- 成员模板 -->
                         <DataTemplate DataType="{x:Type model:People}">
                         <WrapPanel HorizontalAlignment="Left">
-                            <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource AddGeometry}" />
                             <Image Source="{Binding Gender, Converter={StaticResource GenderToImageConverter}}" Grid.Column="0" Height="16" Width="16"/>
-
                             <TextBlock Text="{Binding IdName}" />
                             <TextBlock Text="{Binding Name,StringFormat=' ({0}'}" Opacity="0.6"/>
                             <TextBlock Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
@@ -205,14 +203,18 @@ hc:TitleElement.TitlePlacement="Top"
                                                  Style="{StaticResource ComboBoxExtend}"
                                                  ItemsSource="{Binding MaleList}" 
                                                  SelectedItem="{Binding SelectPeople.Dad}"
+                                                 DisplayMemberPath="IdName"
                                                   >
                                 </ComboBox>
+                                <!--<TextBox Text="{Binding SelectPeople.Mom.IdName}"/>-->
                                 <ComboBox VerticalAlignment="Center" Margin="5" 
                                           hc:TitleElement.Title="母亲"
 hc:TitleElement.TitlePlacement="Top"
                                                  Style="{StaticResource ComboBoxExtend}"
                                                  ItemsSource="{Binding FemaleList}" 
                                                  SelectedItem="{Binding SelectPeople.Mom}"
+                                          DisplayMemberPath="Mom"
+                                          
                                                   >
                                 </ComboBox>
                             </UniformGrid>

@@ -43,7 +43,9 @@ namespace WpfPrismFrameworkTemplate.Helper
             {
                 var settings = new JsonSerializerSettings
                 {
-                    TypeNameHandling = TypeNameHandling.Auto
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 };
                 string json = JsonConvert.SerializeObject(familyList, Formatting.Indented, settings);
                 File.WriteAllText(DATA_FILE_PATH, json);

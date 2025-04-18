@@ -9,6 +9,7 @@
     xmlns:viewmodels="clr-namespace:WpfPrismFrameworkTemplate.ViewModels"
     xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
     xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model" 
+    xmlns:helper="clr-namespace:WpfPrismFrameworkTemplate.Helper"
     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -50,37 +51,113 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <cv:EnumToCollectionConverter x:Key="EnumToCollectionConverter"/>
         <cv:GenderToImageConverter x:Key="GenderToImageConverter"/>
         <cv:BirthDeathConverter x:Key="BirthDeathConverter"/>
+        <cv:HasChildrenToVisibilityConverter x:Key="HasChildrenToVisibilityConverter"/>
     </UserControl.Resources>
-        <Grid >
-        <TreeView ItemsSource="{Binding FamilyList}"  dd:DragDrop.IsDragSource="True" Grid.Column="0" Grid.Row="0" SelectedItemChanged="TreeView_SelectedItemChanged"
-dd:DragDrop.IsDropTarget="True" HorizontalContentAlignment="Left" Style="{StaticResource TreeView.Small}">
-            <TreeView.Resources>
-                <!-- 家族模板 -->
-                <HierarchicalDataTemplate DataType="{x:Type model:Family}"
-                               ItemsSource="{Binding Members}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding FamilyName}" 
-                        FontWeight="Bold"/>
-                        <TextBlock Text="{Binding Members.Count, 
-                        StringFormat=' ({0} members)'}"
-                        Opacity="0.6"/>
+        <Grid Background="White">
+        <hc:Drawer Dock="Right" ShowMode="Press" IsOpen="{Binding IsDrawerOpen}">
+            <Border Background="{DynamicResource RegionBrush}" Width="300" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Background="DarkRed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <TextBlock Margin="10,0,0,0" Text="属性设置" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Left" Foreground="White"/>
+                    <Button Command="hc:ControlCommands.Close" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" Foreground="White"/>
+                    <StackPanel Grid.Row="1">
+                        <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
+                        <UniformGrid Rows="1" Columns="2">
+                            <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
+                                          hc:TitleElement.Title="文化"
+hc:TitleElement.TitlePlacement="Top"
+                                                 Style="{StaticResource ComboBoxExtend}"
+                                                 ItemsSource="{Binding CultureOptions}" 
+                                                 SelectedItem="{Binding SelectPeople.Culture}"
+                                                  >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding AddCultureCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                            <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新宗教"
+                                          hc:TitleElement.Title="宗教"
+hc:TitleElement.TitlePlacement="Top"
+                                                 Style="{StaticResource ComboBoxExtend}"
+                                                 ItemsSource="{Binding ReligionOptions}" 
+                                                 SelectedItem="{Binding SelectPeople.Religion}"
+                                                  >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding AddReligionCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                        </UniformGrid>
+                        <TextBlock Text="选中人物的事件列表" FontWeight="Bold" Margin="5,10,0,0" />
+                        <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False" 
+                                      >
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="额外信息">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="修改" Style="{StaticResource ButtonSuccess.Small}"
+                                                        Command="{Binding DataContext.ModifyLifeEventCmd, 
+                                     ElementName=eventsDataGrid}"
+                                                        CommandParameter="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <Button Content="修改" Style="{StaticResource ButtonSuccess.Small}"
+                                                        Command="{Binding DataContext.ModifyLifeEventCmd, 
+                                     ElementName=eventsDataGrid}"
+                                                        CommandParameter="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <UniformGrid Columns="2" Rows="1">
+                            <Button Content="增加事件" Command="{Binding AddLifeEventCmd}" Style="{StaticResource ButtonSuccess}" HorizontalAlignment="Stretch" Margin="5"/>
+                            <Button Content="删除当前选中事件" Command="{Binding DelLifeEventCmd}" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Stretch" Margin="5"/>
+                        </UniformGrid>
                     </StackPanel>
-                </HierarchicalDataTemplate>
-
-                <!-- 成员模板 -->
-                <DataTemplate DataType="{x:Type model:People}">
+                </Grid>
+            </Border>
+        </hc:Drawer>
+        <TreeView Grid.Row="1" ItemsSource="{Binding FamilyTree}" Style="{StaticResource TreeView.Small}" SelectedItemChanged="TreeView_SelectedItemChanged">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding ModifyCmd}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <!-- 绑定到 IsExpanded 属性 -->
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    
+                </Style>
+            </TreeView.ItemContainerStyle>
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type model:People}" ItemsSource="{Binding Children}">
                     <WrapPanel HorizontalAlignment="Left">
-                        <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource AddGeometry}" />
+                       
+                        <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource AddGeometry}" Foreground="Green"
+                                Command="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext.AddNewChildCmd}"
+                                CommandParameter="{Binding}"/>
+                        <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" Foreground="Red"
+        Command="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext.DelCmd}"
+        CommandParameter="{Binding}"
+                                Visibility="{Binding Children, Converter={StaticResource HasChildrenToVisibilityConverter}}"/>
                         <Image Source="{Binding Gender, Converter={StaticResource GenderToImageConverter}}" Grid.Column="0" Height="16" Width="16"/>
-
                         <TextBlock Text="{Binding IdName}" />
                         <TextBlock Text="{Binding Name,StringFormat=' ({0}'}" Opacity="0.6"/>
                         <TextBlock Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
                         <TextBlock Text=")" Opacity="0.6"/>
                     </WrapPanel>
-
-
-                </DataTemplate>
+                </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
     </Grid>

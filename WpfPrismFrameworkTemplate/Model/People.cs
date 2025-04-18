@@ -19,6 +19,13 @@ using GongSolutions.Wpf.DragDrop;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
+    // 用于传递 Children 变更信息的事件参数类
+    public class PeopleChildrenChangedEventArgs : EventArgs
+    {
+        public People AddedChild { get; set; }
+        public People RemovedChild { get; set; }
+    }
+
     [TypeConverter(typeof(GenderTypeConverter))]
     public enum GenderType
     {
@@ -36,10 +43,13 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _dynasty;
         private string _religion;
         private string _culture;  // 新增culture属性
-        private string _Mom = "";
-        private string _Dad = "";
+        private People _Mom ;
+        private People _Dad ;
         private GenderType _Gender=GenderType.Male;
         private ObservableCollection<LifeEvent> _LifeEventList=new ObservableCollection<LifeEvent>();
+        private ObservableCollection<People> _Children;
+        // 定义一个事件，当 Children 集合发生变化时触发
+        public event EventHandler<PeopleChildrenChangedEventArgs> ChildrenChanged;
 
         public People(int id, string name = "test_name", GenderType gender=GenderType.Male, string dynasty = "test_dynasty", string religion = "test_religion", string culture = "test_culture")
         {
@@ -50,31 +60,15 @@ namespace WpfPrismFrameworkTemplate.Model
             Religion = religion;
             Culture = culture;
 
-            _LifeEventList.CollectionChanged += (s, e) => {
-                if (e.NewItems != null)
-                {
-                    foreach (LifeEvent item in e.NewItems)
-                    {
-                        item.PropertyChanged += Item_PropertyChanged;
-                    }
-                }
-                if (e.OldItems != null)
-                {
-                    foreach (LifeEvent item in e.OldItems)
-                    {
-                        item.PropertyChanged -= Item_PropertyChanged;
-                    }
-                }
-                RaisePropertyChanged(nameof(LifeEventList));
-            };
-
-            foreach (var item in _LifeEventList)
-            {
-                item.PropertyChanged += Item_PropertyChanged;
-            }
+            Init();
         }
 
         public People()
+        {
+            Init();
+        }
+
+        public void Init()
         {
             _LifeEventList.CollectionChanged += (s, e) => {
                 if (e.NewItems != null)
@@ -99,12 +93,47 @@ namespace WpfPrismFrameworkTemplate.Model
             {
                 item.PropertyChanged += Item_PropertyChanged;
             }
+
+            if (_Children == null)
+            {
+                _Children = new ObservableCollection<People>();
+                
+            }
+            _Children.CollectionChanged += Children_CollectionChanged;
+
+
+        }
+
+        private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                foreach (People newChild in e.NewItems)
+                {
+                    ChildrenChanged?.Invoke(this, new PeopleChildrenChangedEventArgs { AddedChild = newChild });
+                }
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                foreach (People oldChild in e.OldItems)
+                {
+                    ChildrenChanged?.Invoke(this, new PeopleChildrenChangedEventArgs { RemovedChild = oldChild });
+                }
+            }
         }
 
         public void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             // 当任何LifeEvent的属性改变时，触发LifeEventList的属性改变通知
             RaisePropertyChanged(nameof(LifeEventList));
+        }
+
+        private bool _isExpanded = true;
+        [Browsable(false)]
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set => SetProperty(ref _isExpanded, value);
         }
 
         [Browsable(false)]
@@ -115,21 +144,28 @@ namespace WpfPrismFrameworkTemplate.Model
         }
 
         [Browsable(false)]
-        public ObservableCollection<LifeEvent> LifeEventList
+        public ObservableCollection<People> Children
         {
-            get => _LifeEventList;
-            private set => SetProperty(ref _LifeEventList, value);
+            get => _Children;
+            set => SetProperty(ref _Children, value);
         }
 
         [Browsable(false)]
-        public string Dad
+        public ObservableCollection<LifeEvent> LifeEventList
+        {
+            get => _LifeEventList;
+            set => SetProperty(ref _LifeEventList, value);
+        }
+
+        [Browsable(false)]
+        public People Dad
         {
             get => _Dad;
             set => SetProperty(ref _Dad, value);
         }
 
         [Browsable(false)]
-        public string Mom
+        public People Mom
         {
             get => _Mom;
             set => SetProperty(ref _Mom, value);
@@ -197,14 +233,14 @@ namespace WpfPrismFrameworkTemplate.Model
             sb.AppendLine($"\treligion = {Religion}");
             sb.AppendLine($"\tculture = {Culture}");
 
-            if (Dad != "")
+            if (Dad != null)
             {
-                sb.AppendLine($"\tfather = {Dad}");
+                sb.AppendLine($"\tfather = {Dad.IdName}");
             }
 
-            if (Mom != "")
+            if (Mom != null)
             {
-                sb.AppendLine($"\tmother = {Mom}");
+                sb.AppendLine($"\tmother = {Mom.IdName}");
             }
 
             // 遍历 LifeEventList，按照 EventDate 排序输出

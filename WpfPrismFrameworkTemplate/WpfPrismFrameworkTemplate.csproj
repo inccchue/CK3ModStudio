@@ -73,6 +73,7 @@
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Helper\PropertyGridEditableProperties.cs" />
+    <Compile Include="Helper\TreeViewItemDoubleClickBehavior.cs" />
     <Compile Include="Model\CustomDate.cs" />
     <Compile Include="Model\DragDropModule.cs" />
     <Compile Include="Model\EventModel.cs" />
