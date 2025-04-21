@@ -216,7 +216,7 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _culture, value);
         }
 
-        public override string ToString()
+        public string GetString()
         {
             var sb = new StringBuilder();
 
@@ -249,7 +249,7 @@ namespace WpfPrismFrameworkTemplate.Model
                 switch (lifeEvent.EventType)
                 {
                     case LifeEventType.Marriage:
-                        MarriageEvent marriageEvent= lifeEvent as MarriageEvent;
+                        MarriageEvent marriageEvent = lifeEvent as MarriageEvent;
                         sb.AppendLine($"\t{lifeEvent.EventDate} = {{ add_spouse = {marriageEvent.Spouse} }}");
                         break;
 
@@ -257,13 +257,17 @@ namespace WpfPrismFrameworkTemplate.Model
                     case LifeEventType.Death:
                     default:
                         sb.AppendLine($"\t{lifeEvent.EventDate} = {{ {lifeEvent.EventType.ToString().ToLower()} = yes }}");
-                        break ;
+                        break;
                 }
-                
+
             }
 
             sb.Append("}");
             return sb.ToString();
+        }
+        public override string ToString()
+        {
+            return IdName;
         }
     }
 }

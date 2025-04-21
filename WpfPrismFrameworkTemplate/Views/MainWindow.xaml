@@ -95,6 +95,8 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <cv:EnumToCollectionConverter x:Key="EnumToCollectionConverter"/>
         <cv:GenderToImageConverter x:Key="GenderToImageConverter"/>
         <cv:BirthDeathConverter x:Key="BirthDeathConverter"/>
+        <cv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <cv:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -148,29 +150,6 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                         <StackPanel>
                             <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
                             <UniformGrid Rows="2" Columns="2">
-
-                                <!--<TextBox Grid.Row="0"
-                                         Text="{Binding SelectPeople.BirthDay}"
-     Grid.Column="1"
-     Margin="4" 
-     Style="{StaticResource TextBoxExtend}"  
-     hc:TitleElement.Title="出生年月"
-     hc:TitleElement.TitlePlacement="Top">
-                                    <i:Interaction.Behaviors>
-                                        <ctrlz:TextBoxInputMaskBehavior InputMask="0000年00月00日" />
-                                    </i:Interaction.Behaviors>
-                                </TextBox>
-                                <TextBox Grid.Row="0"
-                                         Text="{Binding SelectPeople.DeathDay}"
-     Grid.Column="1"
-     Margin="4" 
-     Style="{StaticResource TextBoxExtend}"  
-     hc:TitleElement.Title="离世年月"
-     hc:TitleElement.TitlePlacement="Top">
-                                    <i:Interaction.Behaviors>
-                                        <ctrlz:TextBoxInputMaskBehavior InputMask="0000年00月00日" />
-                                    </i:Interaction.Behaviors>
-                                </TextBox>-->
                                 <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
                                           hc:TitleElement.Title="文化"
 hc:TitleElement.TitlePlacement="Top"
@@ -206,7 +185,55 @@ hc:TitleElement.TitlePlacement="Top"
                                                  DisplayMemberPath="IdName"
                                                   >
                                 </ComboBox>
-                                <!--<TextBox Text="{Binding SelectPeople.Mom.IdName}"/>-->
+                                <ui:AutoSuggestBox 
+            PlaceholderText="搜索人物ID..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding Suggestions}"
+                                    TextChanged="AutoSuggestBox_TextChanged"
+    QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+    SuggestionChosen="AutoSuggestBox_SuggestionChosen">
+
+                                    <!-- 自定义项目模板 -->
+                                    <ui:AutoSuggestBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Grid.Row="0"
+Text="{Binding IdName}" 
+FontWeight="Bold" />
+                                                    <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="({0} {1})">
+                                                                <Binding Path="Name"/>
+                                                                <Binding Path="Dynasty"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
+                                                </Grid>
+                                                <Border Grid.Row="1" 
+                    BorderThickness="0,0,0,1" 
+                    BorderBrush="#20000000" 
+                    Margin="0" />
+                                            </Grid>
+                                            
+
+                                        </DataTemplate>
+                                    </ui:AutoSuggestBox.ItemTemplate>
+                                </ui:AutoSuggestBox>
                                 <ComboBox VerticalAlignment="Center" Margin="5" 
                                           hc:TitleElement.Title="母亲"
 hc:TitleElement.TitlePlacement="Top"

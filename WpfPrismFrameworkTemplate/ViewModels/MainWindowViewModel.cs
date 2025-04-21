@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf.Compiler;
 using Microsoft.Win32;
+using ModernWpf.Controls;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -37,6 +38,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public ObservableCollection<Family> _FamilyList =new ObservableCollection<Family>();
         private ObservableCollection<string> _religionOptions = new ObservableCollection<string>();
         private ObservableCollection<string> _CultureOptions = new ObservableCollection<string>();
+        private ObservableCollection<People> _suggestions=new ObservableCollection<People>();
         private People _SelectPeople;
         private Family _SelectFamily;
         private string _title = "CK3创建人物工具(作者:Fred)";
@@ -49,6 +51,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private IDialogService _dialogService;
         private LifeEvent _SelectLifeEvent=new LifeEvent();
         private readonly IRegionManager _regionManager;
+        private string _searchText;
 
         private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
         public ObservableCollection<People> TestPeopleList
@@ -113,6 +116,17 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
         }
 
+        public ObservableCollection<People> Suggestions
+        {
+            get => _suggestions;
+            set => SetProperty(ref _suggestions, value);
+        }
+
+        public string SearchText
+        {
+            get => _searchText;
+            set => SetProperty(ref _searchText, value);
+        }
         public ObservableCollection<People> MaleList
         {
             get => _MaleList;
@@ -203,6 +217,55 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
+        }
+
+        public void HandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason)
+        {
+            if (reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                // 保存搜索文本
+                SearchText = text;
+
+                // 过滤逻辑
+                var filtered = string.IsNullOrEmpty(text)
+    ? new List<People>()
+    : FemaleList.Where(p =>
+        (!string.IsNullOrEmpty(p.IdName) && p.IdName.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+        (!string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+        (!string.IsNullOrEmpty(p.Dynasty) && p.Dynasty.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
+    ).ToList();
+
+                Suggestions.Clear();
+                foreach (var person in filtered)
+                {
+                    Suggestions.Add(person);
+                }
+            }
+        }
+
+        public void HandleQuerySubmitted(string queryText, object chosenSuggestion)
+        {
+            if (chosenSuggestion != null && chosenSuggestion is People person)
+            {
+                SelectPeople.Mom = person;
+            }
+            else
+            {
+                // 用户直接提交了查询文本
+                var searchResult = FemaleList.FirstOrDefault(p => p.IdName == queryText);
+                if (searchResult != null)
+                {
+                    SelectPeople.Mom = searchResult;
+                }
+            }
+        }
+
+        public void HandleSuggestionChosen(object selectedItem)
+        {
+            if (selectedItem is People person)
+            {
+                SearchText = person.IdName;
+            }
         }
 
         private void FullScreen()
@@ -556,7 +619,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     // 使用 StreamWriter 写入文件内容
                     using (StreamWriter writer = new StreamWriter(filePath))
                     {
-                        writer.Write(SelectPeople.ToString()); // 将传入的 content 写入文件
+                        writer.Write(SelectPeople.GetString()); // 将传入的 content 写入文件
                     }
 
                     MessageBox.Show("文件已保存", "成功", MessageBoxButton.OK, MessageBoxImage.Information);

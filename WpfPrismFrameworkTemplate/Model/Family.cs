@@ -154,7 +154,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
             foreach (var member in Members)
             {
-                content += member.ToString();
+                content += member.GetString();
                 content += "\r\n";
             }
             return content;

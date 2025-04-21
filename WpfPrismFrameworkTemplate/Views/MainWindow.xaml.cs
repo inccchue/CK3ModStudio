@@ -44,5 +44,28 @@ namespace WpfPrismFrameworkTemplate.Views
             }
         }
 
+        private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.HandleTextChanged(sender.Text, args.Reason);
+            }
+        }
+
+        private void AutoSuggestBox_QuerySubmitted(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.HandleQuerySubmitted(args.QueryText, args.ChosenSuggestion);
+            }
+        }
+
+        private void AutoSuggestBox_SuggestionChosen(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.HandleSuggestionChosen(args.SelectedItem);
+            }
+        }
     }
 }
