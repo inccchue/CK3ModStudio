@@ -46,9 +46,18 @@ namespace WpfPrismFrameworkTemplate.Views
 
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)
         {
+           
             if (DataContext is MainWindowViewModel viewModel)
             {
-                viewModel.HandleTextChanged(sender.Text, args.Reason);
+                if (sender.Name == "MomAutoSuggestBox")
+                {
+                    viewModel.HandleTextChanged(sender.Text, args.Reason);
+                }
+                else
+                {
+                    viewModel.HandleTextChanged(sender.Text, args.Reason,false);
+                }
+                
             }
         }
 
@@ -56,7 +65,15 @@ namespace WpfPrismFrameworkTemplate.Views
         {
             if (DataContext is MainWindowViewModel viewModel)
             {
-                viewModel.HandleQuerySubmitted(args.QueryText, args.ChosenSuggestion);
+                if (sender.Name == "MomAutoSuggestBox")
+                {
+                    viewModel.HandleQuerySubmitted(args.QueryText, args.ChosenSuggestion);
+                }
+                else
+                {
+                    viewModel.HandleQuerySubmitted(args.QueryText, args.ChosenSuggestion,false);
+                }
+                
             }
         }
 

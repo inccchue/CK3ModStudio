@@ -176,64 +176,111 @@ hc:TitleElement.TitlePlacement="Top"
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </ComboBox>
-                                <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
-                                          hc:TitleElement.Title="父亲"
-hc:TitleElement.TitlePlacement="Top"
-                                                 Style="{StaticResource ComboBoxExtend}"
-                                                 ItemsSource="{Binding MaleList}" 
-                                                 SelectedItem="{Binding SelectPeople.Dad}"
-                                                 DisplayMemberPath="IdName"
-                                                  >
-                                </ComboBox>
-                                <ui:AutoSuggestBox 
-            PlaceholderText="搜索人物ID..." VerticalAlignment="Center" Margin="5"
-            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <StackPanel>
+                                    <TextBlock Text="父亲" Margin="10,0,0,0"/>
+                                    <ui:AutoSuggestBox x:Name="DadAutoSuggestBox"
+            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SelectPeople.Dad, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
             ItemsSource="{Binding Suggestions}"
                                     TextChanged="AutoSuggestBox_TextChanged"
     QuerySubmitted="AutoSuggestBox_QuerySubmitted"
     SuggestionChosen="AutoSuggestBox_SuggestionChosen">
 
-                                    <!-- 自定义项目模板 -->
-                                    <ui:AutoSuggestBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                </Grid.RowDefinitions>
+                                        <!-- 自定义项目模板 -->
+                                        <ui:AutoSuggestBox.ItemTemplate>
+                                            <DataTemplate>
                                                 <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="Auto" />
                                                         <RowDefinition Height="Auto" />
-                                                        <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
 
-                                                    <TextBlock Grid.Column="0" Grid.Row="0"
+                                                        <TextBlock Grid.Column="0" Grid.Row="0"
 Text="{Binding IdName}" 
 FontWeight="Bold" />
-                                                    <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
-                                                        <TextBlock.Text>
-                                                            <MultiBinding StringFormat="({0} {1})">
-                                                                <Binding Path="Name"/>
-                                                                <Binding Path="Dynasty"/>
-                                                            </MultiBinding>
-                                                        </TextBlock.Text>
-                                                    </TextBlock>
-                                                    <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
-                                                </Grid>
-                                                <Border Grid.Row="1" 
+                                                        <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding StringFormat="({0} {1})">
+                                                                    <Binding Path="Name"/>
+                                                                    <Binding Path="Dynasty"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                        <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
+                                                    </Grid>
+                                                    <Border Grid.Row="1" 
                     BorderThickness="0,0,0,1" 
                     BorderBrush="#20000000" 
                     Margin="0" />
-                                            </Grid>
-                                            
+                                                </Grid>
 
-                                        </DataTemplate>
-                                    </ui:AutoSuggestBox.ItemTemplate>
-                                </ui:AutoSuggestBox>
+
+                                            </DataTemplate>
+                                        </ui:AutoSuggestBox.ItemTemplate>
+                                    </ui:AutoSuggestBox>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="母亲" Margin="10,0,0,0"/>
+                                    <ui:AutoSuggestBox x:Name="MomAutoSuggestBox"
+            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SelectPeople.Mom, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding Suggestions}"
+                                    TextChanged="AutoSuggestBox_TextChanged"
+    QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+    SuggestionChosen="AutoSuggestBox_SuggestionChosen">
+
+                                        <!-- 自定义项目模板 -->
+                                        <ui:AutoSuggestBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+
+                                                        <TextBlock Grid.Column="0" Grid.Row="0"
+Text="{Binding IdName}" 
+FontWeight="Bold" />
+                                                        <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding StringFormat="({0} {1})">
+                                                                    <Binding Path="Name"/>
+                                                                    <Binding Path="Dynasty"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                        <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
+                                                    </Grid>
+                                                    <Border Grid.Row="1" 
+                    BorderThickness="0,0,0,1" 
+                    BorderBrush="#20000000" 
+                    Margin="0" />
+                                                </Grid>
+
+
+                                            </DataTemplate>
+                                        </ui:AutoSuggestBox.ItemTemplate>
+                                    </ui:AutoSuggestBox>
+                                </StackPanel>
+                                
                                 <ComboBox VerticalAlignment="Center" Margin="5" 
                                           hc:TitleElement.Title="母亲"
 hc:TitleElement.TitlePlacement="Top"

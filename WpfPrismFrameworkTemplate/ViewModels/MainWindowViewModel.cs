@@ -219,21 +219,36 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set { SetProperty(ref _title, value); }
         }
 
-        public void HandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason)
+        public void HandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason,bool isMom=true)
         {
             if (reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
                 // 保存搜索文本
                 SearchText = text;
+                List<People> filtered;
 
-                // 过滤逻辑
-                var filtered = string.IsNullOrEmpty(text)
-    ? new List<People>()
-    : FemaleList.Where(p =>
-        (!string.IsNullOrEmpty(p.IdName) && p.IdName.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
-        (!string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
-        (!string.IsNullOrEmpty(p.Dynasty) && p.Dynasty.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
-    ).ToList();
+                if (isMom)
+                {
+                    // 过滤逻辑
+                    filtered = string.IsNullOrEmpty(text)
+                    ? new List<People>()
+                    : FemaleList.Where(p =>
+                        (!string.IsNullOrEmpty(p.IdName) && p.IdName.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                        (!string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                        (!string.IsNullOrEmpty(p.Dynasty) && p.Dynasty.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
+                    ).ToList();
+                }
+                else
+                {
+                    // 过滤逻辑
+                    filtered = string.IsNullOrEmpty(text)
+                    ? new List<People>()
+                    : MaleList.Where(p =>
+                        (!string.IsNullOrEmpty(p.IdName) && p.IdName.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                        (!string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                        (!string.IsNullOrEmpty(p.Dynasty) && p.Dynasty.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
+                    ).ToList();
+                }
 
                 Suggestions.Clear();
                 foreach (var person in filtered)
@@ -243,20 +258,40 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
         }
 
-        public void HandleQuerySubmitted(string queryText, object chosenSuggestion)
+        public void HandleQuerySubmitted(string queryText, object chosenSuggestion, bool isMom = true)
         {
             if (chosenSuggestion != null && chosenSuggestion is People person)
             {
-                SelectPeople.Mom = person;
+                if (isMom)
+                {
+                    SelectPeople.Mom = person;
+                }
+                else
+                {
+                    SelectPeople.Dad = person;
+                }
             }
             else
             {
-                // 用户直接提交了查询文本
-                var searchResult = FemaleList.FirstOrDefault(p => p.IdName == queryText);
-                if (searchResult != null)
+                if (isMom)
                 {
-                    SelectPeople.Mom = searchResult;
+                    // 用户直接提交了查询文本
+                    var searchResult = FemaleList.FirstOrDefault(p => p.IdName == queryText);
+                    if (searchResult != null)
+                    {
+                        SelectPeople.Mom = searchResult;
+                    }
                 }
+                else
+                {
+                    // 用户直接提交了查询文本
+                    var searchResult = MaleList.FirstOrDefault(p => p.IdName == queryText);
+                    if (searchResult != null)
+                    {
+                        SelectPeople.Dad = searchResult;
+                    }
+                }
+                
             }
         }
 
