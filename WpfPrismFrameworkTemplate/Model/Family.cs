@@ -119,6 +119,20 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             // 触发自定义事件
             MembersChanged?.Invoke(this, EventArgs.Empty);
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (People newChild in e.NewItems)
+                {
+                    newChild.ChildrenChanged += Person_ChildrenChanged;
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (People oldChild in e.OldItems)
+                {
+                    oldChild.ChildrenChanged -= Person_ChildrenChanged;
+                }
+            }
         }
 
         public int FindMemberWithMaxIdNumber()

@@ -704,6 +704,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 遍历 FamilyList 中的每个 Family
             foreach (var family in FamilyList)
             {
+                family.Init();
                 // 订阅每个 Family 的 MembersChanged 事件
                 family.MembersChanged += Family_MembersChanged;
 
@@ -712,7 +713,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 foreach(var people in family.Members)
                 {
                     people.Init();
-                    people.ChildrenChanged += family.Person_ChildrenChanged;
                 }
             }
         }
