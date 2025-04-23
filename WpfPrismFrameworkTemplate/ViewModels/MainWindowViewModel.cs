@@ -245,12 +245,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 if (isMom)
                 {
-                    SelectPeople.Mom = person;
+                    SelectPeople.Mom = person;                    
                 }
                 else
                 {
                     SelectPeople.Dad = person;
                 }
+                person.Children.Add(SelectPeople);
             }
             else
             {
@@ -262,6 +263,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     if (searchResult != null)
                     {
                         SelectPeople.Mom = searchResult;
+                        searchResult.Children.Add(SelectPeople);
                     }
                 }
                 else
@@ -271,6 +273,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     if (searchResult != null)
                     {
                         SelectPeople.Dad = searchResult;
+                        searchResult.Children.Add(SelectPeople);
                     }
                 }
                 
