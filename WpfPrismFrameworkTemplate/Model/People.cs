@@ -223,6 +223,7 @@ namespace WpfPrismFrameworkTemplate.Model
             // 主要信息
             sb.AppendLine($"{IdName} = {{");
             sb.AppendLine($"\tname = {Name}");
+            sb.AppendLine($"\tdynasty = dynn_{Dynasty}");
 
             // 仅在性别为女性时添加 female = yes
             if (Gender == GenderType.Female)
