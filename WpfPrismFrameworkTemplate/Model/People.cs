@@ -16,6 +16,7 @@ using WpfPrismFrameworkTemplate.Converter;
 using System.Linq;
 using Prism.Events;
 using GongSolutions.Wpf.DragDrop;
+using Newtonsoft.Json;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -216,6 +217,11 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _culture, value);
         }
 
+        // 添加一个属性用于绑定
+        [Browsable(false)]
+        [JsonIgnore]
+        public string DisplayText => GetString();
+
         public string GetString()
         {
             var sb = new StringBuilder();
@@ -269,6 +275,18 @@ namespace WpfPrismFrameworkTemplate.Model
         public override string ToString()
         {
             return IdName;
+        }
+
+        // 重写这个方法以确保任何属性变化时触发 DisplayText 的通知
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            base.OnPropertyChanged(args);
+
+            // 如果不是 DisplayText 本身变化的通知，则通知 DisplayText 也变化了
+            if (args.PropertyName != nameof(DisplayText))
+            {
+                RaisePropertyChanged(nameof(DisplayText));
+            }
         }
     }
 }
