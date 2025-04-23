@@ -112,7 +112,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
 
             LoadFamilies();
-            UpdateFemaleAndMaleList();
 
         }
 
@@ -182,7 +181,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 
                 SetProperty(ref _SelectPeople, value);
                 GetFamilyForSelectedPeople();
-                UpdateFemaleAndMaleList();
             }
         }
         public string HighlightedContent

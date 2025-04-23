@@ -71,18 +71,6 @@ namespace WpfPrismFrameworkTemplate.Model
 
         public void Init()
         {
-            // 监听自己的属性变更
-            this.PropertyChanged += (sender, e) =>
-            {
-                // 如果变更的不是GetString本身，则通知GetString的结果变化
-                if (e.PropertyName != nameof(GetString) &&
-                    e.PropertyName != nameof(Mom) &&
-                    e.PropertyName != nameof(Dad))
-                {
-                    RaisePropertyChanged(nameof(GetString));
-                }
-            };
-
             _LifeEventList.CollectionChanged += (s, e) => {
                 if (e.NewItems != null)
                 {
@@ -229,6 +217,11 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _culture, value);
         }
 
+        // 添加一个属性用于绑定
+        [Browsable(false)]
+        [JsonIgnore]
+        public string DisplayText => GetString();
+
         public string GetString()
         {
             var sb = new StringBuilder();
@@ -281,6 +274,18 @@ namespace WpfPrismFrameworkTemplate.Model
         public override string ToString()
         {
             return IdName;
+        }
+
+        // 重写这个方法以确保任何属性变化时触发 DisplayText 的通知
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            base.OnPropertyChanged(args);
+
+            // 如果不是 DisplayText 本身变化的通知，则通知 DisplayText 也变化了
+            if (args.PropertyName != nameof(DisplayText))
+            {
+                RaisePropertyChanged(nameof(DisplayText));
+            }
         }
     }
 }

@@ -280,18 +280,7 @@ FontWeight="Bold" />
                                         </ui:AutoSuggestBox.ItemTemplate>
                                     </ui:AutoSuggestBox>
                                 </StackPanel>
-                                
-                                <ComboBox VerticalAlignment="Center" Margin="5" 
-                                          hc:TitleElement.Title="母亲"
-hc:TitleElement.TitlePlacement="Top"
-                                                 Style="{StaticResource ComboBoxExtend}"
-                                                 ItemsSource="{Binding FemaleList}" 
-                                                 SelectedItem="{Binding SelectPeople.Mom}"
-                                          DisplayMemberPath="Mom"
-                                          
-                                                  >
-                                </ComboBox>
-                            </UniformGrid>
+                                                            </UniformGrid>
                             <TextBlock Text="选中人物的事件列表" FontWeight="Bold" Margin="0,5,0,0" />
                             <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False" 
                                       >
@@ -332,7 +321,7 @@ hc:TitleElement.TitlePlacement="Top"
             <TabControl Foreground="Black" dd:DragDrop.IsDragSource="True" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2"
          dd:DragDrop.IsDropTarget="True" >
                 <hc:TabItem Header="个人内容"  Foreground="Black" FontWeight="Heavy">
-                    <TextBox Margin="5" Text="{Binding SelectPeople, Converter={StaticResource PersonToStringConverter}}" IsReadOnly="True"/>
+                    <TextBox Margin="5" Text="{Binding SelectPeople.DisplayText,Mode=OneWay}" IsReadOnly="True"/>
                 </hc:TabItem>
                 <hc:TabItem Header="单个家族"  Foreground="Black" FontWeight="Heavy">
                     <TextBox Margin="5" Text="{Binding SelectFamily, Converter={StaticResource FamilyToStringConverter}}"  IsReadOnly="True"/>
