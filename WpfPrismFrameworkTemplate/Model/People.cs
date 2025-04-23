@@ -16,6 +16,7 @@ using WpfPrismFrameworkTemplate.Converter;
 using System.Linq;
 using Prism.Events;
 using GongSolutions.Wpf.DragDrop;
+using Newtonsoft.Json;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -70,6 +71,18 @@ namespace WpfPrismFrameworkTemplate.Model
 
         public void Init()
         {
+            // 监听自己的属性变更
+            this.PropertyChanged += (sender, e) =>
+            {
+                // 如果变更的不是GetString本身，则通知GetString的结果变化
+                if (e.PropertyName != nameof(GetString) &&
+                    e.PropertyName != nameof(Mom) &&
+                    e.PropertyName != nameof(Dad))
+                {
+                    RaisePropertyChanged(nameof(GetString));
+                }
+            };
+
             _LifeEventList.CollectionChanged += (s, e) => {
                 if (e.NewItems != null)
                 {

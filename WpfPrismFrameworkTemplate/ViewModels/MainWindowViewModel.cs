@@ -166,25 +166,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             get => _FamilyList;
             set
             {
-                if (_FamilyList != null)
-                {
-                    // 取消旧集合中所有Family对象的事件订阅
-                    foreach (var family in _FamilyList)
-                    {
-                        family.MembersChanged -= Family_MembersChanged;
-                    }
-                }
-
                 SetProperty(ref _FamilyList, value);
-
-                if (value != null)
-                {
-                    // 订阅新集合中所有Family对象的事件
-                    foreach (var family in value)
-                    {
-                        family.MembersChanged += Family_MembersChanged;
-                    }
-                }
             }
         }
         public Family SelectFamily
@@ -226,6 +208,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 // 保存搜索文本
                 SearchText = text;
                 List<People> filtered;
+                UpdateFemaleAndMaleList();
 
                 if (isMom)
                 {
@@ -273,6 +256,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
             else
             {
+                UpdateFemaleAndMaleList();
                 if (isMom)
                 {
                     // 用户直接提交了查询文本
@@ -331,31 +315,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 _regionManager.RequestNavigate("ContentRegion", "Genealogy", parameters);
             }
                 
-        }
-        private void FamilyList_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.OldItems != null)
-            {
-                foreach (Family family in e.OldItems)
-                {
-                    family.MembersChanged -= Family_MembersChanged;
-                    
-                }
-            }
-
-            if (e.NewItems != null)
-            {
-                foreach (Family family in e.NewItems)
-                {
-                    family.MembersChanged += Family_MembersChanged;
-                }
-            }
-        }
-
-        private void Family_MembersChanged(object sender, EventArgs e)
-        {
-            // 当任何Family的Members集合变化时，调用UpdateFemaleAndMaleList
-            UpdateFemaleAndMaleList();
         }
         
         private void ModifyLifeEvent()
@@ -797,14 +756,10 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
         private void EventCorrelation()
         {
-            // 订阅 FamilyList 的 CollectionChanged 事件
-            FamilyList.CollectionChanged += FamilyList_CollectionChanged;
             // 遍历 FamilyList 中的每个 Family
             foreach (var family in FamilyList)
             {
                 family.Init();
-                // 订阅每个 Family 的 MembersChanged 事件
-                family.MembersChanged += Family_MembersChanged;
 
 
                 // 遍历每个 Family 中的 Members
@@ -887,13 +842,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             });
             var family = new Family(obj.家族名);
             FamilyList.Add(family);
-            family.MembersChanged += Family_MembersChanged;
         }
         private void DelFamily()
         {
             if (SelectFamily != null)
             {
-                SelectFamily.MembersChanged -= Family_MembersChanged;
                 FamilyList.Remove(SelectFamily);
             }
             
