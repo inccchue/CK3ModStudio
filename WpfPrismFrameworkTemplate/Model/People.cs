@@ -111,7 +111,11 @@ namespace WpfPrismFrameworkTemplate.Model
             {
                 foreach (People newChild in e.NewItems)
                 {
-                    ChildrenChanged?.Invoke(this, new PeopleChildrenChangedEventArgs { AddedChild = newChild });
+                    if (newChild.Dynasty == this.Dynasty)
+                    {
+                        ChildrenChanged?.Invoke(this, new PeopleChildrenChangedEventArgs { AddedChild = newChild });
+                    }
+                    
                 }
             }
             else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)

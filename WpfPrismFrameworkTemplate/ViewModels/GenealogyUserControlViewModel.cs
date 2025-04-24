@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
 using System.Security.Cryptography;
+using ModernWpf.Controls;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Services.Dialogs;
@@ -18,11 +20,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public Family _RootFamily = new Family();
         private People _SelectPeople;
         private IDialogService _dialogService;
+        private IEventAggregator _eventAggregator;
         private bool _IsDrawerOpen = false;
         private LifeEvent _SelectLifeEvent = new LifeEvent();
         private ObservableCollection<People> _familyTree = new ObservableCollection<People>();
         private ObservableCollection<string> _religionOptions = new ObservableCollection<string>();
         private ObservableCollection<string> _CultureOptions = new ObservableCollection<string>();
+        private ObservableCollection<People> _suggestions = new ObservableCollection<People>();
         public DelegateCommand<People> AddNewChildCmd { get; private set; }
         public DelegateCommand<People> DelCmd { get; private set; }
         public DelegateCommand ModifyCmd { get; private set; }
@@ -32,9 +36,10 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand AddReligionCommand { get; private set; }
         public DelegateCommand AddCultureCommand { get; private set; }
 
-        public GenealogyUserControlViewModel(IDialogService dialogService)
+        public GenealogyUserControlViewModel(IDialogService dialogService,IEventAggregator eventAggregator)
         {
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
             AddNewChildCmd = new DelegateCommand<People>(AddNewChild);
             DelCmd = new DelegateCommand<People>(Del);
             ModifyCmd = new DelegateCommand(Modify);
@@ -45,6 +50,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             AddCultureCommand = new DelegateCommand(AddCultureExecute);
         }
 
+        public ObservableCollection<People> Suggestions
+        {
+            get => _suggestions;
+            set => SetProperty(ref _suggestions, value);
+        }
         public ObservableCollection<string> CultureOptions
         {
             get => _CultureOptions;
@@ -92,6 +102,29 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get => _familyTree;
             set => SetProperty(ref _familyTree, value);
+        }
+
+        public void SendHandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason, bool isMom)
+        {
+            var args = new ParentChangedEventArgs
+            {
+                Text = text,
+                Reason = reason,
+                IsMom = isMom
+            };
+            _eventAggregator.GetEvent<ParentChangedEvent>().Publish(args);
+        }
+
+        public void SendQuerySubmitted(string queryText, object chosenSuggestion, bool isMom = true)
+        {
+            var args = new QuerySubmittedEventArgs
+            {
+                QueryText = queryText,
+                ChosenSuggestion = chosenSuggestion,
+                TargetPeople = SelectPeople,
+                IsMom = isMom
+            };
+            _eventAggregator.GetEvent<QuerySubmittedEvent>().Publish(args);
         }
 
         private void AddReligionExecute()
@@ -249,6 +282,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 RootFamily = navigationContext.Parameters.GetValue<Family>("RootFamily");
                 CultureOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("CultureOptions");
                 ReligionOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("ReligionOptions");
+                Suggestions = navigationContext.Parameters.GetValue<ObservableCollection<People>>("Suggestions");
                 UpdateMembersWithoutDad();
                 RootFamily.Members.CollectionChanged += (s, e) =>UpdateMembersWithoutDad();
             }

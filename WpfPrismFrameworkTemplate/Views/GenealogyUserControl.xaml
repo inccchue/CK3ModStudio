@@ -66,7 +66,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                     <Button Command="hc:ControlCommands.Close" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" Foreground="White"/>
                     <StackPanel Grid.Row="1">
                         <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
-                        <UniformGrid Rows="1" Columns="2">
+                        <UniformGrid Rows="2" Columns="2">
                             <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
                                           hc:TitleElement.Title="文化"
 hc:TitleElement.TitlePlacement="Top"
@@ -93,6 +93,110 @@ hc:TitleElement.TitlePlacement="Top"
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </ComboBox>
+                            <StackPanel>
+                                <TextBlock Text="父亲" Margin="10,0,0,0"/>
+                                <ui:AutoSuggestBox x:Name="DadAutoSuggestBox"
+            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SelectPeople.Dad, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding Suggestions}"
+                                    TextChanged="AutoSuggestBox_TextChanged"
+    QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+    SuggestionChosen="AutoSuggestBox_SuggestionChosen">
+
+                                    <!-- 自定义项目模板 -->
+                                    <ui:AutoSuggestBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Grid.Row="0"
+Text="{Binding IdName}" 
+FontWeight="Bold" />
+                                                    <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="({0} {1})">
+                                                                <Binding Path="Name"/>
+                                                                <Binding Path="Dynasty"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
+                                                </Grid>
+                                                <Border Grid.Row="1" 
+                    BorderThickness="0,0,0,1" 
+                    BorderBrush="#20000000" 
+                    Margin="0" />
+                                            </Grid>
+
+
+                                        </DataTemplate>
+                                    </ui:AutoSuggestBox.ItemTemplate>
+                                </ui:AutoSuggestBox>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="母亲" Margin="10,0,0,0"/>
+                                <ui:AutoSuggestBox x:Name="MomAutoSuggestBox"
+            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SelectPeople.Mom, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding Suggestions}"
+                                    TextChanged="AutoSuggestBox_TextChanged"
+    QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+    SuggestionChosen="AutoSuggestBox_SuggestionChosen">
+
+                                    <!-- 自定义项目模板 -->
+                                    <ui:AutoSuggestBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Grid.Row="0"
+Text="{Binding IdName}" 
+FontWeight="Bold" />
+                                                    <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="({0} {1})">
+                                                                <Binding Path="Name"/>
+                                                                <Binding Path="Dynasty"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
+                                                </Grid>
+                                                <Border Grid.Row="1" 
+                    BorderThickness="0,0,0,1" 
+                    BorderBrush="#20000000" 
+                    Margin="0" />
+                                            </Grid>
+
+
+                                        </DataTemplate>
+                                    </ui:AutoSuggestBox.ItemTemplate>
+                                </ui:AutoSuggestBox>
+                            </StackPanel>
                         </UniformGrid>
                         <TextBlock Text="选中人物的事件列表" FontWeight="Bold" Margin="5,10,0,0" />
                         <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False" 
@@ -127,12 +231,11 @@ hc:TitleElement.TitlePlacement="Top"
                 </Grid>
             </Border>
         </hc:Drawer>
-        <TreeView Grid.Row="1" ItemsSource="{Binding FamilyTree}" Style="{StaticResource TreeView.Small}" SelectedItemChanged="TreeView_SelectedItemChanged">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction Command="{Binding ModifyCmd}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
+        <TreeView Grid.Row="1" ItemsSource="{Binding FamilyTree}" Style="{StaticResource TreeView.Small}" SelectedItemChanged="TreeView_SelectedItemChanged"
+                  ToolTip="Ctrl+Q修改当前选中人物的信息">
+            <TreeView.InputBindings>
+                <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding ModifyCmd}"/>
+            </TreeView.InputBindings>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
                     <!-- 绑定到 IsExpanded 属性 -->
@@ -143,7 +246,7 @@ hc:TitleElement.TitlePlacement="Top"
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type model:People}" ItemsSource="{Binding Children}">
                     <WrapPanel HorizontalAlignment="Left">
-                       
+
                         <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource AddGeometry}" Foreground="Green"
                                 Command="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext.AddNewChildCmd}"
                                 CommandParameter="{Binding}"/>

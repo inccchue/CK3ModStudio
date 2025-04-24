@@ -51,11 +51,11 @@ namespace WpfPrismFrameworkTemplate.Views
             {
                 if (sender.Name == "MomAutoSuggestBox")
                 {
-                    viewModel.HandleTextChanged(sender.Text, args.Reason);
+                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, IsMom = true });
                 }
                 else
                 {
-                    viewModel.HandleTextChanged(sender.Text, args.Reason,false);
+                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, IsMom = false });
                 }
                 
             }
@@ -67,11 +67,23 @@ namespace WpfPrismFrameworkTemplate.Views
             {
                 if (sender.Name == "MomAutoSuggestBox")
                 {
-                    viewModel.HandleQuerySubmitted(args.QueryText, args.ChosenSuggestion);
+                    viewModel.HandleQuerySubmitted(new QuerySubmittedEventArgs
+                    {
+                        QueryText = args.QueryText,
+                        ChosenSuggestion = args.ChosenSuggestion,
+                        TargetPeople = viewModel.SelectPeople,
+                        IsMom = true
+                    }); 
                 }
                 else
                 {
-                    viewModel.HandleQuerySubmitted(args.QueryText, args.ChosenSuggestion,false);
+                    viewModel.HandleQuerySubmitted(new QuerySubmittedEventArgs
+                    {
+                        QueryText = args.QueryText,
+                        ChosenSuggestion = args.ChosenSuggestion,
+                        TargetPeople = viewModel.SelectPeople,
+                        IsMom = false
+                    });
                 }
                 
             }

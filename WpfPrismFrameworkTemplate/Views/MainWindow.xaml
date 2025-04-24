@@ -122,6 +122,13 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                         <HierarchicalDataTemplate DataType="{x:Type model:Family}"
                                         ItemsSource="{Binding Members}">
                             <StackPanel Orientation="Horizontal">
+                            <StackPanel.ToolTip>
+                                <ToolTip>
+                                    <Border BorderBrush="Black" BorderThickness="1" Background="White" Padding="5">
+                                        <Image Source="/Images/tuxinghua.png" Width="200" Height="150" Stretch="Uniform"/>
+                                    </Border>
+                                </ToolTip>
+                            </StackPanel.ToolTip>
                                 <TextBlock Text="{Binding FamilyName}" 
                                  FontWeight="Bold"/>
                                 <TextBlock Text="{Binding Members.Count, 
