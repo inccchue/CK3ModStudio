@@ -19,7 +19,7 @@ xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
 xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     Title="{Binding Title}"
     Width="1000"
-    Height="600"
+    Height="700"
     prism:ViewModelLocator.AutoWireViewModel="True"
     TitleBarBackground="DarkRed" TitleBarForeground="White" >
     <adonisControls:AdonisWindow.TitleBarContent>
@@ -79,10 +79,6 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
             </StackPanel>
         </DataTemplate>
 
-        <!-- 事件模板选择器 -->
-        <model:LifeEventTemplateSelector x:Key="LifeEventTemplateSelector"
-                                     LifeEventTemplate="{StaticResource LifeEventTemplate}"
-                                     MarriageEventTemplate="{StaticResource MarriageEventTemplate}"/>
         <ObjectDataProvider x:Key="LifeEventTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="model:LifeEventType"/>
@@ -97,6 +93,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <cv:BirthDeathConverter x:Key="BirthDeathConverter"/>
         <cv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <cv:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
+        <cv:HasSpouseEventToVisibilityConverter x:Key="HasSpouseEventToVisibilityConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -287,7 +284,59 @@ FontWeight="Bold" />
                                         </ui:AutoSuggestBox.ItemTemplate>
                                     </ui:AutoSuggestBox>
                                 </StackPanel>
-                                                            </UniformGrid>
+                            </UniformGrid>
+                            <StackPanel Visibility="{Binding SelectPeople.LifeEventList,Converter={StaticResource HasSpouseEventToVisibilityConverter}}">
+                                <TextBlock Text="配偶" Margin="10,0,0,0"/>
+                                <ui:AutoSuggestBox x:Name="SpouseAutoSuggestBox"
+            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SelectPeople.Spouse, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding Suggestions}"
+                                    TextChanged="AutoSuggestBox_TextChanged"
+    QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+    SuggestionChosen="AutoSuggestBox_SuggestionChosen">
+
+                                    <!-- 自定义项目模板 -->
+                                    <ui:AutoSuggestBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Grid.Row="0"
+Text="{Binding IdName}" 
+FontWeight="Bold" />
+                                                    <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="({0} {1})">
+                                                                <Binding Path="Name"/>
+                                                                <Binding Path="Dynasty"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
+                                                </Grid>
+                                                <Border Grid.Row="1" 
+                    BorderThickness="0,0,0,1" 
+                    BorderBrush="#20000000" 
+                    Margin="0" />
+                                            </Grid>
+
+
+                                        </DataTemplate>
+                                    </ui:AutoSuggestBox.ItemTemplate>
+                                </ui:AutoSuggestBox>
+                            </StackPanel>
                             <TextBlock Text="选中人物的事件列表" FontWeight="Bold" Margin="0,5,0,0" />
                             <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False" 
                                       >

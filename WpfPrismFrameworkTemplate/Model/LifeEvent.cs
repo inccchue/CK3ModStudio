@@ -10,18 +10,6 @@ using System.Windows;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
-    public class LifeEventTemplateSelector : DataTemplateSelector
-    {
-        public DataTemplate LifeEventTemplate { get; set; }
-        public DataTemplate MarriageEventTemplate { get; set; }
-
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
-        {
-            if (item is MarriageEvent)
-                return MarriageEventTemplate;
-            return LifeEventTemplate;
-        }
-    }
     public class LifeEventFactory
     {
         /// <summary>
@@ -36,8 +24,6 @@ namespace WpfPrismFrameworkTemplate.Model
             switch (eventType)
             {
                 case LifeEventType.Marriage:
-                    return new MarriageEvent(eventType);
-
                 case LifeEventType.Birth:
                 case LifeEventType.Death:
                 default:
@@ -276,27 +262,6 @@ namespace WpfPrismFrameworkTemplate.Model
                 return null;
 
             return FindMinDate(events.AsEnumerable());
-        }
-    }
-
-    public class MarriageEvent : LifeEvent
-    {
-        private string _Spouse;
-
-        // 构造函数
-        public MarriageEvent(LifeEventType eventType)
-        {
-            EventType = eventType;
-        }
-
-        public MarriageEvent() { }
-
-        [Description("配偶")]
-        [DisplayName("配偶")]
-        public string Spouse
-        {
-            get { return _Spouse; }
-            set { SetProperty(ref _Spouse, value); }
         }
     }
 }

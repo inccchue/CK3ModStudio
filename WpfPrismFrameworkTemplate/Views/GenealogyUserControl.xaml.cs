@@ -31,13 +31,17 @@ namespace WpfPrismFrameworkTemplate.Views
 
             if (DataContext is GenealogyUserControlViewModel viewModel)
             {
-                if (sender.Name == "MomAutoSuggestBox")
+                if (sender.Name.Contains("Mom"))
                 {
-                    viewModel.SendHandleTextChanged(sender.Text, args.Reason,true);
+                    viewModel.SendHandleTextChanged(sender.Text, args.Reason, SearchType.Mom);
+                }
+                else if (sender.Name.Contains("Dad"))
+                {
+                    viewModel.SendHandleTextChanged(sender.Text, args.Reason, SearchType.Dad);
                 }
                 else
                 {
-                    viewModel.SendHandleTextChanged(sender.Text, args.Reason, false);
+                    viewModel.SendHandleTextChanged(sender.Text, args.Reason, SearchType.Spouse);
                 }
 
             }
@@ -47,13 +51,17 @@ namespace WpfPrismFrameworkTemplate.Views
         {
             if (DataContext is GenealogyUserControlViewModel viewModel)
             {
-                if (sender.Name == "MomAutoSuggestBox")
+                if (sender.Name.Contains("Mom"))
                 {
-                    viewModel.SendQuerySubmitted(args.QueryText, args.ChosenSuggestion);
+                    viewModel.SendQuerySubmitted(args.QueryText, args.ChosenSuggestion, SearchType.Mom);
+                }
+                else if (sender.Name.Contains("Dad"))
+                {
+                    viewModel.SendQuerySubmitted(args.QueryText, args.ChosenSuggestion, SearchType.Dad);
                 }
                 else
                 {
-                    viewModel.SendQuerySubmitted(args.QueryText, args.ChosenSuggestion, false);
+                    viewModel.SendQuerySubmitted(args.QueryText, args.ChosenSuggestion, SearchType.Spouse);
                 }
 
             }

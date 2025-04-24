@@ -49,15 +49,18 @@ namespace WpfPrismFrameworkTemplate.Views
            
             if (DataContext is MainWindowViewModel viewModel)
             {
-                if (sender.Name == "MomAutoSuggestBox")
+                if (sender.Name.Contains("Mom"))
                 {
-                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, IsMom = true });
+                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, TargetPeople = viewModel.SelectPeople, SearchType =SearchType.Mom });
+                }
+                else if(sender.Name.Contains("Dad"))
+                {
+                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, TargetPeople = viewModel.SelectPeople, SearchType = SearchType.Dad });
                 }
                 else
                 {
-                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, IsMom = false });
+                    viewModel.HandleTextChanged(new ParentChangedEventArgs { Text = sender.Text, Reason = args.Reason, TargetPeople = viewModel.SelectPeople, SearchType = SearchType.Spouse });
                 }
-                
             }
         }
 
@@ -65,15 +68,25 @@ namespace WpfPrismFrameworkTemplate.Views
         {
             if (DataContext is MainWindowViewModel viewModel)
             {
-                if (sender.Name == "MomAutoSuggestBox")
+                if (sender.Name.Contains("Mom"))
                 {
                     viewModel.HandleQuerySubmitted(new QuerySubmittedEventArgs
                     {
                         QueryText = args.QueryText,
                         ChosenSuggestion = args.ChosenSuggestion,
                         TargetPeople = viewModel.SelectPeople,
-                        IsMom = true
+                        SearchType = SearchType.Mom
                     }); 
+                }
+                else if(sender.Name.Contains("Dad"))
+                {
+                    viewModel.HandleQuerySubmitted(new QuerySubmittedEventArgs
+                    {
+                        QueryText = args.QueryText,
+                        ChosenSuggestion = args.ChosenSuggestion,
+                        TargetPeople = viewModel.SelectPeople,
+                        SearchType = SearchType.Dad
+                    });
                 }
                 else
                 {
@@ -82,7 +95,7 @@ namespace WpfPrismFrameworkTemplate.Views
                         QueryText = args.QueryText,
                         ChosenSuggestion = args.ChosenSuggestion,
                         TargetPeople = viewModel.SelectPeople,
-                        IsMom = false
+                        SearchType = SearchType.Spouse
                     });
                 }
                 

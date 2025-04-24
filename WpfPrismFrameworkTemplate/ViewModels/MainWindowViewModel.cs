@@ -210,7 +210,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 List<People> filtered;
                 UpdateFemaleAndMaleList();
 
-                if (args.IsMom)
+                if (args.SearchType == SearchType.Mom||(args.SearchType==SearchType.Spouse&&args.TargetPeople.Gender==GenderType.Male))
                 {
                     // 过滤逻辑
                     filtered = string.IsNullOrEmpty(args.Text)
@@ -233,6 +233,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     ).ToList();
                 }
 
+
                 Suggestions.Clear();
                 foreach (var person in filtered)
                 {
@@ -241,14 +242,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
         }
 
-        public void ChangeParent(People child, People parent, bool isMom)
+        public void ChangeParent(People child, People parent, SearchType isMom)
         {
             if (child == null || parent == null)
             {
                 return;
             }
 
-            if (isMom)
+            if (isMom== SearchType.Mom)
             {
                 if (child.Mom != null)
                 {
@@ -269,26 +270,69 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
         }
 
+        public void ChangeSpouse(People target, People spouse)
+        {
+            LifeEvent targetOldMarriage = target.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Marriage);
+            if (target == null || spouse == null|| targetOldMarriage==null)
+            {
+                return;
+            }
+
+            if (target.Spouse != null)
+            {
+                target.Spouse.LifeEventList.Remove(target.Spouse.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Marriage));
+                target.Spouse.Spouse = null;
+            }
+            target.Spouse = spouse;            
+
+            LifeEvent spouseOldMarriage = spouse.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Marriage);
+            if (spouseOldMarriage != null)
+            {
+                spouse.LifeEventList.Remove(spouseOldMarriage);               
+            }
+            spouse.LifeEventList.Add(targetOldMarriage);
+
+            if (spouse.Spouse != null)
+            {
+                spouse.Spouse.LifeEventList.Remove(spouse.Spouse.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Marriage));
+                spouse.Spouse.Spouse = null;
+            }
+            spouse.Spouse = target;
+        }
+
         public void HandleQuerySubmitted(QuerySubmittedEventArgs querySubmittedEvent)
         {
             if (querySubmittedEvent.ChosenSuggestion != null && querySubmittedEvent.ChosenSuggestion is People person)
             {
-                ChangeParent(querySubmittedEvent.TargetPeople, person, querySubmittedEvent.IsMom);
-            }
-            else
-            {
-                UpdateFemaleAndMaleList();
-                if (querySubmittedEvent.IsMom)
+                if(querySubmittedEvent.SearchType != SearchType.Spouse)
                 {
-                    // 用户直接提交了查询文本
-                    var searchResult = FemaleList.FirstOrDefault(p => p.IdName == querySubmittedEvent.QueryText);
-                    ChangeParent(querySubmittedEvent.TargetPeople, searchResult, querySubmittedEvent.IsMom);
+                    ChangeParent(querySubmittedEvent.TargetPeople, person, querySubmittedEvent.SearchType);
                 }
                 else
                 {
-                    // 用户直接提交了查询文本
-                    var searchResult = MaleList.FirstOrDefault(p => p.IdName == querySubmittedEvent.QueryText);
-                    ChangeParent(querySubmittedEvent.TargetPeople, searchResult, querySubmittedEvent.IsMom);
+                    ChangeSpouse(querySubmittedEvent.TargetPeople, person);
+                }
+            }
+            else
+            {
+                People searchResult;
+                UpdateFemaleAndMaleList();
+                if (querySubmittedEvent.SearchType == SearchType.Mom || (querySubmittedEvent.SearchType == SearchType.Spouse && querySubmittedEvent.TargetPeople.Gender == GenderType.Male))
+                {
+                    searchResult = FemaleList.FirstOrDefault(p => p.IdName == querySubmittedEvent.QueryText);
+                }
+                else
+                {
+                    searchResult = MaleList.FirstOrDefault(p => p.IdName == querySubmittedEvent.QueryText);
+                }
+
+                if (querySubmittedEvent.SearchType != SearchType.Spouse)
+                {
+                    ChangeParent(querySubmittedEvent.TargetPeople, searchResult, querySubmittedEvent.SearchType);
+                }
+                else
+                {
+                    ChangeSpouse(querySubmittedEvent.TargetPeople, searchResult);
                 }
                 
             }
@@ -501,23 +545,23 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 return;
             }
-            dynamic obj = new ExpandoObject();
-            obj.事件类型 = LifeEventType.Death;
+        //    dynamic obj = new ExpandoObject();
+        //    obj.事件类型 = LifeEventType.Birth;
+        //    DialogParameters parm = new DialogParameters
+        //{
+        //    { "value", obj }
+        //};
+        //    _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
+        //    {
+        //        if (arg.Result == ButtonResult.OK)
+        //        {
+        //            obj = arg.Parameters.GetValue<ExpandoObject>("value");
+        //        }
+        //    });
+
+            LifeEvent tmpLifeEvent = new LifeEvent();
+
             DialogParameters parm = new DialogParameters
-        {
-            { "value", obj }
-        };
-            _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
-            {
-                if (arg.Result == ButtonResult.OK)
-                {
-                    obj = arg.Parameters.GetValue<ExpandoObject>("value");
-                }
-            });
-
-            LifeEvent tmpLifeEvent = LifeEventFactory.CreateLifeEvent(obj.事件类型);
-
-            parm = new DialogParameters
     {
         { "value", tmpLifeEvent }
     };
@@ -838,6 +882,19 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 
                 SelectFamily.Members.Remove(SelectPeople);
+                if(SelectPeople.Mom != null)
+                {
+                    SelectPeople.Mom.Children.Remove(SelectPeople);
+                }
+                if(SelectPeople.Dad != null)
+                {
+                    SelectPeople.Dad.Children.Remove(SelectPeople);
+                }
+                if(SelectPeople.Spouse != null)
+                {
+                    SelectPeople.Spouse.LifeEventList.Remove(SelectPeople.Spouse.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Marriage));
+                    SelectPeople.Spouse.Spouse = null;
+                }
             }
             
         }

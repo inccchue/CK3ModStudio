@@ -104,25 +104,26 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set => SetProperty(ref _familyTree, value);
         }
 
-        public void SendHandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason, bool isMom)
+        public void SendHandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason, SearchType searchType)
         {
             var args = new ParentChangedEventArgs
             {
                 Text = text,
                 Reason = reason,
-                IsMom = isMom
+                TargetPeople = SelectPeople,
+                SearchType = searchType
             };
             _eventAggregator.GetEvent<ParentChangedEvent>().Publish(args);
         }
 
-        public void SendQuerySubmitted(string queryText, object chosenSuggestion, bool isMom = true)
+        public void SendQuerySubmitted(string queryText, object chosenSuggestion, SearchType searchType)
         {
             var args = new QuerySubmittedEventArgs
             {
                 QueryText = queryText,
                 ChosenSuggestion = chosenSuggestion,
                 TargetPeople = SelectPeople,
-                IsMom = isMom
+                SearchType = searchType
             };
             _eventAggregator.GetEvent<QuerySubmittedEvent>().Publish(args);
         }
@@ -241,13 +242,18 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             if (people != null)
             {
+                if (people.Mom != null)
+                {
+                    people.Mom.Children.Remove(people);
+                }
                 if (people.Dad != null)
                 {
                     people.Dad.Children.Remove(people);
                 }
-                else
+                if (people.Spouse != null)
                 {
-                    RootFamily.Members.Remove(people);
+                    people.Spouse.LifeEventList.Remove(people.Spouse.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Marriage));
+                    people.Spouse.Spouse = null;
                 }
             }
         }

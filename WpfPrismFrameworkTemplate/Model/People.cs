@@ -43,9 +43,10 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _name;
         private string _dynasty;
         private string _religion;
-        private string _culture;  // 新增culture属性
+        private string _culture;  
         private People _Mom ;
         private People _Dad ;
+        private People _Spouse;
         private GenderType _Gender=GenderType.Male;
         private ObservableCollection<LifeEvent> _LifeEventList=new ObservableCollection<LifeEvent>();
         private ObservableCollection<People> _Children;
@@ -163,6 +164,12 @@ namespace WpfPrismFrameworkTemplate.Model
         }
 
         [Browsable(false)]
+        public People Spouse
+        {
+            get => _Spouse;
+            set => SetProperty(ref _Spouse, value);
+        }
+        [Browsable(false)]
         public People Dad
         {
             get => _Dad;
@@ -260,8 +267,11 @@ namespace WpfPrismFrameworkTemplate.Model
                 switch (lifeEvent.EventType)
                 {
                     case LifeEventType.Marriage:
-                        MarriageEvent marriageEvent = lifeEvent as MarriageEvent;
-                        sb.AppendLine($"\t{lifeEvent.EventDate} = {{ add_spouse = {marriageEvent.Spouse} }}");
+                        if (Spouse != null)
+                        {
+                            sb.AppendLine($"\t{lifeEvent.EventDate} = {{ add_spouse = {Spouse.IdName} }}");
+                        }
+                        
                         break;
 
                     case LifeEventType.Birth:
