@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Xml.Linq;
 using HandyControl.Controls;
 using Prism.Mvvm;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Views;
+using System.Windows.Media;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -83,6 +87,33 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             get => _localizationChineseFile;
             set => SetProperty(ref _localizationChineseFile, value);
+        }
+
+        public Paragraph Load(string FilePath)
+        {
+            // 添加黑色文本段落
+            Paragraph paragraph = new Paragraph();
+            try
+            {
+                if (string.IsNullOrEmpty(FilePath) || !File.Exists(FilePath))
+                {
+                    MessageBox.Show("请提供有效的文件路径");
+                    return paragraph;
+                }
+
+                string content = File.ReadAllText(FilePath);
+
+                
+                Run run = new Run(content);
+                run.Foreground = Brushes.Black;
+                paragraph.Inlines.Add(run);
+                return paragraph;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"加载文件出错: {ex.Message}");
+                return paragraph;
+            }
         }
     }
 }

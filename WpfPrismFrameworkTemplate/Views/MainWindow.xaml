@@ -9,6 +9,7 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:viewmodels="clr-namespace:WpfPrismFrameworkTemplate.ViewModels"
     xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
+    xmlns:helper="clr-namespace:WpfPrismFrameworkTemplate.Helper"
     xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model" 
     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -26,11 +27,20 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15" ToolTip="转换到文件内容界面"   Command="{Binding GotoFileContentCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/fileContent.png" Width="15"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
         hc:BorderElement.CornerRadius="15" ToolTip="转换到文件设置界面"   Command="{Binding GotoFileSettingCmd}"
         >
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Images/fileSetting.png"/>
+                        <Image Source="/Images/fileSetting.png" />
                     </StackPanel>
                 </Button.Content>
             </Button>
@@ -391,6 +401,14 @@ FontWeight="Bold" />
                 <hc:TabItem Header="个人内容"  Foreground="Black" FontWeight="Heavy">
                     <TextBox Margin="5" Text="{Binding SelectPeople.DisplayText,Mode=OneWay}" IsReadOnly="True"/>
                 </hc:TabItem>
+                <hc:TabItem>
+                    <RichTextBox>
+                        <i:Interaction.Behaviors>
+                            <helper:RichTextBoxBindingBehavior Document="{Binding Document}" />
+                        </i:Interaction.Behaviors>
+                    </RichTextBox>
+                </hc:TabItem>
+                
                 <hc:TabItem Header="单个家族"  Foreground="Black" FontWeight="Heavy">
                     <TextBox Margin="5" Text="{Binding SelectFamily, Converter={StaticResource FamilyToStringConverter}}"  IsReadOnly="True"/>
                 </hc:TabItem>

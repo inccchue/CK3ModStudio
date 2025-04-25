@@ -53,6 +53,12 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private readonly IRegionManager _regionManager;
         private string _searchText;
         private FileReadWrite _fileReadWrite;
+        private FlowDocument _document=new FlowDocument();
+        public FlowDocument Document
+        {
+            get => _document;
+            set => SetProperty(ref _document, value);
+        }
 
         private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
         public ObservableCollection<People> TestPeopleList
@@ -82,6 +88,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand ModifyLifeEventCmd { get; private set; }
         public DelegateCommand FullScreenCmd { get; private set; }
         public DelegateCommand GotoFileSettingCmd { get; private set; }
+        public DelegateCommand GotoFileContentCmd { get; private set; }
         public MainWindowViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IRegionManager regionManager)
 		{
             _eventAggregator = eventAggregator;
@@ -112,6 +119,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             ModifyLifeEventCmd = new DelegateCommand(ModifyLifeEvent);
             FullScreenCmd = new DelegateCommand(FullScreen);
             GotoFileSettingCmd = new DelegateCommand(GotoFileSetting);
+            GotoFileContentCmd = new DelegateCommand(GotoFileContent);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
@@ -361,13 +369,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileReadWriteUserControl));
-
             // 如果找到了视图，则将其从区域中移除
-            if (viewInstance != null)
-            {
-                region.Remove(viewInstance);
-            }
-            else
+            if (viewInstance == null)
             {
                 if (FileReadWrite == null)
                 {
@@ -377,6 +380,35 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 parameters.Add("FileReadWrite", FileReadWrite);
                 _regionManager.RequestNavigate("ContentRegion", "FileReadWrite", parameters);
             }
+            else
+            {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+            }
+
+        }
+
+        private void GotoFileContent()
+        {
+            // 获取该区域
+            IRegion region = _regionManager.Regions["ContentRegion"];
+
+            // 查找通过类型名注册的视图
+            var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileContentUserControl));
+            // 如果找到了视图，则将其从区域中移除
+            if (viewInstance == null)
+            {
+                _regionManager.RequestNavigate("ContentRegion", "FileContent");
+            }
+            else
+            {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+            }
 
         }
 
@@ -385,15 +417,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 获取该区域
             IRegion region = _regionManager.Regions["ContentRegion"];
 
+           
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(GenealogyUserControl));
-
             // 如果找到了视图，则将其从区域中移除
-            if (viewInstance != null)
-            {
-                region.Remove(viewInstance);
-            }
-            else
+            if (viewInstance == null)
             {
                 if(SelectFamily == null)
                 {
@@ -408,7 +436,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 parameters.Add("Suggestions", Suggestions);
                 _regionManager.RequestNavigate("ContentRegion", "Genealogy", parameters);
             }
-                
+            else
+            {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+            }
+
         }
         
         private void ModifyLifeEvent()
@@ -836,6 +871,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             try
             {
                 FileReadWrite = JsonHelper.LoadFileSetting();
+
                 FamilyList = JsonHelper.LoadData();
                 EventCorrelation();
                 PopulateReligionOptions();

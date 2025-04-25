@@ -51,6 +51,7 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -73,6 +74,7 @@
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Helper\PropertyGridEditableProperties.cs" />
+    <Compile Include="Helper\RichTextBoxBindingBehavior.cs" />
     <Compile Include="Helper\TreeViewItemDoubleClickBehavior.cs" />
     <Compile Include="Model\CustomDate.cs" />
     <Compile Include="Model\DragDropModule.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="ViewModels\AssignmentWindowViewModel.cs" />
     <Compile Include="ViewModels\CommonAssignmentWindowViewModel.cs" />
     <Compile Include="ViewModels\FamilyTreeWindowViewModel.cs" />
+    <Compile Include="ViewModels\FileContentUserControlViewModel.cs" />
     <Compile Include="ViewModels\FileReadWriteUserControlViewModel.cs" />
     <Compile Include="ViewModels\GenealogyUserControlViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
@@ -98,6 +101,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FamilyTreeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FileContentUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -129,6 +136,9 @@
     </Compile>
     <Compile Include="Views\FamilyTreeWindow.xaml.cs">
       <DependentUpon>FamilyTreeWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FileContentUserControl.xaml.cs">
+      <DependentUpon>FileContentUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FilePathSelectorEditor.xaml.cs">
       <DependentUpon>FilePathSelectorEditor.xaml</DependentUpon>
@@ -221,7 +231,7 @@
       <Version>10.0.18362.2005</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
-      <Version>1.1.39</Version>
+      <Version>1.1.135</Version>
     </PackageReference>
     <PackageReference Include="ModernWpfUI">
       <Version>0.9.6</Version>
@@ -292,6 +302,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\fileSetting.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\fileContent.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

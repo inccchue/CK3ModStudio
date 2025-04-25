@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="WpfPrismFrameworkTemplate.Views.FileContentUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:prism="http://prismlibrary.com/"
+xmlns:hc="https://handyorg.github.io/handycontrol"
+xmlns:ctrlz="clr-namespace:ControlzEx.Behaviors;assembly=ControlzEx"
+xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+xmlns:viewmodels="clr-namespace:WpfPrismFrameworkTemplate.ViewModels"
+xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
+xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model" 
+xmlns:helper="clr-namespace:WpfPrismFrameworkTemplate.Helper"
+xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+xmlns:sys="clr-namespace:System;assembly=mscorlib"
+xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+xmlns:ui="http://schemas.modernwpf.com/2019"        
+             prism:ViewModelLocator.AutoWireViewModel="True" >
+    <Grid Background="White">
+        <TabControl >
+            <hc:TabItem Header="王朝定义文件">
+
+            </hc:TabItem>
+            <hc:TabItem Header="角色定义文件">
+
+            </hc:TabItem>
+            <hc:TabItem Header="领地定义文件">
+
+            </hc:TabItem>
+        </TabControl>
+    </Grid>
+    
+</UserControl>

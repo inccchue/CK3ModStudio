@@ -33,6 +33,7 @@ namespace WpfPrismFrameworkTemplate
             containerRegistry.RegisterSingleton<GenealogyUserControl>();
             containerRegistry.RegisterForNavigation<GenealogyUserControl, GenealogyUserControlViewModel>("Genealogy");
             containerRegistry.RegisterForNavigation<FileReadWriteUserControl, FileReadWriteUserControlViewModel>("FileReadWrite");
+            containerRegistry.RegisterForNavigation<FileContentUserControl, FileContentUserControlViewModel>("FileContent");
         }
 	}
 }
