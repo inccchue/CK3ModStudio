@@ -52,6 +52,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private LifeEvent _SelectLifeEvent=new LifeEvent();
         private readonly IRegionManager _regionManager;
         private string _searchText;
+        private FileReadWrite _fileReadWrite;
 
         private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
         public ObservableCollection<People> TestPeopleList
@@ -80,6 +81,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand DelLifeEventCmd { get; private set; }
         public DelegateCommand ModifyLifeEventCmd { get; private set; }
         public DelegateCommand FullScreenCmd { get; private set; }
+        public DelegateCommand GotoFileSettingCmd { get; private set; }
         public MainWindowViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IRegionManager regionManager)
 		{
             _eventAggregator = eventAggregator;
@@ -109,14 +111,20 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             DelLifeEventCmd = new DelegateCommand(DelLifeEvent);
             ModifyLifeEventCmd = new DelegateCommand(ModifyLifeEvent);
             FullScreenCmd = new DelegateCommand(FullScreen);
+            GotoFileSettingCmd = new DelegateCommand(GotoFileSetting);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
 
-            LoadFamilies();
+            Load();
 
         }
 
+        public FileReadWrite FileReadWrite
+        {
+            get => _fileReadWrite;
+            set => SetProperty(ref _fileReadWrite, value);
+        }
         public ObservableCollection<People> Suggestions
         {
             get => _suggestions;
@@ -159,7 +167,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set 
             {
                 SetProperty(ref _EnableDatabaseSync, value);
-                LoadFamilies();
+                Load();
             }
         }
         public ObservableCollection<Family> FamilyList
@@ -344,6 +352,32 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 SearchText = person.IdName;
             }
+        }
+
+        private void GotoFileSetting()
+        {
+            // 获取该区域
+            IRegion region = _regionManager.Regions["ContentRegion"];
+
+            // 查找通过类型名注册的视图
+            var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileReadWriteUserControl));
+
+            // 如果找到了视图，则将其从区域中移除
+            if (viewInstance != null)
+            {
+                region.Remove(viewInstance);
+            }
+            else
+            {
+                if (FileReadWrite == null)
+                {
+                    return;
+                }
+                var parameters = new NavigationParameters();
+                parameters.Add("FileReadWrite", FileReadWrite);
+                _regionManager.RequestNavigate("ContentRegion", "FileReadWrite", parameters);
+            }
+
         }
 
         private void FullScreen()
@@ -797,10 +831,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 }
             }
         }
-        private void LoadFamilies()
+        private void Load()
         {
             try
             {
+                FileReadWrite = JsonHelper.LoadFileSetting();
                 FamilyList = JsonHelper.LoadData();
                 EventCorrelation();
                 PopulateReligionOptions();
@@ -1022,6 +1057,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 // 因为是在销毁时调用，使用同步方式
                 //Task.Run(async () => await _repository.SaveFamiliesAsync(FamilyList)).Wait();
                 JsonHelper.SaveData(FamilyList);
+                JsonHelper.SaveFileSetting(FileReadWrite);
             }
             catch (Exception ex)
             {

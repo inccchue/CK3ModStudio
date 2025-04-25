@@ -25,9 +25,18 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     <adonisControls:AdonisWindow.TitleBarContent>
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+        hc:BorderElement.CornerRadius="15" ToolTip="转换到文件设置界面"   Command="{Binding GotoFileSettingCmd}"
+        >
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/fileSetting.png"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
             <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource FullScreenGeometry}" Foreground="White"
                     Command="{Binding FullScreenCmd}"/>
-            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black" Visibility="Collapsed"
                     hc:BorderElement.CornerRadius="15" ToolTip="转换到图形化界面"   Command="{Binding OpenFileCmd}"
                     >
                 <Button.Content>
@@ -371,6 +380,9 @@ FontWeight="Bold" />
 
                     </hc:ScrollViewer>
 
+                </hc:TabItem>
+                <hc:TabItem Header="文件设置" Foreground="Black" FontWeight="Heavy">
+                    <ContentControl prism:RegionManager.RegionName="FileSettingRegion" />
                 </hc:TabItem>
             </TabControl>
 

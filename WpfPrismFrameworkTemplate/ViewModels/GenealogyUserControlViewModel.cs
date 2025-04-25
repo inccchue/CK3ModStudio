@@ -283,7 +283,10 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            if (navigationContext.Parameters.ContainsKey("RootFamily"))
+            if (navigationContext.Parameters.ContainsKey("RootFamily")
+                && navigationContext.Parameters.ContainsKey("CultureOptions")
+                && navigationContext.Parameters.ContainsKey("ReligionOptions")
+                && navigationContext.Parameters.ContainsKey("Suggestions"))
             {
                 RootFamily = navigationContext.Parameters.GetValue<Family>("RootFamily");
                 CultureOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("CultureOptions");

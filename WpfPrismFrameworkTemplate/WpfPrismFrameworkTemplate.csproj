@@ -79,12 +79,14 @@
     <Compile Include="Model\EventModel.cs" />
     <Compile Include="Model\Family.cs" />
     <Compile Include="Model\FamilyContext.cs" />
+    <Compile Include="Model\FileReadWrite.cs" />
     <Compile Include="Model\InputDialog.cs" />
     <Compile Include="Model\LifeEvent.cs" />
     <Compile Include="Model\People.cs" />
     <Compile Include="ViewModels\AssignmentWindowViewModel.cs" />
     <Compile Include="ViewModels\CommonAssignmentWindowViewModel.cs" />
     <Compile Include="ViewModels\FamilyTreeWindowViewModel.cs" />
+    <Compile Include="ViewModels\FileReadWriteUserControlViewModel.cs" />
     <Compile Include="ViewModels\GenealogyUserControlViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Page Include="Views\AssignmentWindow.xaml">
@@ -96,6 +98,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\FamilyTreeWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FilePathSelectorEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FileReadWriteUserControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -119,6 +129,12 @@
     </Compile>
     <Compile Include="Views\FamilyTreeWindow.xaml.cs">
       <DependentUpon>FamilyTreeWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FilePathSelectorEditor.xaml.cs">
+      <DependentUpon>FilePathSelectorEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FileReadWriteUserControl.xaml.cs">
+      <DependentUpon>FileReadWriteUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GenealogyUserControl.xaml.cs">
       <DependentUpon>GenealogyUserControl.xaml</DependentUpon>
@@ -273,6 +289,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\tuxinghua.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\fileSetting.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

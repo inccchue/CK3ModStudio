@@ -32,6 +32,7 @@ namespace WpfPrismFrameworkTemplate
             containerRegistry.RegisterDialog<FamilyTreeWindow>(nameof(FamilyTreeWindow));
             containerRegistry.RegisterSingleton<GenealogyUserControl>();
             containerRegistry.RegisterForNavigation<GenealogyUserControl, GenealogyUserControlViewModel>("Genealogy");
+            containerRegistry.RegisterForNavigation<FileReadWriteUserControl, FileReadWriteUserControlViewModel>("FileReadWrite");
         }
 	}
 }
