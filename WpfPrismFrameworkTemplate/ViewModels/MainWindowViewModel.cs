@@ -53,12 +53,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private readonly IRegionManager _regionManager;
         private string _searchText;
         private FileReadWrite _fileReadWrite;
-        private FlowDocument _document=new FlowDocument();
-        public FlowDocument Document
-        {
-            get => _document;
-            set => SetProperty(ref _document, value);
-        }
 
         private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
         public ObservableCollection<People> TestPeopleList
@@ -89,6 +83,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand FullScreenCmd { get; private set; }
         public DelegateCommand GotoFileSettingCmd { get; private set; }
         public DelegateCommand GotoFileContentCmd { get; private set; }
+        public DelegateCommand LoadedCommand { get; private set; }
+        public DelegateCommand SaveAllFileCommand { get; private set; }
         public MainWindowViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IRegionManager regionManager)
 		{
             _eventAggregator = eventAggregator;
@@ -120,12 +116,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             FullScreenCmd = new DelegateCommand(FullScreen);
             GotoFileSettingCmd = new DelegateCommand(GotoFileSetting);
             GotoFileContentCmd = new DelegateCommand(GotoFileContent);
+            LoadedCommand = new DelegateCommand(Loaded);
+            SaveAllFileCommand = new DelegateCommand(SaveAllFile);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
-
+            
             Load();
-
+            
         }
 
         public FileReadWrite FileReadWrite
@@ -215,6 +213,18 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
+        }
+
+        public void SaveAllFile()
+        {
+            _eventAggregator.GetEvent<SaveMessageEvent>().Publish();
+        }
+        public void Loaded()
+        {
+            var parameters = new NavigationParameters();
+            parameters.Add("FileReadWrite", FileReadWrite);
+            parameters.Add("FamilyList", FamilyList);
+            _regionManager.RequestNavigate("FileContentRegion", "FileContent", parameters);
         }
 
         public void HandleTextChanged(ParentChangedEventArgs args)
@@ -393,14 +403,17 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private void GotoFileContent()
         {
             // 获取该区域
-            IRegion region = _regionManager.Regions["ContentRegion"];
+            IRegion region = _regionManager.Regions["FileContentRegion"];
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileContentUserControl));
             // 如果找到了视图，则将其从区域中移除
             if (viewInstance == null)
             {
-                _regionManager.RequestNavigate("ContentRegion", "FileContent");
+                var parameters = new NavigationParameters();
+                parameters.Add("FileReadWrite", FileReadWrite);
+                parameters.Add("FamilyList", FamilyList);
+                _regionManager.RequestNavigate("FileContentRegion", "FileContent", parameters);
             }
             else
             {
@@ -871,6 +884,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             try
             {
                 FileReadWrite = JsonHelper.LoadFileSetting();
+                FileReadWrite.PropertyChanged += (s, e) => {
+                    _eventAggregator.GetEvent<FileSettingChangeEvent>().Publish(e.PropertyName);
+                };
 
                 FamilyList = JsonHelper.LoadData();
                 EventCorrelation();
@@ -972,7 +988,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private void AddFamily()
         {
             dynamic obj = new ExpandoObject();
-            obj.家族名 = "";
+            obj.英文家族名 = "";
+            obj.中文家族名 = "";
             DialogParameters parm = new DialogParameters
         {
             { "value", obj }
@@ -984,7 +1001,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     obj = arg.Parameters.GetValue<ExpandoObject>("value");
                 }
             });
-            var family = new Family(obj.家族名);
+            var family = new Family(obj.英文家族名, obj.中文家族名);
             FamilyList.Add(family);
         }
         private void DelFamily()

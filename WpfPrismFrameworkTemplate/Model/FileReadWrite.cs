@@ -23,6 +23,7 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _coaDefFile;
         private string _localizationEnglishFile;
         private string _localizationChineseFile;
+        private bool _EnableAutoSave=true;
 
         public FileReadWrite()
         {
@@ -89,31 +90,13 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _localizationChineseFile, value);
         }
 
-        public Paragraph Load(string FilePath)
+        [Category("保存设置")]
+        [DisplayName("是否允许自动保存")]
+        [Description("是否允许关闭软件后自动保存")]
+        public bool EnableAutoSave
         {
-            // 添加黑色文本段落
-            Paragraph paragraph = new Paragraph();
-            try
-            {
-                if (string.IsNullOrEmpty(FilePath) || !File.Exists(FilePath))
-                {
-                    MessageBox.Show("请提供有效的文件路径");
-                    return paragraph;
-                }
-
-                string content = File.ReadAllText(FilePath);
-
-                
-                Run run = new Run(content);
-                run.Foreground = Brushes.Black;
-                paragraph.Inlines.Add(run);
-                return paragraph;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"加载文件出错: {ex.Message}");
-                return paragraph;
-            }
+            get => _EnableAutoSave;
+            set => SetProperty(ref _EnableAutoSave, value);
         }
     }
 }

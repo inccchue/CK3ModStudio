@@ -16,9 +16,12 @@ namespace WpfPrismFrameworkTemplate.Model
 {
     public class Family : BindableBase
     {
+        // 家族前缀（用于文件中的格式）
+        public const string DYNASTY_PREFIX = "dynn_";
         private static readonly Regex NumberRegex = new Regex(@"(\d+)$", RegexOptions.Compiled);
 
         private string _familyName;
+        private string _familyName_CN;
 
         // 声明一个事件用于通知外部
         public event EventHandler MembersChanged;
@@ -27,6 +30,12 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             get => _familyName;
             set => SetProperty(ref _familyName, value);
+        }
+
+        public string FamilyName_CN
+        {
+            get => _familyName_CN;
+            set => SetProperty(ref _familyName_CN, value);
         }
 
         private ObservableCollection<People> _members;
@@ -49,9 +58,10 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        public Family(string familyName= "Family")
+        public Family(string familyName= "Family",string familyName_CN="")
         {
             FamilyName = familyName;
+            FamilyName_CN = familyName_CN;
             Init();
         }
 
@@ -158,6 +168,40 @@ namespace WpfPrismFrameworkTemplate.Model
                 content += "\r\n";
             }
             return content;
+        }
+
+        public string GetString()
+        {
+            // 创建带前缀的ID
+            string dynastyId = DYNASTY_PREFIX + FamilyName;
+            string culture = Members.FirstOrDefault() == null ? "null" : Members.FirstOrDefault().Culture;
+
+            // 创建家族定义
+            string dynastyDefinition = $@"{dynastyId} = {{
+     name = ""{dynastyId}""
+     culture = ""{culture}""
+}}";
+            return dynastyDefinition;
+        }
+
+        public string GetLocalizationString()
+        {
+            // 创建带前缀的ID
+            string dynastyId = DYNASTY_PREFIX + FamilyName;
+
+            // 创建家族定义
+            string dynastyDefinition = $@" {dynastyId}:0 ""{FamilyName}""";
+            return dynastyDefinition;
+        }
+
+        public string GetLocalizationString_CN()
+        {
+            // 创建带前缀的ID
+            string dynastyId = DYNASTY_PREFIX + FamilyName;
+
+            // 创建家族定义
+            string dynastyDefinition = $@" {dynastyId}:0 ""{FamilyName_CN}""";
+            return dynastyDefinition;
         }
     }
 }

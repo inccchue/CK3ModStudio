@@ -18,11 +18,45 @@ xmlns:ui="http://schemas.modernwpf.com/2019"
              prism:ViewModelLocator.AutoWireViewModel="True" >
     <Grid Background="White">
         <TabControl >
-            <hc:TabItem Header="王朝定义文件">
-
-            </hc:TabItem>
             <hc:TabItem Header="角色定义文件">
-
+                <RichTextBox>
+                    <RichTextBox.InputBindings>
+                        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveCharacterDefFileCmd}"/>
+                    </RichTextBox.InputBindings>
+                    <i:Interaction.Behaviors>
+                        <helper:RichTextBoxBindingBehavior Document="{Binding CharacterDefFile.Content}" />
+                    </i:Interaction.Behaviors>
+                </RichTextBox>
+            </hc:TabItem>
+            <hc:TabItem Header="王朝定义文件">
+                <RichTextBox>
+                    <RichTextBox.InputBindings>
+                        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveDynastyDefFileCmd}"/>
+                    </RichTextBox.InputBindings>
+                    <i:Interaction.Behaviors>
+                        <helper:RichTextBoxBindingBehavior Document="{Binding DynastyDefFile.Content}" />
+                    </i:Interaction.Behaviors>
+                </RichTextBox>
+            </hc:TabItem>
+            <hc:TabItem Header="英文翻译文件">
+                <RichTextBox>
+                    <RichTextBox.InputBindings>
+                        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveLocalizationEnglishFileCmd}"/>
+                    </RichTextBox.InputBindings>
+                    <i:Interaction.Behaviors>
+                        <helper:RichTextBoxBindingBehavior Document="{Binding LocalizationEnglishFile.Content}" />
+                    </i:Interaction.Behaviors>
+                </RichTextBox>
+            </hc:TabItem>
+            <hc:TabItem Header="中文翻译文件">
+                <RichTextBox>
+                    <RichTextBox.InputBindings>
+                        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveLocalizationChineseFileCmd}"/>
+                    </RichTextBox.InputBindings>
+                    <i:Interaction.Behaviors>
+                        <helper:RichTextBoxBindingBehavior Document="{Binding LocalizationChineseFile.Content}" />
+                    </i:Interaction.Behaviors>
+                </RichTextBox>
             </hc:TabItem>
             <hc:TabItem Header="领地定义文件">
 

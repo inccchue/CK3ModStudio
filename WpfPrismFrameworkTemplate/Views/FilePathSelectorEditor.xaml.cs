@@ -75,12 +75,12 @@ namespace WpfPrismFrameworkTemplate.Views
                 }
                 else if (propertyName.Contains("English"))
                 {
-                    filter = "Localization files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
+                    filter = "Localization files (*.yml;*.xml)|*.yml;*.xml|All files (*.*)|*.*";
                     title = "Select English Localization File";
                 }
                 else if (propertyName.Contains("Chinese"))
                 {
-                    filter = "Localization files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
+                    filter = "Localization files (*.yml;*.xml)|*.yml;*.xml|All files (*.*)|*.*";
                     title = "Select Chinese Localization File";
                 }
             }

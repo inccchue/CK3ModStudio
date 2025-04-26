@@ -81,6 +81,7 @@
     <Compile Include="Model\EventModel.cs" />
     <Compile Include="Model\Family.cs" />
     <Compile Include="Model\FamilyContext.cs" />
+    <Compile Include="Model\FileModel.cs" />
     <Compile Include="Model\FileReadWrite.cs" />
     <Compile Include="Model\InputDialog.cs" />
     <Compile Include="Model\LifeEvent.cs" />
@@ -305,6 +306,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\fileContent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\savefile.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

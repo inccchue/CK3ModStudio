@@ -47,4 +47,8 @@ namespace WpfPrismFrameworkTemplate.Model
     public class QuerySubmittedEvent : PubSubEvent<QuerySubmittedEventArgs>
     {
     }
+
+    public class FileSettingChangeEvent : PubSubEvent<string>
+    {
+    }
 }
