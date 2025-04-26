@@ -89,12 +89,11 @@ namespace WpfPrismFrameworkTemplate.Model
                 // 提取纯文本
                 TextRange textRange = new TextRange(Content.ContentStart, Content.ContentEnd);
                 string text = textRange.Text;
-
-                // 移除最后的空白行（如果存在）
-                text = text.TrimEnd('\r', '\n');
+                string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                string result = string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrWhiteSpace(line)));
 
                 // 写入文件
-                File.WriteAllText(FilePath, text);
+                File.WriteAllText(FilePath, result);
             }
             catch (Exception ex)
             {

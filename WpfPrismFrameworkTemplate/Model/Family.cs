@@ -178,8 +178,8 @@ namespace WpfPrismFrameworkTemplate.Model
 
             // 创建家族定义
             string dynastyDefinition = $@"{dynastyId} = {{
-     name = ""{dynastyId}""
-     culture = ""{culture}""
+	name = ""{dynastyId}""
+	culture = ""{culture}""
 }}";
             return dynastyDefinition;
         }

@@ -36,7 +36,7 @@ hc:BorderElement.CornerRadius="15" ToolTip="转换到文件内容界面"   Comma
                 </Button.Content>
             </Button>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black" 
-hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command="{Binding SaveAllFileCmd}"
+hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command="{Binding SaveAllFileCommand}"
 >
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">

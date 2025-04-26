@@ -142,9 +142,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 UpdateFileContent();
                 CharacterDefFile.Save();
+                CharacterDefFile.Load();
                 DynastyDefFile.Save();
+                DynastyDefFile.Load();
                 LocalizationEnglishFile.Save();
+                LocalizationEnglishFile.Load();
                 LocalizationChineseFile.Save();
+                LocalizationChineseFile.Load();
             }
             
         }
