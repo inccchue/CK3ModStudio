@@ -54,7 +54,7 @@ namespace WpfPrismFrameworkTemplate.Model
                     return;
                 }
 
-                string content = File.ReadAllText(FilePath).TrimEnd('\r', '\n'); 
+                string content = File.ReadAllText(FilePath); 
 
 
                 Run run = new Run(content);
