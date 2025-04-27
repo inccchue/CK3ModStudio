@@ -959,7 +959,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                         obj = arg.Parameters.GetValue<ExpandoObject>("value");
                     }
                 });
-                SelectFamily.Members.Add(new People(SelectFamily.FindMemberWithMaxIdNumber()+1, obj.名字, obj.性别,SelectFamily.FamilyName));
+                string religion = ReligionOptions.LastOrDefault();
+                string culture = CultureOptions.LastOrDefault();
+                SelectFamily.Members.Add(new People(SelectFamily.FindMemberWithMaxIdNumber()+1, obj.名字, obj.性别,SelectFamily.FamilyName, religion,culture));
             }
             
         }

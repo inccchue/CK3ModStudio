@@ -202,23 +202,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 return;
             }
-            dynamic obj = new ExpandoObject();
-            obj.事件类型 = LifeEventType.Death;
+            LifeEvent tmpLifeEvent = new LifeEvent();
+
             DialogParameters parm = new DialogParameters
-        {
-            { "value", obj }
-        };
-            _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
-            {
-                if (arg.Result == ButtonResult.OK)
-                {
-                    obj = arg.Parameters.GetValue<ExpandoObject>("value");
-                }
-            });
-
-            LifeEvent tmpLifeEvent = LifeEventFactory.CreateLifeEvent(obj.事件类型);
-
-            parm = new DialogParameters
     {
         { "value", tmpLifeEvent }
     };
