@@ -41,14 +41,16 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="0"/>
+            <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
 
-        <ListView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Counties}" SelectedItem="{Binding SelectCounty}">
+        <ListView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Counties}" SelectedItem="{Binding SelectCounty}"
+                  >
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
+                               Style="{StaticResource TextBlockDefaultInfo}"/>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
@@ -61,5 +63,62 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                 </GridView>
             </ListView.View>
         </ListView>
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="5"
+                      Style="{StaticResource ScrollViewerNativeBaseStyle}">
+            <ItemsControl ItemsSource="{Binding TimelineEntries}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 日期范围 -->
+                            <TextBlock Grid.Column="0" Text="{Binding StartDate}" 
+                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+                            <!-- 连接线和圆点 -->
+                            <Grid Grid.Column="1">
+                                <Line X1="15" Y1="0" X2="15" Y2="40" Stroke="Gray" StrokeThickness="2"/>
+                                <Ellipse Width="14" Height="14" Fill="{Binding Background}" Stroke="Black" 
+                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Button Grid.Column="2" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Height="10" hc:IconElement.Width="10" Background="Green" Foreground="White" Style="{StaticResource ButtonIconCircular.Small}"
+        Command="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=DataContext.DelCmd}"
+        CommandParameter="{Binding}"/>
+                            <Button Grid.Column="3" hc:IconElement.Geometry="{StaticResource SubGeometry}" hc:IconElement.Height="10" hc:IconElement.Width="10" Background="Red" Foreground="White" Style="{StaticResource ButtonIconCircular.Small}"
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=DataContext.DelCmd}"
+                                    CommandParameter="{Binding}"/>
+                            <!-- 持有者信息 -->
+                            <Border Grid.Column="4" Background="{Binding Background}" CornerRadius="5" 
+                                    Padding="10,5" MinHeight="30">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Text="{Binding Holder}" FontWeight="Bold"/>
+                                    <WrapPanel Grid.Row="1">
+                                        <TextBlock  Text="{Binding StartDate, StringFormat='从 {0}'}"/>
+                                        <TextBlock  Text="{Binding EndDate, StringFormat='到 {0}'}"/>
+                                    </WrapPanel>
+                                    
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
