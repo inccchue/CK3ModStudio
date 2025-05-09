@@ -1,0 +1,98 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Metrics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows;
+using WpfPrismFrameworkTemplate.Model;
+
+namespace WpfPrismFrameworkTemplate.Helper
+{
+    public class CountyParser
+    {
+        public static void ParseCountiesFromFile(ObservableCollection<County> Counties,string filePath)
+        {
+            try
+            {
+                Counties.Clear();
+                string content = File.ReadAllText(filePath);
+
+                // 使用正则表达式匹配所有伯爵领地及其信息
+                string pattern = @"c_(\w+)\s*=\s*\{(.*?)(?=c_\w+\s*=|\z)";
+                var matches = Regex.Matches(content, pattern, RegexOptions.Singleline);
+
+                foreach (Match match in matches)
+                {
+                    if (match.Success && match.Groups.Count >= 3)
+                    {
+                        string countyName = match.Groups[1].Value;
+                        string countyDetails = match.Groups[2].Value;
+
+                        // 首字母大写
+                        countyName = char.ToUpper(countyName[0]) + countyName.Substring(1);
+
+                        // 创建新的伯爵领对象
+                        var county = new County { Name = countyName };
+
+                        // 解析持有者信息
+                        ExtractHolderEntries(countyDetails, county);
+
+                        // 只有当有持有者信息时才添加到列表
+                        if (county.HolderEntries.Count > 0)
+                        {
+                            Counties.Add(county);
+                        }
+                    }
+                }
+
+                // 按伯爵领名称排序
+                Counties = new ObservableCollection<County>(Counties.OrderBy(c => c.Name));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"解析文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static void ExtractHolderEntries(string countyDetails, County county)
+        {
+            // 使用正则表达式匹配所有日期和持有者信息
+            string pattern = @"(\d+\.\d+\.\d+)\s*=\s*\{\s*holder\s*=\s*([^\s{}]+)\s*\}";
+            var matches = Regex.Matches(countyDetails, pattern);
+
+            foreach (Match match in matches)
+            {
+                if (match.Success && match.Groups.Count >= 3)
+                {
+                    string date = match.Groups[1].Value;
+                    string holder = match.Groups[2].Value;
+
+                    county.HolderEntries.Add(new HolderEntry
+                    {
+                        StartDate = date,
+                        Holder = holder
+                    });
+                }
+            }
+
+            // 按日期排序
+            county.HolderEntries = new ObservableCollection<HolderEntry>(
+                county.HolderEntries.OrderBy(h => ExtractYear(h.StartDate)));
+        }
+
+        private static int ExtractYear(string dateString)
+        {
+            // 从日期字符串中提取年份
+            var parts = dateString.Split('.');
+            if (parts.Length >= 1 && int.TryParse(parts[0], out int year))
+            {
+                return year;
+            }
+            return 0;
+        }
+    }
+}

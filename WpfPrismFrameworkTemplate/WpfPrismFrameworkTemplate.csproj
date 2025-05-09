@@ -73,9 +73,11 @@
     <Compile Include="Converter\MyConverter.cs" />
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
+    <Compile Include="Helper\CountyParser.cs" />
     <Compile Include="Helper\PropertyGridEditableProperties.cs" />
     <Compile Include="Helper\RichTextBoxBindingBehavior.cs" />
     <Compile Include="Helper\TreeViewItemDoubleClickBehavior.cs" />
+    <Compile Include="Model\County.cs" />
     <Compile Include="Model\CustomDate.cs" />
     <Compile Include="Model\DragDropModule.cs" />
     <Compile Include="Model\EventModel.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Model\People.cs" />
     <Compile Include="ViewModels\AssignmentWindowViewModel.cs" />
     <Compile Include="ViewModels\CommonAssignmentWindowViewModel.cs" />
+    <Compile Include="ViewModels\CountyTimelineUserControlViewModel.cs" />
     <Compile Include="ViewModels\FamilyTreeWindowViewModel.cs" />
     <Compile Include="ViewModels\FileContentUserControlViewModel.cs" />
     <Compile Include="ViewModels\FileReadWriteUserControlViewModel.cs" />
@@ -100,6 +103,10 @@
     <Page Include="Views\CommonAssignmentWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\CountyTimelineUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\FamilyTreeWindow.xaml">
       <SubType>Designer</SubType>
@@ -134,6 +141,9 @@
     </Compile>
     <Compile Include="Views\CommonAssignmentWindow.xaml.cs">
       <DependentUpon>CommonAssignmentWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CountyTimelineUserControl.xaml.cs">
+      <DependentUpon>CountyTimelineUserControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FamilyTreeWindow.xaml.cs">
       <DependentUpon>FamilyTreeWindow.xaml</DependentUpon>
@@ -309,6 +319,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\savefile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\timeline.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

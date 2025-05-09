@@ -83,6 +83,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand FullScreenCmd { get; private set; }
         public DelegateCommand GotoFileSettingCmd { get; private set; }
         public DelegateCommand GotoFileContentCmd { get; private set; }
+        public DelegateCommand GotoTimelineCmd { get; private set; }
         public DelegateCommand LoadedCommand { get; private set; }
         public DelegateCommand SaveAllFileCommand { get; private set; }
         public MainWindowViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IRegionManager regionManager)
@@ -118,6 +119,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             GotoFileContentCmd = new DelegateCommand(GotoFileContent);
             LoadedCommand = new DelegateCommand(Loaded);
             SaveAllFileCommand = new DelegateCommand(SaveAllFile);
+            GotoTimelineCmd = new DelegateCommand(GotoTimeline);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
@@ -399,6 +401,34 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
 
         }
+        private void GotoTimeline()
+        {
+            // 获取该区域
+            IRegion region = _regionManager.Regions["ContentRegion"];
+
+            // 查找通过类型名注册的视图
+            var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(CountyTimelineUserControl));
+            // 如果找到了视图，则将其从区域中移除
+            if (viewInstance == null)
+            {
+                if (FileReadWrite == null)
+                {
+                    return;
+                }
+                var parameters = new NavigationParameters();
+                parameters.Add("FileReadWrite", FileReadWrite);
+                _regionManager.RequestNavigate("ContentRegion", "CountyTimeline", parameters);
+            }
+            else
+            {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+            }
+
+        }
+        
 
         private void GotoFileContent()
         {
