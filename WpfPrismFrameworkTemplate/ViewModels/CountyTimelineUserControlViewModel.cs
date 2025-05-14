@@ -26,6 +26,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private County _SelectCounty = new County();
         private ObservableCollection<County> _counties=new ObservableCollection<County>();
         public ObservableCollection<TimelineEntry> _TimelineEntries = new ObservableCollection<TimelineEntry>();
+        private ObservableCollection<County> _suggestions = new ObservableCollection<County>();
         public DelegateCommand<TimelineEntry> DelCmd { get; private set; }
         public DelegateCommand<TimelineEntry> AddCmd { get; private set; }
         public CountyTimelineUserControlViewModel(IDialogService dialogService)
@@ -35,6 +36,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             _dialogService = dialogService;
         }
 
+        public ObservableCollection<County> Suggestions
+        {
+            get => _suggestions;
+            set => SetProperty(ref _suggestions, value);
+        }
         public FileReadWrite FileReadWrite
         {
             get => _fileReadWrite;

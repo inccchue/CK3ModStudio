@@ -37,23 +37,74 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     </UserControl.Resources>
     <Grid Background="White">
         <Grid.RowDefinitions>
+            
             <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="0"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
+        <WrapPanel Grid.Row="1" Grid.ColumnSpan="3" Background="DarkRed">
+            
+        </WrapPanel>
+        <StackPanel Grid.Row="0" Grid.Column="0">
+            <StackPanel>
+                <TextBlock Text="领地名称" Margin="10,0,0,0"/>
+                <ui:AutoSuggestBox x:Name="CountyAutoSuggestBox"
+            PlaceholderText="搜索领地..." VerticalAlignment="Center" Margin="5"
+            Text="{Binding SelectCounty, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            ItemsSource="{Binding Suggestions}"
+                                    TextChanged="AutoSuggestBox_TextChanged"
+    QuerySubmitted="AutoSuggestBox_QuerySubmitted"
+    SuggestionChosen="AutoSuggestBox_SuggestionChosen">
 
-        <ListView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Counties}" SelectedItem="{Binding SelectCounty}"
-                  >
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
-                               Style="{StaticResource TextBlockDefaultInfo}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    <!-- 自定义项目模板 -->
+                    <ui:AutoSuggestBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Column="0" Grid.Row="0"
+Text="{Binding Name}" 
+FontWeight="Bold" />
+                                   
+                                </Grid>
+                                <Border Grid.Row="1" 
+                    BorderThickness="0,0,0,1" 
+                    BorderBrush="#20000000" 
+                    Margin="0" />
+                            </Grid>
+
+
+                        </DataTemplate>
+                    </ui:AutoSuggestBox.ItemTemplate>
+                </ui:AutoSuggestBox>
+            </StackPanel>
+            <ListView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Counties}" SelectedItem="{Binding SelectCounty}"
+          >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
+                       Style="{StaticResource TextBlockDefaultInfo}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+           
         <ListView Grid.Column="1" ItemsSource="{Binding SelectCounty.HolderEntries}" BorderThickness="0"
                   Style="{StaticResource ListView.Small}">
             <ListView.View>
@@ -63,7 +114,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                 </GridView>
             </ListView.View>
         </ListView>
-        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="5"
+        <ScrollViewer Grid.Column="2" Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="5"
                       Style="{StaticResource ScrollViewerNativeBaseStyle}">
             <ItemsControl ItemsSource="{Binding TimelineEntries}">
                 <ItemsControl.ItemsPanel>
