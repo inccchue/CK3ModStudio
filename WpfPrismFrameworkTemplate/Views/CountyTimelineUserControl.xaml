@@ -93,8 +93,8 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                             <Button Grid.Column="2" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Height="10" hc:IconElement.Width="10" Background="Green" Foreground="White" Style="{StaticResource ButtonIconCircular.Small}"
-        Command="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=DataContext.DelCmd}"
-        CommandParameter="{Binding}"/>
+        Command="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=DataContext.AddCmd}"
+                                    CommandParameter="{Binding}"/>
                             <Button Grid.Column="3" hc:IconElement.Geometry="{StaticResource SubGeometry}" hc:IconElement.Height="10" hc:IconElement.Width="10" Background="Red" Foreground="White" Style="{StaticResource ButtonIconCircular.Small}"
                                     Command="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Path=DataContext.DelCmd}"
                                     CommandParameter="{Binding}"/>

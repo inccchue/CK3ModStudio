@@ -1,26 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.Linq;
 using System.Windows.Media;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
+using Prism.Services.Dialogs;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
+using WpfPrismFrameworkTemplate.Views;
 
 namespace WpfPrismFrameworkTemplate.ViewModels
 {
+    public enum InsertType
+    {
+        在上方插入,
+        在下方插入
+    }
     public class CountyTimelineUserControlViewModel : BindableBase, INavigationAware
     {
+        private IDialogService _dialogService;
         private FileReadWrite _fileReadWrite;
         private County _SelectCounty = new County();
         private ObservableCollection<County> _counties=new ObservableCollection<County>();
         public ObservableCollection<TimelineEntry> _TimelineEntries = new ObservableCollection<TimelineEntry>();
         public DelegateCommand<TimelineEntry> DelCmd { get; private set; }
-        public CountyTimelineUserControlViewModel()
+        public DelegateCommand<TimelineEntry> AddCmd { get; private set; }
+        public CountyTimelineUserControlViewModel(IDialogService dialogService)
         {
             DelCmd = new DelegateCommand<TimelineEntry>(Del);
+            AddCmd = new DelegateCommand<TimelineEntry>(Add);
+            _dialogService = dialogService;
         }
 
         public FileReadWrite FileReadWrite
@@ -48,6 +60,50 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set => SetProperty(ref _TimelineEntries, value);
         }
 
+        public void Add(TimelineEntry timelineEntry)
+        {
+            dynamic obj = new ExpandoObject();
+            obj.新时间节点插入位置 = InsertType.在上方插入;
+            DialogParameters parm = new DialogParameters
+            {
+                { "value", obj }
+            };
+            _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
+            {
+                if (arg.Result == ButtonResult.OK)
+                {
+                    obj = arg.Parameters.GetValue<ExpandoObject>("value");
+                }
+            });
+
+            HolderEntry newHolderEntry = new HolderEntry();
+            if (obj.新时间节点插入位置 == InsertType.在上方插入)
+            {
+                newHolderEntry.StartDate = timelineEntry.StartDate;
+            }
+            else
+            {
+                newHolderEntry.StartDate = timelineEntry.EndDate;
+            }
+            newHolderEntry.Holder = timelineEntry.Holder;
+
+            parm = new DialogParameters
+    {
+        { "value", newHolderEntry }
+    };
+            _dialogService.ShowDialog(nameof(CommonAssignmentWindow), parm, arg =>
+            {
+                if (arg.Result == ButtonResult.OK)
+                {
+                    newHolderEntry = arg.Parameters.GetValue<HolderEntry>("value");
+                }
+            });
+            SelectCounty.HolderEntries.Add(newHolderEntry);
+            ProcessTimelineEntries();
+            //TimelineEntries.Remove(timelineEntry);
+            //SelectCounty.HolderEntries.Remove(SelectCounty.HolderEntries.FirstOrDefault(e => e.StartDate == timelineEntry.StartDate && e.Holder == timelineEntry.Holder));
+            //ProcessTimelineEntries();
+        }
         public void Del(TimelineEntry timelineEntry)
         {
             TimelineEntries.Remove(timelineEntry);
