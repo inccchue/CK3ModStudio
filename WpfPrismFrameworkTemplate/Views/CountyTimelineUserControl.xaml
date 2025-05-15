@@ -17,7 +17,7 @@
     xmlns:ui="http://schemas.modernwpf.com/2019"
 xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
 xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"          
-             prism:ViewModelLocator.AutoWireViewModel="True">
+             prism:ViewModelLocator.AutoWireViewModel="True" >
     <UserControl.Resources>
 
         <Style x:Key="TimelineRectStyle" TargetType="Rectangle">
@@ -35,6 +35,11 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding SaveCmd}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid Background="White">
         <Grid.RowDefinitions>
             
@@ -47,11 +52,18 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
         <WrapPanel Grid.Row="1" Grid.ColumnSpan="3" Background="DarkRed">
-            
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15"  Command="{Binding SaveCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/savefile.png" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </WrapPanel>
         <StackPanel Grid.Row="0" Grid.Column="0">
-            <StackPanel>
-                <TextBlock Text="领地名称" Margin="10,0,0,0"/>
+            <StackPanel >
                 <ui:AutoSuggestBox x:Name="CountyAutoSuggestBox"
             PlaceholderText="搜索领地..." VerticalAlignment="Center" Margin="5"
             Text="{Binding SelectCounty, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"

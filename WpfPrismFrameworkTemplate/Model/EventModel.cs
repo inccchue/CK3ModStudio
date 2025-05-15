@@ -32,7 +32,14 @@ namespace WpfPrismFrameworkTemplate.Model
         public People TargetPeople { get; set; }
         public SearchType SearchType { get; set; }
     }
-    
+
+    public class CountyChangedEventArgs
+    {
+        public string Text { get; set; }
+        public AutoSuggestionBoxTextChangeReason Reason { get; set; }
+        public County TargetCounty { get; set; }
+    }
+
     public class ParentChangedEvent : PubSubEvent<ParentChangedEventArgs>
     {
     }
@@ -43,6 +50,12 @@ namespace WpfPrismFrameworkTemplate.Model
         public object ChosenSuggestion { get; set; }
         public People TargetPeople { get; set; }
         public SearchType SearchType { get; set; }
+    }
+    public class CountyQuerySubmittedEventArgs
+    {
+        public string QueryText { get; set; }
+        public object ChosenSuggestion { get; set; }
+        public County TargetCounty { get; set; }
     }
     public class QuerySubmittedEvent : PubSubEvent<QuerySubmittedEventArgs>
     {

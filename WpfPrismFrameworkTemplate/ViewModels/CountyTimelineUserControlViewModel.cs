@@ -4,10 +4,12 @@ using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
 using System.Windows.Media;
+using ModernWpf.Controls;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Services.Dialogs;
+using Windows.Gaming.Preview.GamesEnumeration;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
 using WpfPrismFrameworkTemplate.Views;
@@ -29,10 +31,12 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private ObservableCollection<County> _suggestions = new ObservableCollection<County>();
         public DelegateCommand<TimelineEntry> DelCmd { get; private set; }
         public DelegateCommand<TimelineEntry> AddCmd { get; private set; }
+        public DelegateCommand SaveCmd { get; private set; }
         public CountyTimelineUserControlViewModel(IDialogService dialogService)
         {
             DelCmd = new DelegateCommand<TimelineEntry>(Del);
             AddCmd = new DelegateCommand<TimelineEntry>(Add);
+            SaveCmd = new DelegateCommand(Save);
             _dialogService = dialogService;
         }
 
@@ -66,6 +70,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set => SetProperty(ref _TimelineEntries, value);
         }
 
+        public void Save()
+        {
+            if (FileReadWrite != null)
+            {
+                CountyParser.SaveCountiesToFile(Counties, FileReadWrite.DomainDefFile);
+            }
+        }
         public void Add(TimelineEntry timelineEntry)
         {
             dynamic obj = new ExpandoObject();
@@ -106,15 +117,48 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             });
             SelectCounty.HolderEntries.Add(newHolderEntry);
             ProcessTimelineEntries();
-            //TimelineEntries.Remove(timelineEntry);
-            //SelectCounty.HolderEntries.Remove(SelectCounty.HolderEntries.FirstOrDefault(e => e.StartDate == timelineEntry.StartDate && e.Holder == timelineEntry.Holder));
-            //ProcessTimelineEntries();
         }
         public void Del(TimelineEntry timelineEntry)
         {
             TimelineEntries.Remove(timelineEntry);
             SelectCounty.HolderEntries.Remove(SelectCounty.HolderEntries.FirstOrDefault(e => e.StartDate == timelineEntry.StartDate && e.Holder == timelineEntry.Holder));
             ProcessTimelineEntries();
+        }
+        public void HandleTextChanged(CountyChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                List<County> filtered;
+
+                // 过滤逻辑
+                filtered = string.IsNullOrEmpty(args.Text)
+                ? new List<County>()
+                : Counties.Where(p =>
+                    (!string.IsNullOrEmpty(p.Name) && p.Name.IndexOf(args.Text, StringComparison.OrdinalIgnoreCase) >= 0)
+                ).ToList();
+
+
+                Suggestions.Clear();
+                foreach (var person in filtered)
+                {
+                    Suggestions.Add(person);
+                }
+            }
+        }
+
+        public void HandleQuerySubmitted(CountyQuerySubmittedEventArgs querySubmittedEvent)
+        {
+            if (querySubmittedEvent.ChosenSuggestion != null && querySubmittedEvent.ChosenSuggestion is County county)
+            {
+                SelectCounty = county;
+            }
+            else
+            {
+                County searchResult;
+                searchResult = Counties.FirstOrDefault(p => p.Name == querySubmittedEvent.QueryText);
+                SelectCounty = searchResult;
+
+            }
         }
 
         private void ProcessTimelineEntries()
@@ -172,7 +216,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         }
 
         public void OnNavigatedFrom(NavigationContext navigationContext)
-        {
+        {           
         }
     }
 }

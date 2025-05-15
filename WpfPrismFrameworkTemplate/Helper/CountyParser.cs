@@ -14,6 +14,52 @@ namespace WpfPrismFrameworkTemplate.Helper
 {
     public class CountyParser
     {
+        public static void SaveCountiesToFile(ObservableCollection<County> Counties, string filePath)
+        {
+            try
+            {
+                // 首先读取原始文件内容
+                string originalContent = File.ReadAllText(filePath);
+
+                // 逐个处理每个伯爵领地
+                foreach (var county in Counties)
+                {
+                    // 为当前伯爵领准备新的持有者信息文本
+                    StringBuilder holderEntriesText = new StringBuilder();
+                    foreach (var entry in county.HolderEntries)
+                    {
+                        holderEntriesText.AppendLine($"\t{entry.StartDate}={{\n\t\tholder={entry.Holder}\n\t}}");
+                    }
+
+                    // 构建匹配当前伯爵领的正则表达式模式
+                    string countyNameLower = char.ToLower(county.Name[0]) + county.Name.Substring(1);
+                    string countyPattern = @"c_" + countyNameLower + @"\s*=\s*\{(.*?)(?=c_\w+\s*=|\z)";
+
+                    // 准备新的伯爵领文本
+                    string newCountyText = $"c_{countyNameLower} = {{\n{holderEntriesText}}}\n\n";
+
+                    // 检查伯爵领是否存在于原文件中
+                    Match countyMatch = Regex.Match(originalContent, countyPattern, RegexOptions.Singleline);
+                    if (countyMatch.Success)
+                    {
+                        // 如果存在，替换内容
+                        originalContent = Regex.Replace(originalContent, countyPattern, newCountyText, RegexOptions.Singleline);
+                    }
+                    else
+                    {
+                        // 如果不存在，添加到文件末尾
+                        originalContent += newCountyText;
+                    }
+                }
+
+                // 将更新后的内容写回文件
+                File.WriteAllText(filePath, originalContent);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         public static void ParseCountiesFromFile(ObservableCollection<County> Counties,string filePath)
         {
             try
