@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Dynamic;
 using System.IO;
@@ -84,6 +85,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand GotoFileSettingCmd { get; private set; }
         public DelegateCommand GotoFileContentCmd { get; private set; }
         public DelegateCommand GotoTimelineCmd { get; private set; }
+        public DelegateCommand GotoCoaCmd { get; private set; }
         public DelegateCommand LoadedCommand { get; private set; }
         public DelegateCommand SaveAllFileCommand { get; private set; }
         public MainWindowViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IRegionManager regionManager)
@@ -120,6 +122,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             LoadedCommand = new DelegateCommand(Loaded);
             SaveAllFileCommand = new DelegateCommand(SaveAllFile);
             GotoTimelineCmd = new DelegateCommand(GotoTimeline);
+            GotoCoaCmd = new DelegateCommand(GotoCoa);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
@@ -428,7 +431,26 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
 
         }
-        
+
+        private void GotoCoa()
+        {
+            try
+            {
+                Process coaProcess = new Process();
+                coaProcess.StartInfo.FileName = FileReadWrite.CoaCollectSoftwarePath;
+
+                // 启动进程
+                coaProcess.Start();
+
+                // 等待进程完全启动
+                coaProcess.WaitForInputIdle(10000); // 等待最多10秒钟
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"打开纹章收集软件时，发生异常，原因是{ex.Message}");
+            }
+
+        }
 
         private void GotoFileContent()
         {

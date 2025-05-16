@@ -27,6 +27,15 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15" ToolTip="转换到纹章收集软件"   Command="{Binding GotoCoaCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/coa.png" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
 hc:BorderElement.CornerRadius="15" ToolTip="转换到时间轴界面"   Command="{Binding GotoTimelineCmd}"
 >
                 <Button.Content>

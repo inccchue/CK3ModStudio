@@ -23,6 +23,7 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _coaDefFile;
         private string _localizationEnglishFile;
         private string _localizationChineseFile;
+        private string _CoaCollectSoftwarePath;
         private bool _EnableAutoSave=true;
 
         public FileReadWrite()
@@ -98,5 +99,17 @@ namespace WpfPrismFrameworkTemplate.Model
             get => _EnableAutoSave;
             set => SetProperty(ref _EnableAutoSave, value);
         }
+
+        [Category("纹章收集设置")]
+        [DisplayName("纹章收集软件启动路径")]
+        [Description("选择纹章收集软件启动路径")]
+        [Editor(typeof(FilePathSelectorEditor), typeof(FilePathSelectorEditor))]
+        public string CoaCollectSoftwarePath
+        {
+            get => _CoaCollectSoftwarePath;
+            set => SetProperty(ref _CoaCollectSoftwarePath, value);
+        }
+
+
     }
 }

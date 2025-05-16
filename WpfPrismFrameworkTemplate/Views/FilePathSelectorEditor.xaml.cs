@@ -68,7 +68,7 @@ namespace WpfPrismFrameworkTemplate.Views
                     filter = "Domain files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
                     title = "Select Domain Definition File";
                 }
-                else if (propertyName.Contains("Coa") || propertyName.Contains("CoA"))
+                else if (propertyName.Contains("CoaDef"))
                 {
                     filter = "CoA files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
                     title = "Select CoA Definition File";
@@ -81,6 +81,11 @@ namespace WpfPrismFrameworkTemplate.Views
                 else if (propertyName.Contains("Chinese"))
                 {
                     filter = "Localization files (*.yml;*.xml)|*.yml;*.xml|All files (*.*)|*.*";
+                    title = "Select Chinese Localization File";
+                }
+                else if (propertyName.Contains("CoaCollect"))
+                {
+                    filter = "Localization files (*.exe)|*.exe|All files (*.*)|*.*";
                     title = "Select Chinese Localization File";
                 }
             }
