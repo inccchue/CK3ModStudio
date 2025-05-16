@@ -88,6 +88,7 @@
     <Compile Include="Model\InputDialog.cs" />
     <Compile Include="Model\LifeEvent.cs" />
     <Compile Include="Model\People.cs" />
+    <Compile Include="Model\PipeClientService.cs" />
     <Compile Include="Model\TimelineEntry.cs" />
     <Compile Include="ViewModels\AssignmentWindowViewModel.cs" />
     <Compile Include="ViewModels\CommonAssignmentWindowViewModel.cs" />
@@ -326,6 +327,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\coa.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\connect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\disconnect.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PipeCommunicationLibrary\PipeCommunicationLibrary.csproj">
+      <Project>{b5c72be1-d6c0-4daa-8834-598d890b6ad7}</Project>
+      <Name>PipeCommunicationLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

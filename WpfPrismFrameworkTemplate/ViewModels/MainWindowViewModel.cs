@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf.Compiler;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.Win32;
 using ModernWpf.Controls;
 using Prism.Commands;
@@ -19,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using System.Windows;
@@ -54,6 +56,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private readonly IRegionManager _regionManager;
         private string _searchText;
         private FileReadWrite _fileReadWrite;
+        private bool _isAppBRunning=false;
+        private PipeClientService _pipeClientService=new PipeClientService();
+        private readonly Timer _statusCheckTimer;
 
         private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
         public ObservableCollection<People> TestPeopleList
@@ -128,9 +133,27 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
             
             Load();
-            
+
+            _statusCheckTimer = new Timer(1000); // 500 毫秒
+            _statusCheckTimer.Elapsed += async (sender, e) => await CheckAppBStatus();
+            _statusCheckTimer.AutoReset = true;
+            _statusCheckTimer.Start();
         }
 
+        public bool IsAppBRunning
+        {
+            get => _isAppBRunning;
+            set
+            {
+                if (value!= _isAppBRunning)
+                {
+                    
+                    SetProperty(ref _isAppBRunning, value);
+                }
+                
+                
+            }
+        }
         public FileReadWrite FileReadWrite
         {
             get => _fileReadWrite;
@@ -218,6 +241,23 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
+        }
+
+        private async Task CheckAppBStatus()
+        {
+            bool oldIsAppBRunning = IsAppBRunning;
+            IsAppBRunning = await _pipeClientService.IsAppBRunningAsync();
+            if (oldIsAppBRunning != IsAppBRunning)
+            {
+                if (IsAppBRunning)
+                {
+                    HandyControl.Controls.Growl.Success("纹章收集软件已连接");
+                }
+                else
+                {
+                    HandyControl.Controls.Growl.Warning("纹章收集软件已断连");
+                }
+            }
         }
 
         public void SaveAllFile()

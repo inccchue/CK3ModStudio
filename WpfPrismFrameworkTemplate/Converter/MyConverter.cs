@@ -14,6 +14,22 @@ using static System.ComponentModel.TypeConverter;
 
 namespace WpfPrismFrameworkTemplate.Converter
 {
+    public class ConnectToImageConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool isConnect)
+            {
+                return isConnect == true ? "/Images/connect.png" : "/Images/disconnect.png";
+            }
+            return "Images/disconnect.png"; // 备用图片
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class HasSpouseEventToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -23,6 +23,40 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     Height="700"
     prism:ViewModelLocator.AutoWireViewModel="True"
     TitleBarBackground="DarkRed" TitleBarForeground="White">
+    <Window.Resources>
+        <DataTemplate x:Key="LifeEventTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding EventType}" Margin="5"/>
+                <TextBlock Text="{Binding EventDate}" Margin="5"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- MarriageEvent DataTemplate -->
+        <DataTemplate x:Key="MarriageEventTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding EventType}" Margin="5"/>
+                <TextBlock Text="{Binding EventDate}" Margin="5"/>
+                <TextBlock Text="{Binding Spouse}" Margin="5" FontWeight="Bold" Foreground="Blue"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <ObjectDataProvider x:Key="LifeEventTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="model:LifeEventType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <cv:TypeConverter x:Key="TypeConverter"/>
+        <cv:PersonToStringConverter x:Key="PersonToStringConverter"/>
+        <cv:FamilyToStringConverter x:Key="FamilyToStringConverter"/>
+        <cv:AllFamilyToStringConverter x:Key="AllFamilyToStringConverter"/>
+        <cv:EnumToCollectionConverter x:Key="EnumToCollectionConverter"/>
+        <cv:GenderToImageConverter x:Key="GenderToImageConverter"/>
+        <cv:BirthDeathConverter x:Key="BirthDeathConverter"/>
+        <cv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <cv:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
+        <cv:HasSpouseEventToVisibilityConverter x:Key="HasSpouseEventToVisibilityConverter"/>
+        <cv:ConnectToImageConverter x:Key="ConnectToImageConverter"/>
+    </Window.Resources>
     <adonisControls:AdonisWindow.TitleBarContent>
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
@@ -84,6 +118,7 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                 </Button.Content>
             </Button>
             
+
             <Menu HorizontalAlignment="Stretch" Background="DarkRed" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                 <MenuItem Header="生成" Foreground="White" FontWeight="Heavy">
                     <MenuItem Header="生成个人内容" Command="{Binding CreatePersonContentCmd}" />
@@ -102,6 +137,8 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                     <MenuItem Header="删除人物" Command="{Binding DelPeopleCmd}" />
                 </MenuItem>
             </Menu>
+            <Image Margin="10,5,10,5" Source="{Binding IsAppBRunning,Converter={StaticResource ConnectToImageConverter}}" Height="15" Width="15"
+                   ToolTip="指示是否与纹章收集软件建立连接"/>
         </WrapPanel>
     </adonisControls:AdonisWindow.TitleBarContent>
     <i:Interaction.Triggers>
@@ -113,46 +150,14 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
         </i:EventTrigger>
     </i:Interaction.Triggers>
     
-    <Window.Resources>
-        <DataTemplate x:Key="LifeEventTemplate">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding EventType}" Margin="5"/>
-                <TextBlock Text="{Binding EventDate}" Margin="5"/>
-            </StackPanel>
-        </DataTemplate>
-
-        <!-- MarriageEvent DataTemplate -->
-        <DataTemplate x:Key="MarriageEventTemplate">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding EventType}" Margin="5"/>
-                <TextBlock Text="{Binding EventDate}" Margin="5"/>
-                <TextBlock Text="{Binding Spouse}" Margin="5" FontWeight="Bold" Foreground="Blue"/>
-            </StackPanel>
-        </DataTemplate>
-
-        <ObjectDataProvider x:Key="LifeEventTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="model:LifeEventType"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        <cv:TypeConverter x:Key="TypeConverter"/>
-        <cv:PersonToStringConverter x:Key="PersonToStringConverter"/>
-        <cv:FamilyToStringConverter x:Key="FamilyToStringConverter"/>
-        <cv:AllFamilyToStringConverter x:Key="AllFamilyToStringConverter"/>
-        <cv:EnumToCollectionConverter x:Key="EnumToCollectionConverter"/>
-        <cv:GenderToImageConverter x:Key="GenderToImageConverter"/>
-        <cv:BirthDeathConverter x:Key="BirthDeathConverter"/>
-        <cv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-        <cv:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
-        <cv:HasSpouseEventToVisibilityConverter x:Key="HasSpouseEventToVisibilityConverter"/>
-    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="0"/>
         </Grid.RowDefinitions>
-
+        
         <Grid Grid.Row="1" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
@@ -448,7 +453,9 @@ FontWeight="Bold" />
             <ContentControl Grid.Column="0" Grid.ColumnSpan="4" prism:RegionManager.RegionName="ContentRegion" />
         </Grid>
 
-        
-        
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
+            <StackPanel hc:Growl.GrowlParent="True" VerticalAlignment="Top" Margin="0,10,10,10"/>
+        </ScrollViewer>
     </Grid>
 </adonisControls:AdonisWindow>
