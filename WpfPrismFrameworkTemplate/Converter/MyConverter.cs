@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
 using static System.ComponentModel.TypeConverter;
 

@@ -17,6 +17,7 @@ using System.Linq;
 using Prism.Events;
 using GongSolutions.Wpf.DragDrop;
 using Newtonsoft.Json;
+using WpfPrismFrameworkTemplate.Views;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -185,6 +186,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
         [Category("个人信息")]
         [DisplayName("姓名")]
+        [Browsable(false)]
         public string Name
         {
             get => _name;

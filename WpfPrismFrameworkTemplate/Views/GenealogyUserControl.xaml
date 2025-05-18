@@ -15,6 +15,7 @@
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
     xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:localui="clr-namespace:WpfPrismFrameworkTemplate.Views"
 xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
 xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"          
              prism:ViewModelLocator.AutoWireViewModel="True">
@@ -62,6 +63,10 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                     <Button Command="hc:ControlCommands.Close" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" Foreground="White"/>
                     <StackPanel Grid.Row="1">
                         <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
+                        <localui:RandomNameEditor 
+Value="{Binding SelectPeople}"
+NameSource="{Binding RandomNameList}"
+Margin="0,5"/>
                         <UniformGrid Rows="2" Columns="2">
                             <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
                                           hc:TitleElement.Title="文化"

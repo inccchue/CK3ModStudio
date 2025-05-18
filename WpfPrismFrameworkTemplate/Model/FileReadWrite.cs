@@ -24,6 +24,7 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _localizationEnglishFile;
         private string _localizationChineseFile;
         private string _CoaCollectSoftwarePath;
+        private string _RandomNameFilePath;
         private bool _EnableAutoSave=true;
 
         public FileReadWrite()
@@ -110,6 +111,14 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _CoaCollectSoftwarePath, value);
         }
 
-
+        [Category("随机名字/姓氏设置")]
+        [DisplayName("随机名字/姓氏文件路径")]
+        [Description("选择随机名字/姓氏文件")]
+        [Editor(typeof(FilePathSelectorEditor), typeof(FilePathSelectorEditor))]
+        public string RandomNameFilePath
+        {
+            get => _RandomNameFilePath;
+            set => SetProperty(ref _RandomNameFilePath, value);
+        }
     }
 }

@@ -11,6 +11,7 @@
     xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
     xmlns:helper="clr-namespace:WpfPrismFrameworkTemplate.Helper"
     xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model" 
+    xmlns:localui="clr-namespace:WpfPrismFrameworkTemplate.Views"
     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -209,6 +210,10 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                     <hc:ScrollViewer >
                         <StackPanel>
                             <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
+                            <localui:RandomNameEditor 
+                        Value="{Binding SelectPeople}"
+                        NameSource="{Binding RandomNameList}"
+                        Margin="0,5"/>
                             <UniformGrid Rows="2" Columns="2">
                                 <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
                                           hc:TitleElement.Title="文化"

@@ -74,6 +74,7 @@
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Helper\CountyParser.cs" />
+    <Compile Include="Helper\NameListParser.cs" />
     <Compile Include="Helper\PropertyGridEditableProperties.cs" />
     <Compile Include="Helper\RichTextBoxBindingBehavior.cs" />
     <Compile Include="Helper\TreeViewItemDoubleClickBehavior.cs" />
@@ -98,6 +99,9 @@
     <Compile Include="ViewModels\FileReadWriteUserControlViewModel.cs" />
     <Compile Include="ViewModels\GenealogyUserControlViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\RandomNameEditor.xaml.cs">
+      <DependentUpon>RandomNameEditor.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\AssignmentWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -166,6 +170,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\RandomNameEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -339,6 +347,12 @@
       <Project>{b5c72be1-d6c0-4daa-8834-598d890b6ad7}</Project>
       <Name>PipeCommunicationLibrary</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="00_agot_name_lists_andal.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Random.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

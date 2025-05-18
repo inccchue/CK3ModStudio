@@ -59,6 +59,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private bool _isAppBRunning=false;
         private PipeClientService _pipeClientService=new PipeClientService();
         private readonly Timer _statusCheckTimer;
+        private List<CultureNames> _RandomName = new List<CultureNames>();
 
         private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
         public ObservableCollection<People> TestPeopleList
@@ -131,7 +132,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
-            
+            eventAggregator.GetEvent<FileSettingChangeEvent>().Subscribe(LoadPathChangeFileContent);
+
             Load();
 
             _statusCheckTimer = new Timer(1000); // 500 毫秒
@@ -140,6 +142,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             _statusCheckTimer.Start();
         }
 
+        public FileReadWrite FileReadWrite
+        {
+            get => _fileReadWrite;
+            set => SetProperty(ref _fileReadWrite, value);
+        }
         public bool IsAppBRunning
         {
             get => _isAppBRunning;
@@ -149,15 +156,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 {
                     
                     SetProperty(ref _isAppBRunning, value);
-                }
-                
-                
+                }         
             }
         }
-        public FileReadWrite FileReadWrite
+        public List<CultureNames> RandomNameList
         {
-            get => _fileReadWrite;
-            set => SetProperty(ref _fileReadWrite, value);
+            get => _RandomName;
+            set => SetProperty(ref _RandomName, value);
         }
         public ObservableCollection<People> Suggestions
         {
@@ -241,6 +246,18 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
+        }
+
+        public void LoadPathChangeFileContent(string changeFile)
+        {
+            switch (changeFile)
+            {
+                case nameof(FileReadWrite.RandomNameFilePath):
+                    RandomNameList=NameFileParser.ParseCultures(FileReadWrite.RandomNameFilePath);
+                    PopulateCultureOptions();
+                    break;
+            }
+
         }
 
         private async Task CheckAppBStatus()
@@ -539,6 +556,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 parameters.Add("CultureOptions", CultureOptions);
                 parameters.Add("ReligionOptions", ReligionOptions);
                 parameters.Add("Suggestions", Suggestions);
+                parameters.Add("RandomNameList", RandomNameList);
                 _regionManager.RequestNavigate("ContentRegion", "Genealogy", parameters);
             }
             else
@@ -903,6 +921,15 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 }
             }
 
+            foreach (var item in RandomNameList)
+            {
+                // 如果 Religion 不为空并且不重复，添加到 religionSet 中
+                if (!string.IsNullOrEmpty(item.CultureName))
+                {
+                    religionSet.Add(item.CultureName);
+                }
+            }
+
             // 将 HashSet 中的宗教名称添加到 ReligionOptions 中
             CultureOptions.Clear(); // 清空现有的宗教选项
             foreach (var religion in religionSet)
@@ -981,10 +1008,12 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 };
 
                 FamilyList = JsonHelper.LoadData();
+                RandomNameList = NameFileParser.ParseCultures(FileReadWrite.RandomNameFilePath);
+
                 EventCorrelation();
                 PopulateReligionOptions();
                 PopulateCultureOptions();
-
+                
             }
             catch (Exception ex)
             {

@@ -88,6 +88,11 @@ namespace WpfPrismFrameworkTemplate.Views
                     filter = "Localization files (*.exe)|*.exe|All files (*.*)|*.*";
                     title = "Select Chinese Localization File";
                 }
+                else if (propertyName.Contains("Random"))
+                {
+                    filter = "Character files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
+                    title = "Select Character Definition File";
+                }
             }
 
             var dialog = new OpenFileDialog

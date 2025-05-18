@@ -10,6 +10,7 @@ using Prism.Events;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Services.Dialogs;
+using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
 using WpfPrismFrameworkTemplate.Views;
 
@@ -23,6 +24,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private IEventAggregator _eventAggregator;
         private bool _IsDrawerOpen = false;
         private LifeEvent _SelectLifeEvent = new LifeEvent();
+        private List<CultureNames> _RandomName = new List<CultureNames>();
         private ObservableCollection<People> _familyTree = new ObservableCollection<People>();
         private ObservableCollection<string> _religionOptions = new ObservableCollection<string>();
         private ObservableCollection<string> _CultureOptions = new ObservableCollection<string>();
@@ -49,7 +51,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             AddReligionCommand = new DelegateCommand(AddReligionExecute);
             AddCultureCommand = new DelegateCommand(AddCultureExecute);
         }
-
+        public List<CultureNames> RandomNameList
+        {
+            get => _RandomName;
+            set => SetProperty(ref _RandomName, value);
+        }
         public ObservableCollection<People> Suggestions
         {
             get => _suggestions;
@@ -249,7 +255,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 dynamic obj = new ExpandoObject();
                 obj.性别 = GenderType.Male;
-                obj.名字 = "";
+                obj.名字 = NameFileParser.GenerateRandomName(RandomNameList, parent);
                 DialogParameters parm = new DialogParameters
         {
             { "value", obj }
@@ -272,12 +278,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             if (navigationContext.Parameters.ContainsKey("RootFamily")
                 && navigationContext.Parameters.ContainsKey("CultureOptions")
                 && navigationContext.Parameters.ContainsKey("ReligionOptions")
-                && navigationContext.Parameters.ContainsKey("Suggestions"))
+                && navigationContext.Parameters.ContainsKey("Suggestions")
+                && navigationContext.Parameters.ContainsKey("RandomNameList"))
             {
                 RootFamily = navigationContext.Parameters.GetValue<Family>("RootFamily");
                 CultureOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("CultureOptions");
                 ReligionOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("ReligionOptions");
                 Suggestions = navigationContext.Parameters.GetValue<ObservableCollection<People>>("Suggestions");
+                RandomNameList = navigationContext.Parameters.GetValue<List<CultureNames>>("RandomNameList");
                 UpdateMembersWithoutDad();
                 RootFamily.Members.CollectionChanged += (s, e) =>UpdateMembersWithoutDad();
             }
