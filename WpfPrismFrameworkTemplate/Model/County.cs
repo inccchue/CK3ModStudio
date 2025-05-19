@@ -11,10 +11,12 @@ namespace WpfPrismFrameworkTemplate.Model
     {
         public string Name { get; set; }
         public ObservableCollection<HolderEntry> HolderEntries { get; set; }
+        public ObservableCollection<OtherEntry> OtherEntries { get; set; }
 
         public County()
         {
             HolderEntries = new ObservableCollection<HolderEntry>();
+            OtherEntries = new ObservableCollection<OtherEntry>();
         }
 
         public override string ToString()
@@ -27,5 +29,11 @@ namespace WpfPrismFrameworkTemplate.Model
     {
         public string StartDate { get; set; }
         public string Holder { get; set; }
+    }
+
+    public class OtherEntry
+    {
+        public string StartDate { get; set; }
+        public string Content { get; set; }
     }
 }
