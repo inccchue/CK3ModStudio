@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using GongSolutions.Wpf.DragDrop;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -81,6 +84,244 @@ namespace WpfPrismFrameworkTemplate.Model
                     MessageBox.Show("日期格式不正确");
                 }
             }
+        }
+
+        public static void RandomCreateBirthAndDeath(People targetPeople)
+        {
+            // 如果没有父母信息，直接返回
+            if (targetPeople.Dad == null && targetPeople.Mom == null)
+            {
+                return;
+            }
+
+            Random random = new Random();
+            DateTime? minBirthDate = null;
+            DateTime? maxBirthDate = null;
+
+            // 处理父亲的约束条件
+            if (targetPeople.Dad != null)
+            {
+                DateTime? dadBirthDate = GetLifeEventDate(targetPeople.Dad, LifeEventType.Birth);
+                DateTime? dadDeathDate = GetLifeEventDate(targetPeople.Dad, LifeEventType.Death);
+
+                if (dadBirthDate.HasValue)
+                {
+                    // 父亲至少16岁才能生孩子
+                    DateTime dadMinParentAge = dadBirthDate.Value.AddYears(16);
+                    minBirthDate = dadMinParentAge;
+                }
+
+                if (dadDeathDate.HasValue)
+                {
+                    if(dadBirthDate.HasValue && dadBirthDate.Value > dadDeathDate.Value)
+                    {
+                        // 如果父亲的出生日期晚于死亡日期，直接返回
+                        return;
+                    }
+                    if(dadBirthDate.HasValue&& (dadBirthDate.Value.AddYears(45)<= dadDeathDate))
+                    {
+                        maxBirthDate = dadBirthDate.Value.AddYears(45);
+                    }
+                    else
+                    {
+                        // 孩子最晚出生日期不能超过父亲死亡
+                        maxBirthDate = dadDeathDate.Value;
+                    }
+                        
+                }
+            }
+
+            // 处理母亲的约束条件
+            if (targetPeople.Mom != null)
+            {
+                DateTime? momBirthDate = GetLifeEventDate(targetPeople.Mom, LifeEventType.Birth);
+                DateTime? momDeathDate = GetLifeEventDate(targetPeople.Mom, LifeEventType.Death);
+
+                if (momBirthDate.HasValue)
+                {
+                    // 母亲至少15岁才能生孩子
+                    DateTime momMinParentAge = momBirthDate.Value.AddYears(15);
+
+                    // 更新最小出生日期（取父母中的较大值）
+                    if (minBirthDate == null || momMinParentAge > minBirthDate)
+                    {
+                        minBirthDate = momMinParentAge;
+                    }
+                }
+
+                if (momDeathDate.HasValue)
+                {
+                    if (momBirthDate.HasValue && momBirthDate.Value > momDeathDate.Value)
+                    {
+                        return;
+                    }
+                    if (maxBirthDate == null || momDeathDate.Value < maxBirthDate)
+                    {
+                        if (momBirthDate.HasValue && (momBirthDate.Value.AddYears(40) <= momDeathDate))
+                        {
+                            if (momBirthDate.Value.AddYears(40) < maxBirthDate)
+                            {
+                                maxBirthDate = momBirthDate.Value.AddYears(40);
+                            }
+                            
+                        }
+                        else
+                        {
+                            if(momDeathDate.Value < maxBirthDate)
+                            {
+                                maxBirthDate = momDeathDate.Value;
+                            }
+                        }
+                    }
+                    
+                    
+                }
+            }
+
+            // 如果没有有效的出生日期范围，就不生成了
+            if (!minBirthDate.HasValue || !maxBirthDate.HasValue || minBirthDate > maxBirthDate)
+            {
+                return;
+            }
+
+            // 在有效范围内随机生成出生日期
+            DateTime birthDate = RandomDateBetween(random, minBirthDate.Value, maxBirthDate.Value);
+
+            // 添加出生事件
+            AddLifeEvent(targetPeople, LifeEventType.Birth, birthDate);
+
+            // 生成符合平均寿命为45岁的正态分布的死亡日期，范围在15-70岁之间
+            double meanAge = 45.0; // 平均寿命
+            double stdDev = 12.0;  // 标准差 - 使得大部分值落在15-70范围内
+
+            // 使用正态分布生成年龄
+            int ageInYears;
+            do
+            {
+                // 正态分布随机数
+                ageInYears = (int)Math.Round(NormalDistribution(random, meanAge, stdDev));
+            } while (ageInYears < 15 || ageInYears > 70); // 确保年龄在15-70岁之间
+
+            // 计算死亡日期
+            DateTime deathDate = birthDate.AddYears(ageInYears);
+
+            // 在一年内随机添加天数，使死亡日期更自然
+            deathDate = deathDate.AddDays(random.Next(365));
+
+            // 添加死亡事件
+            AddLifeEvent(targetPeople, LifeEventType.Death, deathDate);
+        }
+
+        // 获取指定类型的生命事件日期
+        private static DateTime? GetLifeEventDate(People people, LifeEventType eventType)
+        {
+            if (people.LifeEventList == null)
+                return null;
+
+            var lifeEvent = people.LifeEventList.FirstOrDefault(e => e.EventType == eventType);
+            if (lifeEvent == null)
+                return null;
+
+            // 解析日期字符串 (格式: yyyy.MM.dd)
+            if (DateTime.TryParseExact(lifeEvent.EventDate, "yyyy.M.d", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out DateTime date))
+            {
+                return date;
+            }
+
+            return null;
+        }
+
+        // 在两个日期之间随机生成一个日期，前5年概率最大，然后概率逐渐降低
+        private static DateTime RandomDateBetween(Random random, DateTime start, DateTime end)
+        {
+            int range = (end - start).Days;
+            if (range <= 0)
+                return start;
+
+            // 确定5年的天数
+            int fiveYearsInDays = 5 * 365;
+
+            // 如果总范围小于5年，则使用有偏向起点的分布
+            if (range <= fiveYearsInDays)
+            {
+                // 使用三角分布，偏向于起始点
+                double triangularRandom = TriangularDistribution(random, 0, range, 0);
+                return start.AddDays((int)triangularRandom);
+            }
+            else
+            {
+                // 优先考虑5年内的范围，使用指数衰减
+                // 生成一个0到1的随机数
+                double randomValue = random.NextDouble();
+
+                // 应用指数分布公式: -ln(1-r)/lambda
+                // lambda控制衰减速率，较小的lambda意味着更快的衰减
+                double lambda = 1.0 / (range * 0.25); // 调整参数使分布合理
+
+                // 防止ln(0)
+                if (randomValue >= 0.999)
+                    randomValue = 0.999;
+
+                // 计算随机天数（使用指数分布）
+                double expRandom = -Math.Log(1 - randomValue) / lambda;
+
+                // 将值限制在合法范围内
+                int randomDays = (int)Math.Min(expRandom, range);
+
+                return start.AddDays(randomDays);
+            }
+        }
+
+        // 三角分布随机数生成
+        private static double TriangularDistribution(Random random, double min, double max, double mode)
+        {
+            double u = random.NextDouble();
+            double normalizedMode = (mode - min) / (max - min);
+
+            if (u <= normalizedMode)
+                return min + Math.Sqrt(u * (max - min) * (mode - min));
+            else
+                return max - Math.Sqrt((1 - u) * (max - min) * (max - mode));
+        }
+
+        // 生成正态分布的随机数
+        private static double NormalDistribution(Random random, double mean, double stdDev)
+        {
+            // Box-Muller算法生成正态分布随机数
+            double u1 = 1.0 - random.NextDouble(); // 避免取到0
+            double u2 = 1.0 - random.NextDouble();
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+            return mean + stdDev * randStdNormal;
+        }
+
+        // 添加生命事件
+        private static void AddLifeEvent(People people, LifeEventType eventType, DateTime date)
+        {
+            if (people.LifeEventList == null)
+            {
+                people.LifeEventList = new ObservableCollection<LifeEvent>();
+            }
+
+            // 检查是否已经存在同类型的事件
+            var existingEvent = people.LifeEventList.FirstOrDefault(e => e.EventType == eventType);
+            if (existingEvent != null)
+            {
+                // 移除已存在的事件
+                people.LifeEventList.Remove(existingEvent);
+            }
+
+            // 格式化日期为指定格式 (yyyy.M.d)
+            string formattedDate = date.ToString("yyyy.M.d");
+
+            // 创建并添加新事件
+            var newEvent = new LifeEvent
+            {
+                EventType = eventType,
+                EventDate = formattedDate
+            };
+
+            people.LifeEventList.Add(newEvent);
         }
 
         // 获取可比较的数值表示

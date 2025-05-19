@@ -505,6 +505,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     parameters.Add("ReligionOptions", ReligionOptions);
                     parameters.Add("Suggestions", Suggestions);
                     parameters.Add("RandomNameList", RandomNameList);
+                    parameters.Add("FileReadWrite", FileReadWrite);
                     _regionManager.RequestNavigate("RightRegion", "Genealogy", parameters);
                 }
             }
@@ -604,7 +605,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             if (SelectFamily == null)
             {
-                MessageBox.Show("请先选择一个家族", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                HandyControl.Controls.Growl.Error("请先选择一个家族");
                 return;
             }
 
@@ -613,8 +614,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             parameters.Add("CultureOptions", CultureOptions);
             parameters.Add("ReligionOptions", ReligionOptions);
             parameters.Add("Suggestions", Suggestions);
-            parameters.Add("RandomNameList", RandomNameList);            
-            
+            parameters.Add("RandomNameList", RandomNameList);
+            parameters.Add("FileReadWrite", FileReadWrite);
+
             viewInstance = region2.Views.FirstOrDefault(v => v.GetType().Name == nameof(CountyTimelineUserControl));
             if (viewInstance != null)
             {

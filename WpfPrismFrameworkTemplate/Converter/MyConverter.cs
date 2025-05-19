@@ -92,21 +92,32 @@ namespace WpfPrismFrameworkTemplate.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is ObservableCollection<LifeEvent> events)
+            try
             {
-                var birthEvent = events.FirstOrDefault(e => e.EventType == LifeEventType.Birth);
-                var deathEvent = events.FirstOrDefault(e => e.EventType == LifeEventType.Death);
-
-                string birthDate = birthEvent?.EventDate.ToString() ?? "?";
-                string deathDate = deathEvent?.EventDate.ToString() ?? "?";
-
-                if(birthEvent == null&& deathEvent == null)
+                if (value is ObservableCollection<LifeEvent> events)
                 {
-                    return "";
-                }
+                    var birthEvent = events.FirstOrDefault(e => e.EventType == LifeEventType.Birth);
+                    var deathEvent = events.FirstOrDefault(e => e.EventType == LifeEventType.Death);
 
-                return $"{birthDate} - {deathDate}";
+                    if (birthEvent == null && deathEvent == null)
+                    {
+                        return "";
+                    }
+
+                    string birthDate = birthEvent?.EventDate.ToString() ?? "?";
+                    string deathDate = deathEvent?.EventDate.ToString() ?? "?";
+
+                    
+
+                    return $"{birthDate} - {deathDate}";
+                }
             }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
             return string.Empty;
         }
 

@@ -26,6 +26,7 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _CoaCollectSoftwarePath;
         private string _RandomNameFilePath;
         private bool _EnableAutoSave=true;
+        private bool _EnableRandomAge = true;
 
         public FileReadWrite()
         {
@@ -111,7 +112,7 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _CoaCollectSoftwarePath, value);
         }
 
-        [Category("随机名字/姓氏设置")]
+        [Category("随机设置")]
         [DisplayName("随机名字/姓氏文件路径")]
         [Description("选择随机名字/姓氏文件")]
         [Editor(typeof(FilePathSelectorEditor), typeof(FilePathSelectorEditor))]
@@ -119,6 +120,15 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             get => _RandomNameFilePath;
             set => SetProperty(ref _RandomNameFilePath, value);
+        }
+
+        [Category("随机设置")]
+        [DisplayName("是否开启随机年龄")]
+        [Description("选择是否开启随机年龄")]
+        public bool EnableRandomAge
+        {
+            get => _EnableRandomAge;
+            set => SetProperty(ref _EnableRandomAge, value);
         }
     }
 }

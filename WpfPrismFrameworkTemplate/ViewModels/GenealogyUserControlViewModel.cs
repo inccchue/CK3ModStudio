@@ -24,6 +24,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private IEventAggregator _eventAggregator;
         private bool _IsDrawerOpen = false;
         private LifeEvent _SelectLifeEvent = new LifeEvent();
+        private FileReadWrite _FileReadWrite = new FileReadWrite();
         private List<CultureNames> _RandomName = new List<CultureNames>();
         private ObservableCollection<People> _familyTree = new ObservableCollection<People>();
         private ObservableCollection<string> _religionOptions = new ObservableCollection<string>();
@@ -55,6 +56,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get => _RandomName;
             set => SetProperty(ref _RandomName, value);
+        }
+        public FileReadWrite FileReadWrite
+        {
+            get => _FileReadWrite;
+            set => SetProperty(ref _FileReadWrite, value);
         }
         public ObservableCollection<People> Suggestions
         {
@@ -255,7 +261,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 dynamic obj = new ExpandoObject();
                 obj.性别 = GenderType.Male;
-                obj.名字 = NameFileParser.GenerateRandomName(RandomNameList, parent);
                 DialogParameters parm = new DialogParameters
         {
             { "value", obj }
@@ -267,9 +272,17 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                         obj = arg.Parameters.GetValue<ExpandoObject>("value");
                     }
                 });
-                People newPeople = new People(RootFamily.FindMemberWithMaxIdNumber() + 1, obj.名字, obj.性别, RootFamily.FamilyName,parent.Religion,parent.Culture);
+                People tmpPeople = new People();
+                tmpPeople.Gender = obj.性别;
+                tmpPeople.Culture = parent.Culture;
+                People newPeople = new People(RootFamily.FindMemberWithMaxIdNumber() + 1, NameFileParser.GenerateRandomName(RandomNameList, tmpPeople), obj.性别, RootFamily.FamilyName,parent.Religion,parent.Culture);
                 newPeople.Dad = parent;
                 parent.Children.Add(newPeople);
+                if (FileReadWrite.EnableRandomAge)
+                {
+                    LifeEvent.RandomCreateBirthAndDeath(newPeople);
+                }
+                
             }
         }
 
@@ -279,13 +292,15 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 && navigationContext.Parameters.ContainsKey("CultureOptions")
                 && navigationContext.Parameters.ContainsKey("ReligionOptions")
                 && navigationContext.Parameters.ContainsKey("Suggestions")
-                && navigationContext.Parameters.ContainsKey("RandomNameList"))
+                && navigationContext.Parameters.ContainsKey("RandomNameList")
+                && navigationContext.Parameters.ContainsKey("FileReadWrite"))
             {
                 RootFamily = navigationContext.Parameters.GetValue<Family>("RootFamily");
                 CultureOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("CultureOptions");
                 ReligionOptions = navigationContext.Parameters.GetValue<ObservableCollection<string>>("ReligionOptions");
                 Suggestions = navigationContext.Parameters.GetValue<ObservableCollection<People>>("Suggestions");
                 RandomNameList = navigationContext.Parameters.GetValue<List<CultureNames>>("RandomNameList");
+                FileReadWrite = navigationContext.Parameters.GetValue<FileReadWrite>("FileReadWrite");
                 UpdateMembersWithoutDad();
                 RootFamily.Members.CollectionChanged += (s, e) =>UpdateMembersWithoutDad();
             }
