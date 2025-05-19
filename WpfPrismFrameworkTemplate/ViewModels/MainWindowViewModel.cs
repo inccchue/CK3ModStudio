@@ -1294,10 +1294,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 //Task.Run(async () => await _repository.SaveFamiliesAsync(FamilyList)).Wait();
                 JsonHelper.SaveData(FamilyList);
                 JsonHelper.SaveFileSetting(FileReadWrite);
+                HandyControl.Controls.Growl.Success("保存文件成功");
             }
             catch (Exception ex)
             {
-                // 记录日志
+                HandyControl.Controls.Growl.Error($@"保存文件失败，原因是{ex.Message}");
             }
         }
 
