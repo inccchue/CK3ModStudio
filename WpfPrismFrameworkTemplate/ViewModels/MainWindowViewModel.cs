@@ -438,6 +438,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             // 获取该区域
             IRegion region = _regionManager.Regions["ContentRegion"];
+            IRegion region2 = _regionManager.Regions["MiddleRegion"];
+            foreach (var view in region2.Views)
+            {
+                region2.Remove(view);
+            }
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileReadWriteUserControl));
@@ -463,8 +468,18 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         }
         private void GotoTimeline()
         {
+            if (SelectFamily == null)
+            {
+                HandyControl.Controls.Growl.Error("请先选择一个家族");
+                return;
+            }
             // 获取该区域
             IRegion region = _regionManager.Regions["ContentRegion"];
+            foreach (var view in region.Views)
+            {
+                region.Remove(view);
+            }
+            region = _regionManager.Regions["MiddleRegion"];
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(CountyTimelineUserControl));
@@ -477,10 +492,29 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 }
                 var parameters = new NavigationParameters();
                 parameters.Add("FileReadWrite", FileReadWrite);
-                _regionManager.RequestNavigate("ContentRegion", "CountyTimeline", parameters);
+                _regionManager.RequestNavigate("MiddleRegion", "CountyTimeline", parameters);
+
+                region = _regionManager.Regions["RightRegion"];
+                viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(GenealogyUserControl));
+                if (viewInstance == null&&SelectFamily!=null)
+                {
+                   
+                    parameters = new NavigationParameters();
+                    parameters.Add("RootFamily", SelectFamily);
+                    parameters.Add("CultureOptions", CultureOptions);
+                    parameters.Add("ReligionOptions", ReligionOptions);
+                    parameters.Add("Suggestions", Suggestions);
+                    parameters.Add("RandomNameList", RandomNameList);
+                    _regionManager.RequestNavigate("RightRegion", "Genealogy", parameters);
+                }
             }
             else
             {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+                region = _regionManager.Regions["RightRegion"];
                 foreach (var view in region.Views)
                 {
                     region.Remove(view);
@@ -513,6 +547,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             // 获取该区域
             IRegion region = _regionManager.Regions["FileContentRegion"];
+            IRegion region2 = _regionManager.Regions["MiddleRegion"];
+            foreach (var view in region2.Views)
+            {
+                region2.Remove(view);
+            }
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileContentUserControl));
@@ -538,33 +577,52 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             // 获取该区域
             IRegion region = _regionManager.Regions["ContentRegion"];
+            IRegion region2 = _regionManager.Regions["MiddleRegion"];
+            IRegion region3 = _regionManager.Regions["RightRegion"];
 
-           
-            // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(GenealogyUserControl));
-            // 如果找到了视图，则将其从区域中移除
-            if (viewInstance == null)
-            {
-                if(SelectFamily == null)
-                {
-                    MessageBox.Show("请先选择一个家族", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
-
-                var parameters = new NavigationParameters();
-                parameters.Add("RootFamily", SelectFamily);
-                parameters.Add("CultureOptions", CultureOptions);
-                parameters.Add("ReligionOptions", ReligionOptions);
-                parameters.Add("Suggestions", Suggestions);
-                parameters.Add("RandomNameList", RandomNameList);
-                _regionManager.RequestNavigate("ContentRegion", "Genealogy", parameters);
-            }
-            else
+            if (viewInstance != null)
             {
                 foreach (var view in region.Views)
                 {
                     region.Remove(view);
                 }
+
+                return;
+            }
+
+            viewInstance = region3.Views.FirstOrDefault(v => v.GetType().Name == nameof(GenealogyUserControl));
+            if (viewInstance != null)
+            {
+                foreach (var view in region3.Views)
+                {
+                    region3.Remove(view);
+                }
+
+                return;
+            }
+
+            if (SelectFamily == null)
+            {
+                MessageBox.Show("请先选择一个家族", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var parameters = new NavigationParameters();
+            parameters.Add("RootFamily", SelectFamily);
+            parameters.Add("CultureOptions", CultureOptions);
+            parameters.Add("ReligionOptions", ReligionOptions);
+            parameters.Add("Suggestions", Suggestions);
+            parameters.Add("RandomNameList", RandomNameList);            
+            
+            viewInstance = region2.Views.FirstOrDefault(v => v.GetType().Name == nameof(CountyTimelineUserControl));
+            if (viewInstance != null)
+            {
+                _regionManager.RequestNavigate("RightRegion", "Genealogy", parameters);
+            }
+            else
+            {
+                _regionManager.RequestNavigate("ContentRegion", "Genealogy", parameters);
             }
 
         }
