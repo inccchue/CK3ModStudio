@@ -72,6 +72,7 @@
     </ApplicationDefinition>
     <Compile Include="Converter\MyConverter.cs" />
     <Compile Include="Helper\DatabaseHelper.cs" />
+    <Compile Include="Helper\FamilyInheritanceManager.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Helper\CountyParser.cs" />
     <Compile Include="Helper\NameListParser.cs" />
@@ -353,6 +354,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Random.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tiehe.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -51,6 +51,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             ModifyLifeEventCmd = new DelegateCommand(ModifyLifeEvent);
             AddReligionCommand = new DelegateCommand(AddReligionExecute);
             AddCultureCommand = new DelegateCommand(AddCultureExecute);
+            eventAggregator.GetEvent<SelectFamilyChangeEvent>().Subscribe(OnFamilyUpdated);
         }
         public List<CultureNames> RandomNameList
         {
@@ -114,6 +115,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get => _familyTree;
             set => SetProperty(ref _familyTree, value);
+        }
+
+        private void OnFamilyUpdated(Family updatedFamily)
+        {
+            RootFamily = updatedFamily;
+            UpdateMembersWithoutDad();
+            RootFamily.Members.CollectionChanged += (s, e) => UpdateMembersWithoutDad();
         }
 
         public void SendHandleTextChanged(string text, AutoSuggestionBoxTextChangeReason reason, SearchType searchType)

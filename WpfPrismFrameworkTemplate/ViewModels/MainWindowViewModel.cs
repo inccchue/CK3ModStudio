@@ -61,14 +61,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private readonly Timer _statusCheckTimer;
         private List<CultureNames> _RandomName = new List<CultureNames>();
 
-        private ObservableCollection<People> _TestPeopleList = new ObservableCollection<People>();
-        public ObservableCollection<People> TestPeopleList
-        {
-            get => _TestPeopleList;
-            set => SetProperty(ref _TestPeopleList, value);
-        }
-
-
         public DelegateCommand OpenFileCmd { get; private set; }
         public DelegateCommand<string> SearchCmd { get; private set; }
         public DelegateCommand CreatePersonContentCmd { get; private set; }
@@ -133,6 +125,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
             eventAggregator.GetEvent<FileSettingChangeEvent>().Subscribe(LoadPathChangeFileContent);
+            eventAggregator.GetEvent<SelectFamilyChangeEvent>().Subscribe(OnFamilyUpdated);
 
             Load();
 
@@ -246,6 +239,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
+        }
+
+        private void OnFamilyUpdated(Family updatedFamily)
+        {
+            SelectFamily = updatedFamily;
         }
 
         public void LoadPathChangeFileContent(string changeFile)
@@ -492,6 +490,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 }
                 var parameters = new NavigationParameters();
                 parameters.Add("FileReadWrite", FileReadWrite);
+                parameters.Add("FamilyList", FamilyList);
+                parameters.Add("SelectFamily", SelectFamily);
                 _regionManager.RequestNavigate("MiddleRegion", "CountyTimeline", parameters);
 
                 region = _regionManager.Regions["RightRegion"];

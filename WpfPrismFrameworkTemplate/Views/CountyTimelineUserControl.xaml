@@ -47,9 +47,9 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="0"/>
-            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
         <WrapPanel Grid.Row="1" Grid.ColumnSpan="3" Background="DarkRed">
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
@@ -61,10 +61,35 @@ hc:BorderElement.CornerRadius="15"  Command="{Binding SaveCmd}"
                     </StackPanel>
                 </Button.Content>
             </Button>
+            <TextBlock Text="选中的家族" Foreground="White" FontWeight="Heavy" VerticalAlignment="Center" Margin="5"/>
+            <hc:ComboBox  Width="100" 
+                     SelectedItem="{Binding SelectFamily}"
+                     VerticalAlignment='Center'
+                     ItemsSource="{Binding FamilyList}" 
+                     DisplayMemberPath="FamilyName" 
+                     IsTextSearchEnabled="False"
+                     Style="{StaticResource ComboBoxExtend.Small}"
+                          >
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectChangeCmd}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </hc:ComboBox>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15"  Command="{Binding FitCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/tiehe.png" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </WrapPanel>
-        <StackPanel Grid.Row="0" Grid.Column="0">
+        <ScrollViewer Grid.Row="0" Grid.Column="0" Style="{StaticResource ScrollViewerNativeBaseStyle}">
             <StackPanel >
-                <ui:AutoSuggestBox x:Name="CountyAutoSuggestBox"
+                <StackPanel >
+                    <ui:AutoSuggestBox x:Name="CountyAutoSuggestBox"
             PlaceholderText="搜索领地..." VerticalAlignment="Center" Margin="5"
             Text="{Binding SelectCounty, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
             ItemsSource="{Binding Suggestions}"
@@ -72,50 +97,52 @@ hc:BorderElement.CornerRadius="15"  Command="{Binding SaveCmd}"
     QuerySubmitted="AutoSuggestBox_QuerySubmitted"
     SuggestionChosen="AutoSuggestBox_SuggestionChosen">
 
-                    <!-- 自定义项目模板 -->
-                    <ui:AutoSuggestBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
+                        <!-- 自定义项目模板 -->
+                        <ui:AutoSuggestBox.ItemTemplate>
+                            <DataTemplate>
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Column="0" Grid.Row="0"
+                                        <TextBlock Grid.Column="0" Grid.Row="0"
 Text="{Binding Name}" 
 FontWeight="Bold" />
-                                   
-                                </Grid>
-                                <Border Grid.Row="1" 
+
+                                    </Grid>
+                                    <Border Grid.Row="1" 
                     BorderThickness="0,0,0,1" 
                     BorderBrush="#20000000" 
                     Margin="0" />
-                            </Grid>
+                                </Grid>
 
 
-                        </DataTemplate>
-                    </ui:AutoSuggestBox.ItemTemplate>
-                </ui:AutoSuggestBox>
-            </StackPanel>
-            <ListView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Counties}" SelectedItem="{Binding SelectCounty}"
-          >
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
+                            </DataTemplate>
+                        </ui:AutoSuggestBox.ItemTemplate>
+                    </ui:AutoSuggestBox>
+                </StackPanel>
+                <ListView Grid.Row="0" Grid.Column="0" ItemsSource="{Binding Counties}" SelectedItem="{Binding SelectCounty}"
+                    >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
                        Style="{StaticResource TextBlockDefaultInfo}"/>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </ScrollViewer>
+        
            
         <ListView Grid.Column="1" ItemsSource="{Binding SelectCounty.HolderEntries}" BorderThickness="0"
                   Style="{StaticResource ListView.Small}">

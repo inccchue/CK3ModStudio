@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Media;
 using ModernWpf.Controls;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Services.Dialogs;
@@ -23,23 +24,47 @@ namespace WpfPrismFrameworkTemplate.ViewModels
     }
     public class CountyTimelineUserControlViewModel : BindableBase, INavigationAware
     {
+        ObservableCollection<Family> _FamilyList=new ObservableCollection<Family>();
+        private Family _SelectFamily = new Family();
         private IDialogService _dialogService;
+        private IEventAggregator _eventAggregator;
         private FileReadWrite _fileReadWrite;
         private County _SelectCounty = new County();
         private ObservableCollection<County> _counties=new ObservableCollection<County>();
         public ObservableCollection<TimelineEntry> _TimelineEntries = new ObservableCollection<TimelineEntry>();
         private ObservableCollection<County> _suggestions = new ObservableCollection<County>();
+        FamilyInheritanceManager familyInheritanceManager = new FamilyInheritanceManager();
         public DelegateCommand<TimelineEntry> DelCmd { get; private set; }
         public DelegateCommand<TimelineEntry> AddCmd { get; private set; }
+        public DelegateCommand SelectChangeCmd { get; private set; }
         public DelegateCommand SaveCmd { get; private set; }
-        public CountyTimelineUserControlViewModel(IDialogService dialogService)
+        public DelegateCommand FitCmd { get; private set; }
+        public CountyTimelineUserControlViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
             DelCmd = new DelegateCommand<TimelineEntry>(Del);
             AddCmd = new DelegateCommand<TimelineEntry>(Add);
             SaveCmd = new DelegateCommand(Save);
+            FitCmd = new DelegateCommand(Fit);
+            SelectChangeCmd = new DelegateCommand(SelectChange);
             _dialogService = dialogService;
+            _eventAggregator = eventAggregator;
         }
 
+        public Family SelectFamily
+        {
+            get => _SelectFamily;
+            set
+            {
+                SetProperty(ref _SelectFamily, value);
+
+                
+            }
+        }
+        public ObservableCollection<Family> FamilyList
+        {
+            get => _FamilyList;
+            set => SetProperty(ref _FamilyList, value);
+        }
         public ObservableCollection<County> Suggestions
         {
             get => _suggestions;
@@ -70,11 +95,29 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set => SetProperty(ref _TimelineEntries, value);
         }
 
+        public void Fit()
+        {
+            try
+            {
+                SelectCounty.HolderEntries = familyInheritanceManager.UpdateHolderEntries(SelectCounty.HolderEntries, SelectFamily.Members);
+                ProcessTimelineEntries();
+                HandyControl.Controls.Growl.Success("家族贴合时间轴成功");
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($@"家族贴合时间轴失败,失败原因是{ex.Message}");
+            }
+        }
+        public void SelectChange()
+        {
+            _eventAggregator.GetEvent<SelectFamilyChangeEvent>().Publish(SelectFamily);
+        }
         public void Save()
         {
             if (FileReadWrite != null)
             {
                 CountyParser.SaveCountiesToFile(Counties, FileReadWrite.DomainDefFile);
+                HandyControl.Controls.Growl.Success("保存文件成功");
             }
         }
         public void Add(TimelineEntry timelineEntry)
@@ -196,9 +239,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
         public void OnNavigatedTo(NavigationContext navigationContext)
         {
-            if (navigationContext.Parameters.ContainsKey("FileReadWrite"))
+            if (navigationContext.Parameters.ContainsKey("FileReadWrite")
+                && navigationContext.Parameters.ContainsKey("FamilyList")
+                && navigationContext.Parameters.ContainsKey("SelectFamily"))
             {
                 FileReadWrite = navigationContext.Parameters.GetValue<FileReadWrite>("FileReadWrite");
+                FamilyList = navigationContext.Parameters.GetValue<ObservableCollection<Family>>("FamilyList");
+                SelectFamily = navigationContext.Parameters.GetValue<Family>("SelectFamily");
                 CountyParser.ParseCountiesFromFile(Counties, FileReadWrite.DomainDefFile);
                 SelectCounty=Counties.FirstOrDefault();
             }

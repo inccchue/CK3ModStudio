@@ -4,21 +4,26 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prism.Mvvm;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
-    public class County
+    public class County : BindableBase
     {
         public string Name { get; set; }
-        public ObservableCollection<HolderEntry> HolderEntries { get; set; }
+        private ObservableCollection<HolderEntry> _HolderEntries = new ObservableCollection<HolderEntry>();
         public ObservableCollection<OtherEntry> OtherEntries { get; set; }
 
         public County()
         {
-            HolderEntries = new ObservableCollection<HolderEntry>();
             OtherEntries = new ObservableCollection<OtherEntry>();
         }
 
+        public ObservableCollection<HolderEntry> HolderEntries
+        {
+            get => _HolderEntries;
+            set => SetProperty(ref _HolderEntries, value);
+        }
         public override string ToString()
         {
             return Name;

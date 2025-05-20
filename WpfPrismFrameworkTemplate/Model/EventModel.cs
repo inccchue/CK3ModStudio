@@ -64,4 +64,8 @@ namespace WpfPrismFrameworkTemplate.Model
     public class FileSettingChangeEvent : PubSubEvent<string>
     {
     }
+
+    public class SelectFamilyChangeEvent : PubSubEvent<Family>
+    {
+    }
 }

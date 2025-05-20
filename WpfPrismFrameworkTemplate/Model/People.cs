@@ -235,6 +235,41 @@ namespace WpfPrismFrameworkTemplate.Model
         [JsonIgnore]
         public string DisplayText => GetString();
 
+        // 获取出生日期
+        public string GetBirthDate()
+        {
+            var birthEvent = LifeEventList?.FirstOrDefault(e => e.EventType == LifeEventType.Birth);
+            return birthEvent?.EventDate;
+        }
+
+        // 获取死亡日期
+        public string GetDeathDate()
+        {
+            var deathEvent = LifeEventList?.FirstOrDefault(e => e.EventType == LifeEventType.Death);
+            return deathEvent?.EventDate;
+        }
+
+        // 判断是否已婚
+        public bool IsMarried()
+        {
+            return LifeEventList?.Any(e => e.EventType == LifeEventType.Marriage) ?? false;
+        }
+
+        // 判断是否已死亡
+        public bool IsDead()
+        {
+            return GetDeathDate() != null;
+        }
+
+        // 判断性别 (通过子女关系推断)
+        // 如果有子女且是其父亲，则为男性
+        public bool IsMale(ObservableCollection<People> allMembers)
+        {
+            // 如果此人是其他人的父亲，认为是男性
+            return allMembers.Any(m => m.LifeEventList.Any(e => e.EventType == LifeEventType.Birth) &&
+                m.Children?.Contains(this) == true);
+        }
+
         public string GetString()
         {
             var sb = new StringBuilder();
