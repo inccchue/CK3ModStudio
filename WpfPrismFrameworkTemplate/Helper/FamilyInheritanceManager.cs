@@ -47,40 +47,134 @@ namespace WpfPrismFrameworkTemplate.Helper
         }
 
         // 根据男性优先继承法找出下一个继承人
-        public People FindNextHeir(People current, ObservableCollection<People> allMembers, string currentDate)
+        public People FindNextHeir(People current, ObservableCollection<People> allMembers, string currentDate, HashSet<string> visitedPeople = null)
         {
-            // 首先检查其子女，男性优先
+            // 初始化已访问人员集合，防止无限递归
+            if (visitedPeople == null)
+                visitedPeople = new HashSet<string>();
+
+            // 如果当前人已经被访问过，直接返回 null 避免循环
+            if (current == null || visitedPeople.Contains(current.IdName))
+                return null;
+
+            // 标记当前人已被访问
+            visitedPeople.Add(current.IdName);
+
+            // 一、检查其子女，男性优先
             if (current.Children != null && current.Children.Count > 0)
             {
-                // 先找男性子女
+                // 1. 先找存活的男性子女（按年龄排序）
                 var maleChildren = current.Children
                     .Where(c => c.GetBirthDate() != null &&
                                CompareDates(c.GetBirthDate(), currentDate) <= 0 &&
                                (c.GetDeathDate() == null || CompareDates(currentDate, c.GetDeathDate()) < 0))
-                    .Where(c => c.IsMale(allMembers))
+                    .Where(c => c.IsMale())
                     .OrderBy(c => c.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b)))
                     .ToList();
 
                 if (maleChildren.Any())
                     return maleChildren.First();
 
-                // 如果没有男性子女，找女性子女
+                // 2. 如果没有男性子女，找存活的女性子女（按年龄排序）
                 var femaleChildren = current.Children
                     .Where(c => c.GetBirthDate() != null &&
                                CompareDates(c.GetBirthDate(), currentDate) <= 0 &&
                                (c.GetDeathDate() == null || CompareDates(currentDate, c.GetDeathDate()) < 0))
-                    .Where(c => !c.IsMale(allMembers))
+                    .Where(c => !c.IsMale())
                     .OrderBy(c => c.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b)))
                     .ToList();
 
                 if (femaleChildren.Any())
                     return femaleChildren.First();
+
+                // 3. 检查男性子女的后代（递归检查）
+                foreach (var maleChild in current.Children.Where(c => c.IsMale())
+                         .OrderBy(c => c.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
+                {
+                    if (maleChild.IsDead() && CompareDates(maleChild.GetDeathDate(), currentDate) <= 0)
+                    {
+                        var heir = FindNextHeir(maleChild, allMembers, currentDate, visitedPeople);
+                        if (heir != null)
+                            return heir;
+                    }
+                }
+
+                // 4. 检查女性子女的后代（递归检查）
+                foreach (var femaleChild in current.Children.Where(c => !c.IsMale())
+                         .OrderBy(c => c.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
+                {
+                    if (femaleChild.IsDead() && CompareDates(femaleChild.GetDeathDate(), currentDate) <= 0)
+                    {
+                        var heir = FindNextHeir(femaleChild, allMembers, currentDate, visitedPeople);
+                        if (heir != null)
+                            return heir;
+                    }
+                }
             }
 
-            // 如果没有合适的子女，查找兄弟姐妹的后代
-            // 这部分需要在具体实现中根据家族结构进一步完善
+            // 二、如果没有子女或子女后代，检查兄弟姐妹及其后代
+            if (current.Dad != null)
+            {
+                var siblings = allMembers.Where(m => m != current && m.Dad == current.Dad).ToList();
 
-            return null; // 没有找到合适的继承人
+                // 1. 先找存活的兄弟（按年龄排序）
+                var maleSiblings = siblings
+                    .Where(s => s.IsMale() &&
+                              s.GetBirthDate() != null &&
+                              CompareDates(s.GetBirthDate(), currentDate) <= 0 &&
+                              (s.GetDeathDate() == null || CompareDates(currentDate, s.GetDeathDate()) < 0))
+                    .OrderBy(s => s.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b)))
+                    .ToList();
+
+                if (maleSiblings.Any())
+                    return maleSiblings.First();
+
+                // 2. 如果没有存活的兄弟，找存活的姐妹（按年龄排序）
+                var femaleSiblings = siblings
+                    .Where(s => !s.IsMale() &&
+                              s.GetBirthDate() != null &&
+                              CompareDates(s.GetBirthDate(), currentDate) <= 0 &&
+                              (s.GetDeathDate() == null || CompareDates(currentDate, s.GetDeathDate()) < 0))
+                    .OrderBy(s => s.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b)))
+                    .ToList();
+
+                if (femaleSiblings.Any())
+                    return femaleSiblings.First();
+
+                // 3. 检查已故兄弟的后代
+                foreach (var maleSibling in siblings.Where(s => s.IsMale())
+                         .OrderBy(s => s.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
+                {
+                    if (maleSibling.IsDead() && CompareDates(maleSibling.GetDeathDate(), currentDate) <= 0)
+                    {
+                        var heir = FindNextHeir(maleSibling, allMembers, currentDate, visitedPeople);
+                        if (heir != null)
+                            return heir;
+                    }
+                }
+
+                // 4. 检查已故姐妹的后代
+                foreach (var femaleSibling in siblings.Where(s => !s.IsMale())
+                         .OrderBy(s => s.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
+                {
+                    if (femaleSibling.IsDead() && CompareDates(femaleSibling.GetDeathDate(), currentDate) <= 0)
+                    {
+                        var heir = FindNextHeir(femaleSibling, allMembers, currentDate, visitedPeople);
+                        if (heir != null)
+                            return heir;
+                    }
+                }
+
+                // 5. 如果兄弟姐妹及其后代都没有合适继承人，向上递归找父系亲属
+                // 先检查父亲是否已经被访问过，避免无限递归
+                if (!visitedPeople.Contains(current.Dad.IdName))
+                {
+                    return FindNextHeir(current.Dad, allMembers, currentDate, visitedPeople);
+                }
+            }
+
+            // 三、如果以上都找不到继承人，就找不到合适继承人
+            return null;
         }
 
         // 更新领地持有者集合
@@ -125,7 +219,7 @@ namespace WpfPrismFrameworkTemplate.Helper
             while (currentDate != null)
             {
                 // 找出下一任继承人
-                People nextHolder = FindNextHeir(currentHolder, familyMembers, currentDate);
+                People nextHolder = FindNextHeir(currentHolder, familyMembers, currentDate, new HashSet<string>());
                 if (nextHolder == null)
                     break;
 

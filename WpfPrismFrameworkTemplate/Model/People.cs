@@ -261,13 +261,10 @@ namespace WpfPrismFrameworkTemplate.Model
             return GetDeathDate() != null;
         }
 
-        // 判断性别 (通过子女关系推断)
-        // 如果有子女且是其父亲，则为男性
-        public bool IsMale(ObservableCollection<People> allMembers)
+        // 判断是否为男性
+        public bool IsMale()
         {
-            // 如果此人是其他人的父亲，认为是男性
-            return allMembers.Any(m => m.LifeEventList.Any(e => e.EventType == LifeEventType.Birth) &&
-                m.Children?.Contains(this) == true);
+            return Gender == GenderType.Male;
         }
 
         public string GetString()
