@@ -17,7 +17,7 @@ xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
 xmlns:ui="http://schemas.modernwpf.com/2019"        
              prism:ViewModelLocator.AutoWireViewModel="True" >
     <Grid Background="White">
-        <TabControl >
+        <TabControl Style="{StaticResource TabControlInLine}">
             <hc:TabItem Header="角色定义文件">
                 <RichTextBox>
                     <RichTextBox.InputBindings>
