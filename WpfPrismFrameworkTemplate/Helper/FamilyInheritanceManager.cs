@@ -75,6 +75,18 @@ namespace WpfPrismFrameworkTemplate.Helper
                 if (maleChildren.Any())
                     return maleChildren.First();
 
+                // 3. 检查男性子女的后代（递归检查）
+                foreach (var maleChild in current.Children.Where(c => c.IsMale())
+                         .OrderBy(c => c.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
+                {
+                    if (maleChild.IsDead() && CompareDates(maleChild.GetDeathDate(), currentDate) <= 0)
+                    {
+                        var heir = FindNextHeir(maleChild, allMembers, currentDate, visitedPeople);
+                        if (heir != null)
+                            return heir;
+                    }
+                }
+
                 // 2. 如果没有男性子女，找存活的女性子女（按年龄排序）
                 var femaleChildren = current.Children
                     .Where(c => c.GetBirthDate() != null &&
@@ -87,17 +99,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                 if (femaleChildren.Any())
                     return femaleChildren.First();
 
-                // 3. 检查男性子女的后代（递归检查）
-                foreach (var maleChild in current.Children.Where(c => c.IsMale())
-                         .OrderBy(c => c.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
-                {
-                    if (maleChild.IsDead() && CompareDates(maleChild.GetDeathDate(), currentDate) <= 0)
-                    {
-                        var heir = FindNextHeir(maleChild, allMembers, currentDate, visitedPeople);
-                        if (heir != null)
-                            return heir;
-                    }
-                }
+                
 
                 // 4. 检查女性子女的后代（递归检查）
                 foreach (var femaleChild in current.Children.Where(c => !c.IsMale())
@@ -129,6 +131,18 @@ namespace WpfPrismFrameworkTemplate.Helper
                 if (maleSiblings.Any())
                     return maleSiblings.First();
 
+                // 3. 检查已故兄弟的后代
+                foreach (var maleSibling in siblings.Where(s => s.IsMale())
+                         .OrderBy(s => s.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
+                {
+                    if (maleSibling.IsDead() && CompareDates(maleSibling.GetDeathDate(), currentDate) <= 0)
+                    {
+                        var heir = FindNextHeir(maleSibling, allMembers, currentDate, visitedPeople);
+                        if (heir != null)
+                            return heir;
+                    }
+                }
+
                 // 2. 如果没有存活的兄弟，找存活的姐妹（按年龄排序）
                 var femaleSiblings = siblings
                     .Where(s => !s.IsMale() &&
@@ -141,17 +155,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                 if (femaleSiblings.Any())
                     return femaleSiblings.First();
 
-                // 3. 检查已故兄弟的后代
-                foreach (var maleSibling in siblings.Where(s => s.IsMale())
-                         .OrderBy(s => s.GetBirthDate(), Comparer<string>.Create((a, b) => CompareDates(a, b))))
-                {
-                    if (maleSibling.IsDead() && CompareDates(maleSibling.GetDeathDate(), currentDate) <= 0)
-                    {
-                        var heir = FindNextHeir(maleSibling, allMembers, currentDate, visitedPeople);
-                        if (heir != null)
-                            return heir;
-                    }
-                }
+                
 
                 // 4. 检查已故姐妹的后代
                 foreach (var femaleSibling in siblings.Where(s => !s.IsMale())

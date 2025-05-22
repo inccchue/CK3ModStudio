@@ -42,6 +42,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private ObservableCollection<string> _religionOptions = new ObservableCollection<string>();
         private ObservableCollection<string> _CultureOptions = new ObservableCollection<string>();
         private ObservableCollection<People> _suggestions=new ObservableCollection<People>();
+        private ObservableCollection<County> _counties = new ObservableCollection<County>();
         private People _SelectPeople;
         private Family _SelectFamily;
         private string _title = "CK3创建人物工具(作者:Fred)";
@@ -135,6 +136,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             _statusCheckTimer.Start();
         }
 
+        public ObservableCollection<County> Counties
+        {
+            get => _counties;
+            set => SetProperty(ref _counties, value);
+        }
         public FileReadWrite FileReadWrite
         {
             get => _fileReadWrite;
@@ -492,6 +498,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 parameters.Add("FileReadWrite", FileReadWrite);
                 parameters.Add("FamilyList", FamilyList);
                 parameters.Add("SelectFamily", SelectFamily);
+                parameters.Add("Counties", Counties);
                 _regionManager.RequestNavigate("MiddleRegion", "CountyTimeline", parameters);
 
                 region = _regionManager.Regions["RightRegion"];
@@ -1069,6 +1076,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
                 FamilyList = JsonHelper.LoadData();
                 RandomNameList = NameFileParser.ParseCultures(FileReadWrite.RandomNameFilePath);
+                CountyParser.ParseCountiesFromFile(Counties, FileReadWrite.DomainDefFile);
 
                 EventCorrelation();
                 PopulateReligionOptions();
@@ -1293,6 +1301,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 // 因为是在销毁时调用，使用同步方式
                 //Task.Run(async () => await _repository.SaveFamiliesAsync(FamilyList)).Wait();
                 JsonHelper.SaveData(FamilyList);
+                CountyParser.SaveCountiesToFile(Counties, FileReadWrite.DomainDefFile);
                 JsonHelper.SaveFileSetting(FileReadWrite);
                 HandyControl.Controls.Growl.Success("保存文件成功");
             }

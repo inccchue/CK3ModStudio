@@ -358,5 +358,14 @@
   <ItemGroup>
     <Resource Include="Images\tiehe.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\chexiao.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\chexiao2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\chexiao3.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

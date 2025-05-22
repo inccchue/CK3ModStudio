@@ -36,9 +36,6 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         </Style>
     </UserControl.Resources>
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Unloaded">
-            <i:InvokeCommandAction Command="{Binding SaveCmd}"/>
-        </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid Background="White">
         <Grid.RowDefinitions>
@@ -78,10 +75,19 @@ hc:BorderElement.CornerRadius="15"  Command="{Binding SaveCmd}"
             </hc:ComboBox>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
 hc:BorderElement.CornerRadius="15"  Command="{Binding FitCmd}"
->
+                ToolTip="让选中的家族贴合选中领地的时间轴">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/Images/tiehe.png" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15"  Command="{Binding RevokeCmd}"
+                 ToolTip="撤销上一步的贴合操作">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/chexiao3.png" Height="15"/>
                     </StackPanel>
                 </Button.Content>
             </Button>

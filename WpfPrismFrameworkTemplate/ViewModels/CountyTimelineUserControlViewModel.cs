@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Metrics;
 using System.Dynamic;
 using System.Linq;
 using System.Windows.Media;
@@ -10,6 +11,7 @@ using Prism.Events;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Services.Dialogs;
+using Unity;
 using Windows.Gaming.Preview.GamesEnumeration;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
@@ -30,26 +32,36 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private IEventAggregator _eventAggregator;
         private FileReadWrite _fileReadWrite;
         private County _SelectCounty = new County();
-        private ObservableCollection<County> _counties=new ObservableCollection<County>();
+        
         public ObservableCollection<TimelineEntry> _TimelineEntries = new ObservableCollection<TimelineEntry>();
         private ObservableCollection<County> _suggestions = new ObservableCollection<County>();
+        private ObservableCollection<County> _Counties = new ObservableCollection<County>();
+        private ObservableCollection<HolderEntry> oldHolderEntries;
+        private string oldSelectCountyName=string.Empty;
         FamilyInheritanceManager familyInheritanceManager = new FamilyInheritanceManager();
         public DelegateCommand<TimelineEntry> DelCmd { get; private set; }
         public DelegateCommand<TimelineEntry> AddCmd { get; private set; }
         public DelegateCommand SelectChangeCmd { get; private set; }
         public DelegateCommand SaveCmd { get; private set; }
         public DelegateCommand FitCmd { get; private set; }
+        public DelegateCommand RevokeCmd { get; private set; }
         public CountyTimelineUserControlViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
             DelCmd = new DelegateCommand<TimelineEntry>(Del);
             AddCmd = new DelegateCommand<TimelineEntry>(Add);
             SaveCmd = new DelegateCommand(Save);
             FitCmd = new DelegateCommand(Fit);
+            RevokeCmd = new DelegateCommand(Revoke);
             SelectChangeCmd = new DelegateCommand(SelectChange);
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
         }
 
+        public ObservableCollection<County> Counties
+        {
+            get => _Counties;
+            set => SetProperty(ref _Counties, value);
+        }
         public Family SelectFamily
         {
             get => _SelectFamily;
@@ -84,21 +96,37 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 ProcessTimelineEntries();
             }
         }
-        public ObservableCollection<County> Counties
-        {
-            get => _counties;
-            set => SetProperty(ref _counties, value);
-        }
+        
         public ObservableCollection<TimelineEntry> TimelineEntries
         {
             get => _TimelineEntries;
             set => SetProperty(ref _TimelineEntries, value);
         }
 
+        public void Revoke()
+        {
+            try
+            {
+                if (oldHolderEntries == null|| oldSelectCountyName == string.Empty|| oldSelectCountyName != SelectCounty.Name)
+                {
+                    return;
+                }
+                SelectCounty.HolderEntries = new ObservableCollection<HolderEntry>(oldHolderEntries);
+                ProcessTimelineEntries();
+                oldHolderEntries = null;
+                oldSelectCountyName = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.Growl.Error($@"家族撤销时间轴失败,失败原因是{ex.Message}");
+            }
+        }
         public void Fit()
         {
             try
             {
+                oldSelectCountyName = SelectCounty.Name;
+                oldHolderEntries = new ObservableCollection<HolderEntry>(SelectCounty.HolderEntries);
                 SelectCounty.HolderEntries = familyInheritanceManager.UpdateHolderEntries(SelectCounty.HolderEntries, SelectFamily.Members);
                 ProcessTimelineEntries();
                 HandyControl.Controls.Growl.Success("家族贴合时间轴成功");
@@ -241,12 +269,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             if (navigationContext.Parameters.ContainsKey("FileReadWrite")
                 && navigationContext.Parameters.ContainsKey("FamilyList")
-                && navigationContext.Parameters.ContainsKey("SelectFamily"))
+                && navigationContext.Parameters.ContainsKey("SelectFamily")
+                && navigationContext.Parameters.ContainsKey("Counties"))
             {
                 FileReadWrite = navigationContext.Parameters.GetValue<FileReadWrite>("FileReadWrite");
                 FamilyList = navigationContext.Parameters.GetValue<ObservableCollection<Family>>("FamilyList");
                 SelectFamily = navigationContext.Parameters.GetValue<Family>("SelectFamily");
-                CountyParser.ParseCountiesFromFile(Counties, FileReadWrite.DomainDefFile);
+                Counties = navigationContext.Parameters.GetValue<ObservableCollection<County>>("Counties");              
                 SelectCounty=Counties.FirstOrDefault();
             }
             else

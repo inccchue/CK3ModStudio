@@ -284,7 +284,7 @@ FontWeight="Bold" />
                 </Grid>
             </Border>
         </hc:Drawer>
-        <TreeView Grid.Row="1" ItemsSource="{Binding FamilyTree}" Style="{StaticResource TreeView.Small}" SelectedItemChanged="TreeView_SelectedItemChanged"
+        <TreeView Grid.Row="1" ItemsSource="{Binding FamilyTree}" SelectedItemChanged="TreeView_SelectedItemChanged"
                   ToolTip="Ctrl+Q修改当前选中人物的信息">
             <TreeView.InputBindings>
                 <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding ModifyCmd}"/>
