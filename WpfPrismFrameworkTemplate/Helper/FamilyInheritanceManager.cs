@@ -20,21 +20,10 @@ namespace WpfPrismFrameworkTemplate.Helper
             if (string.IsNullOrEmpty(date2))
                 return -1;
 
-            DateTime dt1 = ParseDate(date1);
-            DateTime dt2 = ParseDate(date2);
+            DateTime dt1 = CommonHelper.ParseDate(date1);
+            DateTime dt2 = CommonHelper.ParseDate(date2);
 
             return dt1.CompareTo(dt2);
-        }
-
-        // 解析日期
-        private DateTime ParseDate(string dateStr)
-        {
-            string[] parts = dateStr.Split('.');
-            int year = int.Parse(parts[0]);
-            int month = int.Parse(parts[1]);
-            int day = int.Parse(parts[2]);
-
-            return new DateTime(year, month, day);
         }
 
         // 找出家族最年长成员

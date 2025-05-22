@@ -260,6 +260,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     RandomNameList=NameFileParser.ParseCultures(FileReadWrite.RandomNameFilePath);
                     PopulateCultureOptions();
                     break;
+                case nameof(FileReadWrite.DomainDefFile):
+                    CountyParser.ParseCountiesFromFile(Counties, FileReadWrite.DomainDefFile);
+                    break;
             }
 
         }

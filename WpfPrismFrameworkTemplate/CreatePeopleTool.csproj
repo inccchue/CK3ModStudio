@@ -71,6 +71,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converter\MyConverter.cs" />
+    <Compile Include="Helper\CommonHelper.cs" />
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\FamilyInheritanceManager.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
@@ -366,6 +367,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\chexiao3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\queshao.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

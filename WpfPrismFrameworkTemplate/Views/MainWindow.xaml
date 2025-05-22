@@ -445,9 +445,10 @@ FontWeight="Bold" />
                 </hc:TabItem>
 
             </TabControl>
-            <ContentControl Grid.Column="0" Grid.ColumnSpan="4" prism:RegionManager.RegionName="ContentRegion" />
+            
             <ContentControl Grid.Column="0" Grid.ColumnSpan="2" prism:RegionManager.RegionName="MiddleRegion" />
             <ContentControl Grid.Column="2" Grid.ColumnSpan="2" prism:RegionManager.RegionName="RightRegion" />
+            <ContentControl Grid.Column="0" Grid.ColumnSpan="4" prism:RegionManager.RegionName="ContentRegion" />
         </Grid>
 
 

@@ -45,6 +45,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand SaveCmd { get; private set; }
         public DelegateCommand FitCmd { get; private set; }
         public DelegateCommand RevokeCmd { get; private set; }
+        public DelegateCommand<LiegeEntry> DeleteItemCmd { get; private set; }
+        
         public CountyTimelineUserControlViewModel(IDialogService dialogService, IEventAggregator eventAggregator)
         {
             DelCmd = new DelegateCommand<TimelineEntry>(Del);
@@ -52,6 +54,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             SaveCmd = new DelegateCommand(Save);
             FitCmd = new DelegateCommand(Fit);
             RevokeCmd = new DelegateCommand(Revoke);
+            DeleteItemCmd = new DelegateCommand<LiegeEntry>(DeleteItem);
             SelectChangeCmd = new DelegateCommand(SelectChange);
             _dialogService = dialogService;
             _eventAggregator = eventAggregator;
@@ -103,6 +106,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             set => SetProperty(ref _TimelineEntries, value);
         }
 
+        private void DeleteItem(LiegeEntry item)
+        {
+            if (item != null && SelectCounty.LiegeEntries.Contains(item))
+            {
+                SelectCounty.LiegeEntries.Remove(item);
+            }
+        }
         public void Revoke()
         {
             try

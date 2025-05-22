@@ -19,6 +19,7 @@ xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
 xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"          
              prism:ViewModelLocator.AutoWireViewModel="True" >
     <UserControl.Resources>
+        <cv:LiegeEntriesToVisibilityConverter x:Key="LiegeEntriesToVisibilityConverter"/>
 
         <Style x:Key="TimelineRectStyle" TargetType="Rectangle">
             <Setter Property="Height" Value="30" />
@@ -141,15 +142,20 @@ FontWeight="Bold" />
                     >
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
-                       Style="{StaticResource TextBlockDefaultInfo}"/>
+                            <WrapPanel>
+                                <Image Source="/Images/queshao.png"  Height="15" Margin="5" Visibility="{Binding LiegeEntries,Converter={StaticResource LiegeEntriesToVisibilityConverter }}"
+ToolTip="缺少法理定义"/>
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="Black"
+Style="{StaticResource TextBlockDefaultInfo}"/>
+                                
+                            </WrapPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </StackPanel>
         </ScrollViewer>
 
-        <TabControl Grid.Column="2" Grid.Row="0" Style="{StaticResource TabControlInLine}" Padding="5">
+        <TabControl Grid.Column="2" Grid.Row="0" Style="{StaticResource TabControlInLine}">
             <TabItem Header="领地持有者时间轴">
                 <ScrollViewer Grid.Column="2" Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
               Style="{StaticResource ScrollViewerNativeBaseStyle}">
@@ -210,7 +216,40 @@ Command="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}, Pat
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="领地法理时间轴">
-                
+                <ScrollViewer Grid.Column="2" Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+              Style="{StaticResource ScrollViewerNativeBaseStyle}">
+                    
+                    <StackPanel >
+                        <DataGrid ItemsSource="{Binding SelectCounty.LiegeEntries}" HorizontalAlignment="Stretch"  CanUserAddRows="True" AutoGenerateColumns="False" 
+                                  Style="{StaticResource DataGrid.Small}" >
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn CanUserResize="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ToggleButton hc:IconElement.Geometry="{StaticResource CloseGeometry}" Style="{StaticResource ToggleButtonIconTransparent}" Foreground="Black" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.DeleteItemCmd, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Width="100" Header="开始时间" Binding="{Binding StartDate}" />
+                                <DataGridTextColumn Header="上级头衔" Binding="{Binding Liege}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <!--<ListView ItemsSource="{Binding SelectCounty.LiegeEntries}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                    >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <UniformGrid Rows="1" Columns="2" >
+                                        <TextBlock Text="{Binding StartDate}" FontWeight="Bold" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Liege}" FontWeight="Bold" 
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </UniformGrid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>-->
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
         

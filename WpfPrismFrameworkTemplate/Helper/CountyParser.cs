@@ -18,50 +18,70 @@ namespace WpfPrismFrameworkTemplate.Helper
         {
             try
             {
-                // 首先读取原始文件内容
-                string originalContent = File.ReadAllText(filePath);
+                var stringBuilder = new StringBuilder();
 
-                // 逐个处理每个伯爵领地
-                foreach (var county in Counties)
+                // 遍历每个伯爵领地
+                foreach (var county in Counties.OrderBy(c => c.Name))
                 {
-                    // 为当前伯爵领准备新的持有者信息文本
-                    StringBuilder countyEntriesText = new StringBuilder();
+                    // 写入伯爵领地名称（首字母小写，因为原文件格式是小写开头）
+                    string countyName = char.ToLower(county.Name[0]) + county.Name.Substring(1);
+                    stringBuilder.AppendLine($"c_{countyName} = {{");
 
-                    // 首先添加其他属性条目（如liege等）
+                    // 收集所有条目并按日期分组
+                    var allEntries = new Dictionary<string, List<string>>();
+
+                    // 添加 Holder 条目
+                    foreach (var holderEntry in county.HolderEntries)
+                    {
+                        if (!allEntries.ContainsKey(holderEntry.StartDate))
+                        {
+                            allEntries[holderEntry.StartDate] = new List<string>();
+                        }
+                        allEntries[holderEntry.StartDate].Add($"holder = {holderEntry.Holder}");
+                    }
+
+                    // 添加 Liege 条目
+                    foreach (var liegeEntry in county.LiegeEntries)
+                    {
+                        if (!allEntries.ContainsKey(liegeEntry.StartDate))
+                        {
+                            allEntries[liegeEntry.StartDate] = new List<string>();
+                        }
+                        allEntries[liegeEntry.StartDate].Add($"liege = {liegeEntry.Liege}");
+                    }
+
+                    // 添加 Other 条目
                     foreach (var otherEntry in county.OtherEntries)
                     {
-                        countyEntriesText.AppendLine($"\t{otherEntry.StartDate}={{\n\t\t{otherEntry.Content}\n\t}}");
+                        if (!allEntries.ContainsKey(otherEntry.StartDate))
+                        {
+                            allEntries[otherEntry.StartDate] = new List<string>();
+                        }
+                        allEntries[otherEntry.StartDate].Add(otherEntry.Content);
                     }
 
-                    // 然后添加持有者条目
-                    foreach (var entry in county.HolderEntries)
+                    // 按日期排序并写入
+                    var sortedDates = allEntries.Keys.OrderBy(date => CommonHelper.ParseDate(date)).ToList();
+
+                    foreach (var date in sortedDates)
                     {
-                        countyEntriesText.AppendLine($"\t{entry.StartDate}={{\n\t\tholder={entry.Holder}\n\t}}");
+                        var entries = allEntries[date];
+
+                        // 所有条目都使用大括号格式
+                        stringBuilder.AppendLine($"\t{date}={{");
+                        foreach (var entry in entries)
+                        {
+                            stringBuilder.AppendLine($"\t\t{entry}");
+                        }
+                        stringBuilder.AppendLine("\t}");
                     }
 
-                    // 构建匹配当前伯爵领的正则表达式模式
-                    string countyNameLower = char.ToLower(county.Name[0]) + county.Name.Substring(1);
-                    string countyPattern = @"c_" + countyNameLower + @"\s*=\s*\{(.*?)(?=c_\w+\s*=|\z)";
-
-                    // 准备新的伯爵领文本
-                    string newCountyText = $"c_{countyNameLower} = {{\n{countyEntriesText}}}\n\n";
-
-                    // 检查伯爵领是否存在于原文件中
-                    Match countyMatch = Regex.Match(originalContent, countyPattern, RegexOptions.Singleline);
-                    if (countyMatch.Success)
-                    {
-                        // 如果存在，替换内容
-                        originalContent = Regex.Replace(originalContent, countyPattern, newCountyText, RegexOptions.Singleline);
-                    }
-                    else
-                    {
-                        // 如果不存在，添加到文件末尾
-                        originalContent += newCountyText;
-                    }
+                    stringBuilder.AppendLine("}");
+                    stringBuilder.AppendLine(); // 添加空行分隔不同的伯爵领地
                 }
 
-                // 将更新后的内容写回文件
-                File.WriteAllText(filePath, originalContent);
+                // 写入文件，覆盖原有内容
+                File.WriteAllText(filePath, stringBuilder.ToString(), Encoding.UTF8);
             }
             catch (Exception ex)
             {
@@ -137,7 +157,21 @@ namespace WpfPrismFrameworkTemplate.Helper
                             Holder = holder
                         });
                     }
-                    else
+
+                    string liegePattern = @"liege\s*=\s*([^\s{}]+)";
+                    Match liegeMatch = Regex.Match(blockContent, liegePattern);
+                    if(liegeMatch.Success)
+                    {
+                        // 如果包含liege，添加到HolderEntries
+                        string liege = liegeMatch.Groups[1].Value;
+                        county.LiegeEntries.Add(new LiegeEntry
+                        {
+                            StartDate = date,
+                            Liege = liege
+                        });
+                    }
+
+                    if (!holderMatch.Success && !liegeMatch.Success)
                     {
                         // 如果不包含holder，添加到OtherEntries
                         county.OtherEntries.Add(new OtherEntry
@@ -152,6 +186,9 @@ namespace WpfPrismFrameworkTemplate.Helper
             // 按日期排序
             county.HolderEntries = new ObservableCollection<HolderEntry>(
                 county.HolderEntries.OrderBy(h => ExtractYear(h.StartDate)));
+
+            county.LiegeEntries = new ObservableCollection<LiegeEntry>(
+                county.LiegeEntries.OrderBy(h => ExtractYear(h.StartDate)));
 
             county.OtherEntries = new ObservableCollection<OtherEntry>(
                 county.OtherEntries.OrderBy(o => ExtractYear(o.StartDate)));

@@ -10,6 +10,7 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using GongSolutions.Wpf.DragDrop;
+using WpfPrismFrameworkTemplate.Helper;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -222,14 +223,7 @@ namespace WpfPrismFrameworkTemplate.Model
             if (lifeEvent == null)
                 return null;
 
-            // 解析日期字符串 (格式: yyyy.MM.dd)
-            if (DateTime.TryParseExact(lifeEvent.EventDate, "yyyy.M.d", CultureInfo.InvariantCulture,
-                DateTimeStyles.None, out DateTime date))
-            {
-                return date;
-            }
-
-            return null;
+            return CommonHelper.ParseDate(lifeEvent.EventDate);
         }
 
         // 在两个日期之间随机生成一个日期，前5年概率最大，然后概率逐渐降低

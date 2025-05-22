@@ -12,6 +12,7 @@ namespace WpfPrismFrameworkTemplate.Model
     {
         public string Name { get; set; }
         private ObservableCollection<HolderEntry> _HolderEntries = new ObservableCollection<HolderEntry>();
+        private ObservableCollection<LiegeEntry> _LiegeEntries = new ObservableCollection<LiegeEntry>();
         public ObservableCollection<OtherEntry> OtherEntries { get; set; }
 
         public County()
@@ -24,6 +25,11 @@ namespace WpfPrismFrameworkTemplate.Model
             get => _HolderEntries;
             set => SetProperty(ref _HolderEntries, value);
         }
+        public ObservableCollection<LiegeEntry> LiegeEntries
+        {
+            get => _LiegeEntries;
+            set => SetProperty(ref _LiegeEntries, value);
+        }
         public override string ToString()
         {
             return Name;
@@ -34,6 +40,12 @@ namespace WpfPrismFrameworkTemplate.Model
     {
         public string StartDate { get; set; }
         public string Holder { get; set; }
+    }
+
+    public class LiegeEntry
+    {
+        public string StartDate { get; set; }
+        public string Liege { get; set; }
     }
 
     public class OtherEntry

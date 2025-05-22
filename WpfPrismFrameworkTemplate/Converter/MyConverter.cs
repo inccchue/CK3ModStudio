@@ -15,6 +15,22 @@ using static System.ComponentModel.TypeConverter;
 
 namespace WpfPrismFrameworkTemplate.Converter
 {
+    public class LiegeEntriesToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ObservableCollection<LiegeEntry> LiegeEntries && LiegeEntries.Count > 0)
+            {
+                return Visibility.Collapsed;
+            }
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class ConnectToImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
