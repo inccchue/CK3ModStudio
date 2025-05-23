@@ -1169,6 +1169,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             };          
         }
 
+
         private void EventUnBindingFamily(Family family)
         {
             // 遍历每个 Family 中的 Members
