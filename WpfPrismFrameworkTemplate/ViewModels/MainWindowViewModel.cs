@@ -229,6 +229,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 
                 SetProperty(ref _SelectPeople, value);
                 GetFamilyForSelectedPeople();
+                
             }
         }
         public string HighlightedContent
@@ -1078,10 +1079,12 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 };
 
                 FamilyList = JsonHelper.LoadData();
+                
+
                 RandomNameList = NameFileParser.ParseCultures(FileReadWrite.RandomNameFilePath);
                 CountyParser.ParseCountiesFromFile(Counties, FileReadWrite.DomainDefFile);
 
-                EventCorrelation();
+                EventBindingAllFamily();
                 PopulateReligionOptions();
                 PopulateCultureOptions();
                 
@@ -1093,20 +1096,111 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
         }
 
-        private void EventCorrelation()
+        private void EventBindingAllFamily()
         {
             // 遍历 FamilyList 中的每个 Family
             foreach (var family in FamilyList)
             {
-                family.Init();
-
-
-                // 遍历每个 Family 中的 Members
-                foreach(var people in family.Members)
-                {
-                    people.Init();
-                }
+                EventBindingFamily(family);
             }
+
+            FamilyList.CollectionChanged += (s, e) =>
+            {
+                if (e.Action == NotifyCollectionChangedAction.Add)
+                {
+                    foreach (Family family in e.NewItems)
+                    {
+                        EventBindingFamily(family);
+                    }
+                }
+                else if (e.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    foreach (Family family in e.OldItems)
+                    {
+                        EventUnBindingFamily(family);
+                    }
+                }
+                _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateFamily, value = null });
+            };
+            
+        }
+
+        private void EventBindingFamily(Family family)
+        {
+            family.Init();
+            // 遍历每个 Family 中的 Members
+            foreach (var people in family.Members)
+            {
+                people.Init();
+                people.PropertyChanged += (s, e) =>
+                {
+                    _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = people });
+                };
+            }
+
+            family.Members.CollectionChanged += (s, e) =>
+            {
+                if (e.Action == NotifyCollectionChangedAction.Add)
+                {
+                    foreach (People newChild in e.NewItems)
+                    {
+                        _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = newChild });
+                        newChild.PropertyChanged += (s2, e2) =>
+                        {
+                            _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = newChild });
+                        };
+                    }
+                }
+                else if (e.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    foreach (People oldChild in e.OldItems)
+                    {
+                        oldChild.PropertyChanged -= (s2, e2) =>
+                        {
+                            _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = oldChild });
+                        };
+                    }
+                }
+               
+            };          
+        }
+
+        private void EventUnBindingFamily(Family family)
+        {
+            // 遍历每个 Family 中的 Members
+            foreach (var people in family.Members)
+            {
+                people.Init();
+                people.PropertyChanged -= (s, e) =>
+                {
+                    _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = people });
+                };
+            }
+
+            family.Members.CollectionChanged -= (s, e) =>
+            {
+                if (e.Action == NotifyCollectionChangedAction.Add)
+                {
+                    foreach (People newChild in e.NewItems)
+                    {
+                        newChild.PropertyChanged += (s2, e2) =>
+                        {
+                            _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = newChild });
+                        };
+                    }
+                }
+                else if (e.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    foreach (People oldChild in e.OldItems)
+                    {
+                        oldChild.PropertyChanged -= (s2, e2) =>
+                        {
+                            _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = oldChild });
+                        };
+                    }
+                }
+                
+            };
         }
 
         // 打开文件的逻辑

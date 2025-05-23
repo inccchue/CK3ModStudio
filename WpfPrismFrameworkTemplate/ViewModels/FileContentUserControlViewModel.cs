@@ -29,6 +29,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             _eventAggregator = eventAggregator;
             eventAggregator.GetEvent<FileSettingChangeEvent>().Subscribe(LoadPathChangeFileContent);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(SaveFileContent);
+            eventAggregator.GetEvent<UpdateContentEvent>().Subscribe(UpdateContent);
             SaveCharacterDefFileCmd = new DelegateCommand(SaveCharacterDefFile);
             SaveDynastyDefFileCmd = new DelegateCommand(SaveDynastyDefFile);
             SaveLocalizationEnglishFileCmd = new DelegateCommand(SaveLocalizationEnglishFile);
@@ -128,19 +129,40 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             LocalizationChineseFile.Load();
         }
 
-        public void UpdateFileContent()
+        public void UpdateAllContent()
         {
-            CharacterDefFile.Add(FamilyList);
-            DynastyDefFile.Add(FamilyList);
-            LocalizationEnglishFile.Add(FamilyList);
-            LocalizationChineseFile.Add(FamilyList);
+            CharacterDefFile.UpdateAllContent(FamilyList);
+            DynastyDefFile.UpdateAllContent(FamilyList);
+            LocalizationEnglishFile.UpdateAllContent(FamilyList);
+            LocalizationChineseFile.UpdateAllContent(FamilyList);
+        }
+
+        public void UpdateContent(UpdateContentEventArgs args)
+        {
+            switch (args.type)
+            {
+                case UpdateContentType.UpdateCharacter:
+                    CharacterDefFile.UpdateAllContent(FamilyList);
+                    break;
+                case UpdateContentType.UpdateFamily:
+                    DynastyDefFile.UpdateAllContent(FamilyList);
+                    LocalizationEnglishFile.UpdateAllContent(FamilyList);
+                    LocalizationChineseFile.UpdateAllContent(FamilyList);
+                    break;
+                case UpdateContentType.UpdateSingleCharacter:
+                    if(args.value is People people)
+                    {
+                        CharacterDefFile.UpdateSingleCharacter(people);
+                    }                   
+                    break;
+            }
         }
 
         public void SaveFileContent()
         {
             if (FileReadWrite.EnableAutoSave)
             {
-                UpdateFileContent();
+                UpdateAllContent();
                 CharacterDefFile.Save();
                 CharacterDefFile.Load();
                 DynastyDefFile.Save();
@@ -161,7 +183,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 FileReadWrite = navigationContext.Parameters.GetValue<FileReadWrite>("FileReadWrite");
                 LoadFileContent();
                 FamilyList = navigationContext.Parameters.GetValue<ObservableCollection<Family>>("FamilyList");
-                UpdateFileContent();
+                UpdateAllContent();
             }
         }
 

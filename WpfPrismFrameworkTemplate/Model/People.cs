@@ -104,7 +104,7 @@ namespace WpfPrismFrameworkTemplate.Model
             }
             _Children.CollectionChanged += Children_CollectionChanged;
 
-
+            
         }
 
         private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

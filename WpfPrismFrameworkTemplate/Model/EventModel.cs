@@ -21,6 +21,16 @@ namespace WpfPrismFrameworkTemplate.Model
         Spouse
     }
 
+    public enum UpdateContentType
+    {
+        [Description("家族更新")]
+        UpdateFamily,
+        [Description("角色更新")]
+        UpdateCharacter,
+        [Description("单个角色更新")]
+        UpdateSingleCharacter,
+    }
+
     public class SaveMessageEvent : PubSubEvent
     {
     }
@@ -66,6 +76,15 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     public class SelectFamilyChangeEvent : PubSubEvent<Family>
+    {
+    }
+
+    public class UpdateContentEventArgs
+    {
+        public UpdateContentType type { get; set; }
+        public object value { get; set; }
+    }
+    public class UpdateContentEvent : PubSubEvent<UpdateContentEventArgs>
     {
     }
 }

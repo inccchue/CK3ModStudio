@@ -75,7 +75,7 @@ namespace WpfPrismFrameworkTemplate.Model
         /// 添加新内容的抽象方法，由子类实现
         /// </summary>
         /// <param name="newContent">要添加的新内容</param>
-        public abstract void Add(ObservableCollection<Family> familyList);
+        public abstract void UpdateAllContent(ObservableCollection<Family> familyList);
 
         public void Save()
         {
@@ -100,6 +100,165 @@ namespace WpfPrismFrameworkTemplate.Model
                 MessageBox.Show($"保存文件出错: {ex.Message}");
             }
         }
+
+        protected void ReplaceContentInBlocks(string oldContent, string newContent)
+        {
+            foreach (Block block in Content.Blocks)
+            {
+                if (block is Paragraph paragraph)
+                {
+                    // 将所有Run的文本连接起来，重新构建完整文本
+                    string fullText = "";
+                    List<Run> originalRuns = new List<Run>();
+
+                    foreach (Inline inline in paragraph.Inlines)
+                    {
+                        if (inline is Run run)
+                        {
+                            fullText += run.Text;
+                            originalRuns.Add(run);
+                        }
+                    }
+
+                    // 检查完整文本是否包含要替换的内容
+                    if (fullText.Contains(oldContent))
+                    {
+                        // 找到oldContent在完整文本中的位置
+                        int index = fullText.IndexOf(oldContent);
+
+                        // 清除原有的所有Run
+                        paragraph.Inlines.Clear();
+
+                        // 分割文本
+                        string beforeText = fullText.Substring(0, index);
+                        string afterText = fullText.Substring(index + oldContent.Length);
+
+                        // 添加oldContent之前的文本
+                        if (!string.IsNullOrEmpty(beforeText))
+                        {
+                            Run beforeRun = new Run(beforeText);
+                            // 保持原有颜色（如果所有原Run颜色相同的话）
+                            if (originalRuns.Count > 0 && originalRuns.All(r => r.Foreground?.ToString() == originalRuns[0].Foreground?.ToString()))
+                            {
+                                beforeRun.Foreground = originalRuns[0].Foreground;
+                            }
+                            paragraph.Inlines.Add(beforeRun);
+                        }
+
+                        // 添加替换后的内容，只对不同的部分设置特殊样式
+                        AddDifferenceHighlightedRuns(paragraph, oldContent, newContent);
+
+                        // 添加oldContent之后的文本
+                        if (!string.IsNullOrEmpty(afterText))
+                        {
+                            Run afterRun = new Run(afterText);
+                            // 保持原有颜色
+                            if (originalRuns.Count > 0 && originalRuns.All(r => r.Foreground?.ToString() == originalRuns[0].Foreground?.ToString()))
+                            {
+                                afterRun.Foreground = originalRuns[0].Foreground;
+                            }
+                            paragraph.Inlines.Add(afterRun);
+                        }
+
+                        return; // 找到并替换后直接返回
+                    }
+                }
+            }
+        }
+
+        protected void AddDifferenceHighlightedRuns(Paragraph paragraph, string oldContent, string newContent)
+        {
+            // 使用简单的字符比较来找出差异
+            var oldLines = oldContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var newLines = newContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            int maxLines = Math.Max(oldLines.Length, newLines.Length);
+
+            for (int i = 0; i < maxLines; i++)
+            {
+                string oldLine = i < oldLines.Length ? oldLines[i] : "";
+                string newLine = i < newLines.Length ? newLines[i] : "";
+
+                if (oldLine == newLine)
+                {
+                    // 相同的行，保持原样式
+                    if (!string.IsNullOrEmpty(newLine))
+                    {
+                        paragraph.Inlines.Add(new Run(newLine));
+                        if (i < maxLines - 1) // 不是最后一行时添加换行
+                        {
+                            paragraph.Inlines.Add(new Run("\r\n"));
+                        }
+                    }
+                }
+                else
+                {
+                    // 不同的行，查找具体差异
+                    var diffRuns = GetDifferenceRuns(oldLine, newLine);
+                    foreach (var diffRun in diffRuns)
+                    {
+                        paragraph.Inlines.Add(diffRun);
+                    }
+                    if (i < maxLines - 1) // 不是最后一行时添加换行
+                    {
+                        paragraph.Inlines.Add(new Run("\r\n"));
+                    }
+                }
+            }
+        }
+
+        protected List<Run> GetDifferenceRuns(string oldLine, string newLine)
+        {
+            List<Run> runs = new List<Run>();
+
+            // 简单的字符级别比较
+            int i = 0, j = 0;
+            string commonStart = "";
+
+            // 找到开头相同的部分
+            while (i < oldLine.Length && j < newLine.Length && oldLine[i] == newLine[j])
+            {
+                commonStart += oldLine[i];
+                i++;
+                j++;
+            }
+
+            // 添加相同的开头部分
+            if (!string.IsNullOrEmpty(commonStart))
+            {
+                runs.Add(new Run(commonStart));
+            }
+
+            // 找到结尾相同的部分
+            string commonEnd = "";
+            int oldEnd = oldLine.Length - 1;
+            int newEnd = newLine.Length - 1;
+
+            while (oldEnd >= i && newEnd >= j && oldLine[oldEnd] == newLine[newEnd])
+            {
+                commonEnd = oldLine[oldEnd] + commonEnd;
+                oldEnd--;
+                newEnd--;
+            }
+
+            // 添加中间不同的部分
+            string differentPart = newLine.Substring(j, newEnd - j + 1);
+            if (!string.IsNullOrEmpty(differentPart))
+            {
+                Run differentRun = new Run(differentPart);
+                differentRun.Foreground = Brushes.Green;
+                differentRun.TextDecorations = TextDecorations.Underline;
+                runs.Add(differentRun);
+            }
+
+            // 添加相同的结尾部分
+            if (!string.IsNullOrEmpty(commonEnd))
+            {
+                runs.Add(new Run(commonEnd));
+            }
+
+            return runs;
+        }
     }
 
     /// <summary>
@@ -121,7 +280,7 @@ namespace WpfPrismFrameworkTemplate.Model
             ParseDynastyDefinitions();
         }
 
-        public override void Add(ObservableCollection<Family> familyList)
+        public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
             if (familyList == null || familyList.Count == 0)
             {
@@ -222,7 +381,39 @@ namespace WpfPrismFrameworkTemplate.Model
             ParseCharacterDefinitions();
         }
 
-        public override void Add(ObservableCollection<Family> familyList)
+        public void UpdateSingleCharacter(People targetPeople)
+        {
+            if (targetPeople == null)
+            {
+                return;
+            }
+            string currentContent = targetPeople.GetString();
+
+            if (!_characters.ContainsKey(targetPeople.IdName))
+            {
+                // 新的People对象
+                _characters[targetPeople.IdName] = currentContent;
+
+                Paragraph newParagraph = new Paragraph();
+                Run newRun = new Run(currentContent);
+                newRun.Foreground = Brushes.Red;
+                newParagraph.Inlines.Add(newRun);
+                Content.Blocks.Add(newParagraph);
+            }
+            else
+            {
+                // 检查现有People对象内容是否发生变化
+                string oldContent = _characters[targetPeople.IdName];
+                if (oldContent != currentContent)
+                {
+                    _characters[targetPeople.IdName] = currentContent;
+                    ReplaceContentInBlocks(oldContent, currentContent);
+                }
+            }
+
+                      
+        }
+        public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
             if (familyList == null || familyList.Count == 0)
             {
@@ -279,42 +470,7 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        private void ReplaceContentInBlocks(string oldContent, string newContent)
-        {
-            foreach (Block block in Content.Blocks)
-            {
-                if (block is Paragraph paragraph)
-                {
-                    foreach (Inline inline in paragraph.Inlines.ToList()) // 使用ToList避免修改集合时的异常
-                    {
-                        if (inline is Run run)
-                        {
-                            string runText = run.Text;
-
-                            // 检查这个Run是否包含要替换的内容
-                            if (runText.Contains(oldContent))
-                            {
-                                // 如果Run的文本完全等于旧内容
-                                if (runText.Equals(oldContent))
-                                {
-                                    run.Text = newContent;
-                                    run.Foreground = Brushes.Green; // 用绿色表示已更新的内容
-                                    return; // 找到并替换后直接返回
-                                }
-                                // 如果Run包含旧内容但不完全相等（可能包含多个People的内容）
-                                else if (runText.Contains(oldContent))
-                                {
-                                    string replacedText = runText.Replace(oldContent, newContent);
-                                    run.Text = replacedText;
-                                    run.Foreground = Brushes.Green; // 用绿色表示已更新的内容
-                                    return; // 找到并替换后直接返回
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
 
         /// <summary>
         /// 解析角色定义字符串，提取角色ID和定义
@@ -349,7 +505,7 @@ namespace WpfPrismFrameworkTemplate.Model
         {
         }
 
-        public override void Add(ObservableCollection<Family> familyList)
+        public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
 
         }
@@ -364,7 +520,7 @@ namespace WpfPrismFrameworkTemplate.Model
         {
         }
 
-        public override void Add(ObservableCollection<Family> familyList)
+        public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
 
         }
@@ -379,7 +535,7 @@ namespace WpfPrismFrameworkTemplate.Model
         {
         }
 
-        public override void Add(ObservableCollection<Family> familyList)
+        public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
             if (familyList == null || familyList.Count == 0)
             {
@@ -443,7 +599,7 @@ namespace WpfPrismFrameworkTemplate.Model
         {
         }
 
-        public override void Add(ObservableCollection<Family> familyList)
+        public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
             if (familyList == null || familyList.Count == 0)
             {
