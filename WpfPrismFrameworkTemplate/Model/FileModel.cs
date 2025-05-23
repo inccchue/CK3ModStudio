@@ -228,30 +228,92 @@ namespace WpfPrismFrameworkTemplate.Model
             {
                 return;
             }
-            // 过滤出 IdName 不在 Characters 字典中 key 的 People 对象
+
+            // 获取所有People对象
             ObservableCollection<People> peoples = new ObservableCollection<People>();
             foreach (Family family in familyList)
             {
                 peoples.AddRange(family.Members);
             }
-            var filteredPeople = peoples
-                .Where(p => !_characters.ContainsKey(p.IdName))
-                .ToList();
 
             string newContent = "";
-            foreach (var people in filteredPeople)
+            List<(string oldContent, string newContent)> updatedContents = new List<(string, string)>();
+
+            foreach (var people in peoples)
             {
-                newContent += people.GetString();
-                _characters[people.IdName] = newContent;
-                newContent += "\r\n";
+                string currentContent = people.GetString();
+
+                if (!_characters.ContainsKey(people.IdName))
+                {
+                    // 新的People对象
+                    _characters[people.IdName] = currentContent;
+                    newContent += currentContent + "\r\n";
+                }
+                else
+                {
+                    // 检查现有People对象内容是否发生变化
+                    string oldContent = _characters[people.IdName];
+                    if (oldContent != currentContent)
+                    {
+                        // 内容发生了变化，记录旧内容和新内容
+                        updatedContents.Add((oldContent, currentContent));
+                        _characters[people.IdName] = currentContent;
+                    }
+                }
             }
 
-            // 添加红色文本段落
-            Paragraph paragraph = new Paragraph();
-            Run run = new Run(newContent);
-            run.Foreground = Brushes.Red;
-            paragraph.Inlines.Add(run);
-            Content.Blocks.Add(paragraph);
+            // 处理内容更新 - 在Content中查找并替换
+            foreach (var (oldContent, updatedContent) in updatedContents)
+            {
+                ReplaceContentInBlocks(oldContent, updatedContent);
+            }
+
+            // 添加新内容（红色文本）
+            if (!string.IsNullOrEmpty(newContent))
+            {
+                Paragraph newParagraph = new Paragraph();
+                Run newRun = new Run(newContent.TrimEnd('\r', '\n'));
+                newRun.Foreground = Brushes.Red;
+                newParagraph.Inlines.Add(newRun);
+                Content.Blocks.Add(newParagraph);
+            }
+        }
+
+        private void ReplaceContentInBlocks(string oldContent, string newContent)
+        {
+            foreach (Block block in Content.Blocks)
+            {
+                if (block is Paragraph paragraph)
+                {
+                    foreach (Inline inline in paragraph.Inlines.ToList()) // 使用ToList避免修改集合时的异常
+                    {
+                        if (inline is Run run)
+                        {
+                            string runText = run.Text;
+
+                            // 检查这个Run是否包含要替换的内容
+                            if (runText.Contains(oldContent))
+                            {
+                                // 如果Run的文本完全等于旧内容
+                                if (runText.Equals(oldContent))
+                                {
+                                    run.Text = newContent;
+                                    run.Foreground = Brushes.Green; // 用绿色表示已更新的内容
+                                    return; // 找到并替换后直接返回
+                                }
+                                // 如果Run包含旧内容但不完全相等（可能包含多个People的内容）
+                                else if (runText.Contains(oldContent))
+                                {
+                                    string replacedText = runText.Replace(oldContent, newContent);
+                                    run.Text = replacedText;
+                                    run.Foreground = Brushes.Green; // 用绿色表示已更新的内容
+                                    return; // 找到并替换后直接返回
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
