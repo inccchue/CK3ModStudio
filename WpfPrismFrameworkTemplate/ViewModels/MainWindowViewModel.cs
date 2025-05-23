@@ -1174,7 +1174,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 遍历每个 Family 中的 Members
             foreach (var people in family.Members)
             {
-                people.Init();
+                _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.RemoveSingleCharacter, value = people });
                 people.PropertyChanged -= (s, e) =>
                 {
                     _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = people });
