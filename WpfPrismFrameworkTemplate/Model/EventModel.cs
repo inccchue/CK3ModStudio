@@ -25,10 +25,16 @@ namespace WpfPrismFrameworkTemplate.Model
     {
         [Description("家族更新")]
         UpdateFamily,
+        [Description("单个家族更新")]
+        UpdateSingleFamily,
+        [Description("单个家族删除")]
+        RemoveSingleFamily,
         [Description("角色更新")]
         UpdateCharacter,
         [Description("单个角色更新")]
         UpdateSingleCharacter,
+        [Description("单个角色删除")]
+        RemoveSingleCharacter,
     }
 
     public class SaveMessageEvent : PubSubEvent

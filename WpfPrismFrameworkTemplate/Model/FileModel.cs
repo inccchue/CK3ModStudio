@@ -100,6 +100,61 @@ namespace WpfPrismFrameworkTemplate.Model
                 MessageBox.Show($"保存文件出错: {ex.Message}");
             }
         }
+        protected void RemoveContentInBlocks(string delContent)
+        {
+            foreach (Block block in Content.Blocks)
+            {
+                if (block is Paragraph paragraph)
+                {
+                    string fullText = "";
+                    List<Run> originalRuns = new List<Run>();
+
+                    foreach (Inline inline in paragraph.Inlines)
+                    {
+                        if (inline is Run run)
+                        {
+                            fullText += run.Text;
+                            originalRuns.Add(run);
+                        }
+                    }
+
+                    if (fullText.Contains(delContent))
+                    {
+                        int index = fullText.IndexOf(delContent);
+                        string beforeText = fullText.Substring(0, index);
+                        string afterText = fullText.Substring(index + delContent.Length);
+
+                        paragraph.Inlines.Clear();
+
+                        // 添加删除前的内容
+                        if (!string.IsNullOrEmpty(beforeText))
+                        {
+                            Run beforeRun = new Run(beforeText);
+                            if (originalRuns.Count > 0 && originalRuns.All(r => r.Foreground?.ToString() == originalRuns[0].Foreground?.ToString()))
+                            {
+                                beforeRun.Foreground = originalRuns[0].Foreground;
+                            }
+                            paragraph.Inlines.Add(beforeRun);
+                        }
+
+                        // 不添加delContent，相当于删除它
+
+                        // 添加删除后的内容
+                        if (!string.IsNullOrEmpty(afterText))
+                        {
+                            Run afterRun = new Run(afterText);
+                            if (originalRuns.Count > 0 && originalRuns.All(r => r.Foreground?.ToString() == originalRuns[0].Foreground?.ToString()))
+                            {
+                                afterRun.Foreground = originalRuns[0].Foreground;
+                            }
+                            paragraph.Inlines.Add(afterRun);
+                        }
+
+                        return; // 删除后直接返回
+                    }
+                }
+            }
+        }
 
         protected void ReplaceContentInBlocks(string oldContent, string newContent)
         {
@@ -279,6 +334,48 @@ namespace WpfPrismFrameworkTemplate.Model
             base.Load();
             ParseDynastyDefinitions();
         }
+        public void RemoveSingleFamily(Family targetFamily, string targetContent)
+        {
+            if (targetFamily == null)
+            {
+                return;
+            }
+
+            _dynasties.Remove(targetFamily.FamilyName);
+            string currentContent = targetContent;
+            RemoveContentInBlocks(currentContent);
+
+
+        }
+        public void UpdateSingleFamily(Family targetFamily,string targetContent)
+        {
+            if (targetFamily == null)
+            {
+                return;
+            }
+            string currentContent = targetContent;
+
+            if (!_dynasties.ContainsKey(targetFamily.FamilyName))
+            {
+                // 新的People对象
+                _dynasties[targetFamily.FamilyName] = currentContent;
+
+                Paragraph newParagraph = new Paragraph();
+                Run newRun = new Run(currentContent);
+                newRun.Foreground = Brushes.Red;
+                newParagraph.Inlines.Add(newRun);
+                Content.Blocks.Add(newParagraph);
+            }
+            else
+            {
+                string oldContent = _dynasties[targetFamily.FamilyName];
+                if (oldContent != currentContent)
+                {
+                    _dynasties[targetFamily.FamilyName] = currentContent;
+                    ReplaceContentInBlocks(oldContent, currentContent);
+                }
+            }
+        }
 
         public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
@@ -380,7 +477,19 @@ namespace WpfPrismFrameworkTemplate.Model
             base.Load();
             ParseCharacterDefinitions();
         }
+        public void RemoveSingleCharacter(People targetPeople)
+        {
+            if (targetPeople == null)
+            {
+                return;
+            }          
 
+            _characters.Remove(targetPeople.IdName);
+            string currentContent = targetPeople.GetString();
+            RemoveContentInBlocks(currentContent);
+
+
+        }
         public void UpdateSingleCharacter(People targetPeople)
         {
             if (targetPeople == null)
@@ -534,7 +643,7 @@ namespace WpfPrismFrameworkTemplate.Model
         public LocalizationEnglishFileModel() : base()
         {
         }
-
+       
         public override void UpdateAllContent(ObservableCollection<Family> familyList)
         {
             if (familyList == null || familyList.Count == 0)

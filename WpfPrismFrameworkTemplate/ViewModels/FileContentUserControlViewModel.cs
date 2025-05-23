@@ -149,11 +149,37 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     LocalizationEnglishFile.UpdateAllContent(FamilyList);
                     LocalizationChineseFile.UpdateAllContent(FamilyList);
                     break;
-                case UpdateContentType.UpdateSingleCharacter:
-                    if(args.value is People people)
+                case UpdateContentType.UpdateSingleFamily:
                     {
-                        CharacterDefFile.UpdateSingleCharacter(people);
+                        if (args.value is Family family)
+                        {
+                            DynastyDefFile.UpdateSingleFamily(family,family.GetString());
+                            LocalizationEnglishFile.UpdateSingleFamily(family, family.GetLocalizationString());
+                            LocalizationChineseFile.UpdateSingleFamily(family, family.GetLocalizationString_CN());
+                        }
+                    }                 
+                    break;
+                case UpdateContentType.RemoveSingleFamily:
+                    {
+                        if (args.value is Family family)
+                        {
+                            DynastyDefFile.RemoveSingleFamily(family, family.GetString());
+                            LocalizationEnglishFile.RemoveSingleFamily(family, family.GetLocalizationString());
+                            LocalizationChineseFile.RemoveSingleFamily(family, family.GetLocalizationString_CN());
+                        }
+                    }
+                    break;
+                case UpdateContentType.UpdateSingleCharacter:
+                    if(args.value is People)
+                    {
+                        CharacterDefFile.UpdateSingleCharacter((People)args.value);
                     }                   
+                    break;
+                case UpdateContentType.RemoveSingleCharacter:
+                    if (args.value is People)
+                    {
+                        CharacterDefFile.RemoveSingleCharacter((People)args.value);
+                    }
                     break;
             }
         }

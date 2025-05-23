@@ -1108,8 +1108,10 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
+                    
                     foreach (Family family in e.NewItems)
                     {
+                        _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleFamily, value = family });
                         EventBindingFamily(family);
                     }
                 }
@@ -1117,10 +1119,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 {
                     foreach (Family family in e.OldItems)
                     {
+                        _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.RemoveSingleFamily, value = family });
                         EventUnBindingFamily(family);
                     }
                 }
-                _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateFamily, value = null });
+                
             };
             
         }
@@ -1155,6 +1158,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 {
                     foreach (People oldChild in e.OldItems)
                     {
+                        _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.RemoveSingleCharacter, value = oldChild });
                         oldChild.PropertyChanged -= (s2, e2) =>
                         {
                             _eventAggregator.GetEvent<UpdateContentEvent>().Publish(new UpdateContentEventArgs() { type = UpdateContentType.UpdateSingleCharacter, value = oldChild });
