@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Web.UI.WebControls;
@@ -59,7 +60,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private FileReadWrite _fileReadWrite;
         private bool _isAppBRunning=false;
         private PipeClientService _pipeClientService=new PipeClientService();
-        private readonly Timer _statusCheckTimer;
         private List<CultureNames> _RandomName = new List<CultureNames>();
 
         public DelegateCommand OpenFileCmd { get; private set; }
@@ -127,15 +127,27 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
             eventAggregator.GetEvent<FileSettingChangeEvent>().Subscribe(LoadPathChangeFileContent);
             eventAggregator.GetEvent<SelectFamilyChangeEvent>().Subscribe(OnFamilyUpdated);
-
             Load();
 
-            _statusCheckTimer = new Timer(1000); // 500 毫秒
-            _statusCheckTimer.Elapsed += async (sender, e) => await CheckAppBStatus();
-            _statusCheckTimer.AutoReset = true;
-            _statusCheckTimer.Start();
+            PipeClientService.StartPolling();
+            PipeClientService.ServerStatusChanged += () =>
+            {
+                if (PipeClientService.IsConnected)
+                {
+                    HandyControl.Controls.Growl.Success("已连接到服务器");
+                }
+                else
+                {
+                    HandyControl.Controls.Growl.Warning("与服务器断开连接");
+                }
+            };
         }
 
+        public PipeClientService PipeClientService
+        {
+            get => _pipeClientService;
+            set => SetProperty(ref _pipeClientService, value);
+        }
         public ObservableCollection<County> Counties
         {
             get => _counties;
@@ -145,18 +157,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             get => _fileReadWrite;
             set => SetProperty(ref _fileReadWrite, value);
-        }
-        public bool IsAppBRunning
-        {
-            get => _isAppBRunning;
-            set
-            {
-                if (value!= _isAppBRunning)
-                {
-                    
-                    SetProperty(ref _isAppBRunning, value);
-                }         
-            }
         }
         public List<CultureNames> RandomNameList
         {
@@ -247,7 +247,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             get { return _title; }
             set { SetProperty(ref _title, value); }
         }
-
         private void OnFamilyUpdated(Family updatedFamily)
         {
             SelectFamily = updatedFamily;
@@ -266,23 +265,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     break;
             }
 
-        }
-
-        private async Task CheckAppBStatus()
-        {
-            bool oldIsAppBRunning = IsAppBRunning;
-            IsAppBRunning = await _pipeClientService.IsAppBRunningAsync();
-            if (oldIsAppBRunning != IsAppBRunning)
-            {
-                if (IsAppBRunning)
-                {
-                    HandyControl.Controls.Growl.Success("纹章收集软件已连接");
-                }
-                else
-                {
-                    HandyControl.Controls.Growl.Warning("纹章收集软件已断连");
-                }
-            }
         }
 
         public void SaveAllFile()

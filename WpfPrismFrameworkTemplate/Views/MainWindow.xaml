@@ -138,7 +138,7 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                     <MenuItem Header="删除人物" Command="{Binding DelPeopleCmd}" />
                 </MenuItem>
             </Menu>
-            <Image Margin="10,5,10,5" Source="{Binding IsAppBRunning,Converter={StaticResource ConnectToImageConverter}}" Height="15" Width="15"
+            <Image Margin="10,5,10,5" Source="{Binding PipeClientService.IsConnected,Converter={StaticResource ConnectToImageConverter}}" Height="15" Width="15"
                    ToolTip="指示是否与纹章收集软件建立连接"/>
         </WrapPanel>
     </adonisControls:AdonisWindow.TitleBarContent>

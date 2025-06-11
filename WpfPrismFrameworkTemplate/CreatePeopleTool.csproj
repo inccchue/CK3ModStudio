@@ -41,6 +41,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="netstandard" />
+    <Reference Include="PipeCommunicationLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\PipeCommunicationLibrary\bin\Debug\netstandard2.0\PipeCommunicationLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -74,6 +78,7 @@
     <Compile Include="Helper\CommonHelper.cs" />
     <Compile Include="Helper\DatabaseHelper.cs" />
     <Compile Include="Helper\FamilyInheritanceManager.cs" />
+    <Compile Include="Helper\FileHeartbeatChecker.cs" />
     <Compile Include="Helper\JsonHelper.cs" />
     <Compile Include="Helper\CountyParser.cs" />
     <Compile Include="Helper\NameListParser.cs" />
@@ -343,12 +348,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\disconnect.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PipeCommunicationLibrary\PipeCommunicationLibrary.csproj">
-      <Project>{b5c72be1-d6c0-4daa-8834-598d890b6ad7}</Project>
-      <Name>PipeCommunicationLibrary</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="00_agot_name_lists_andal.txt" />
