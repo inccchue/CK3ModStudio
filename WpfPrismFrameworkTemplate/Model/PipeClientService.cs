@@ -11,6 +11,7 @@ using Prism.Mvvm;
 using GongSolutions.Wpf.DragDrop;
 using System.Diagnostics;
 using WpfPrismFrameworkTemplate.Helper;
+using Newtonsoft.Json;
 
 namespace WpfPrismFrameworkTemplate.Model
 {
@@ -101,30 +102,36 @@ namespace WpfPrismFrameworkTemplate.Model
             try
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                _pipeClient = new NamedPipeClientStream(".", PipeConstants.PIPE_NAME, PipeDirection.InOut);
+                _pipeClient = new NamedPipeClientStream(
+                    ".",
+                    PipeConstants.PIPE_NAME,
+                    PipeDirection.InOut,
+                    PipeOptions.Asynchronous); // 添加异步选项
 
+                Console.WriteLine("正在连接到管道服务器...");
                 await _pipeClient.ConnectAsync(5000);
 
                 if (_pipeClient.IsConnected)
                 {
-                    _reader = new StreamReader(_pipeClient);
-                    _writer = new StreamWriter(_pipeClient) { AutoFlush = true };
+                    _reader = new StreamReader(_pipeClient, Encoding.UTF8);
+                    _writer = new StreamWriter(_pipeClient, Encoding.UTF8) { AutoFlush = true };
                     IsConnected = true;
-
                     Connected?.Invoke();
 
-                    // 启动监听任务
-                    _ = Task.Run(ListenForMessagesAsync, _cancellationTokenSource.Token);
+                    Console.WriteLine("已连接到管道服务器");
+
+                    // 启动监听任务（在后台监听服务器返回的消息）
+                    _ = Task.Run(async () => await ListenForMessagesAsync(), _cancellationTokenSource.Token);
 
                     return true;
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"连接失败: {ex.Message}");
                 ErrorOccurred?.Invoke(ex);
                 await DisconnectAsync();
             }
-
             return false;
         }
 
@@ -158,29 +165,19 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        // 处理接收到的消息并发送回复
+        // Fix for CS1503: Change JsonSerializer.Deserialize to JsonConvert.DeserializeObject
         private async Task HandleMessageAsync(string message)
         {
             try
             {
                 string response = "";
+                PipeMessage pipeMessage = JsonConvert.DeserializeObject<PipeMessage>(message); // Fix applied here
 
-                switch (message)
+                switch (pipeMessage.MessageType)
                 {
-                    case PipeConstants.CHECK_STATUS_MESSAGE:
-                        response = PipeConstants.CLIENT_RUNNING_MESSAGE;
-                        break;
-
-                    case PipeConstants.GET_CLIENT_INFO_MESSAGE:
-                        response = GetClientInfo();
-                        break;
-
-                    case PipeConstants.SHUTDOWN_REQUEST_MESSAGE:
-                        response = PipeConstants.SHUTDOWN_CONFIRMED_MESSAGE;
-                        break;
 
                     default:
-                        response = ProcessCustomMessage(message);
+                        Console.WriteLine($"Unknown message type: {pipeMessage.MessageType}");
                         break;
                 }
 
@@ -188,6 +185,10 @@ namespace WpfPrismFrameworkTemplate.Model
                 {
                     await SendMessageAsync(response);
                 }
+            }
+            catch (JsonException)
+            {
+                Console.WriteLine($"Invalid message format: {message}");
             }
             catch (Exception ex)
             {
@@ -200,16 +201,11 @@ namespace WpfPrismFrameworkTemplate.Model
             return $"已收到消息: {message}";
         }
 
-        private string GetClientInfo()
-        {
-            return $"客户端进程ID: {System.Diagnostics.Process.GetCurrentProcess().Id}, 时间: {DateTime.Now}";
-        }
-
         public async Task<bool> SendMessageAsync(string message)
         {
             try
             {
-                if (IsConnected && _writer != null)
+                if (IsConnected && _writer != null && _pipeClient.IsConnected)
                 {
                     await _writer.WriteLineAsync(message);
                     await _writer.FlushAsync();
@@ -222,6 +218,31 @@ namespace WpfPrismFrameworkTemplate.Model
             }
 
             return false;
+        }
+
+        public async Task SendFamilyInfoAsync(Family selectFamily)
+        {
+            try
+            {
+                CommonFamily commonFamily = new CommonFamily
+                {
+                    FamilyName = selectFamily.FamilyName,
+                    FamilyName_CN = selectFamily.FamilyName_CN
+                };
+                string jsonMessage = JsonConvert.SerializeObject(commonFamily);
+                var message = new PipeMessage
+                {
+                    MessageType = PipeMessageType.SendFamilyInfo,
+                    Content = jsonMessage
+                };
+
+                jsonMessage = JsonConvert.SerializeObject(message);
+                await SendMessageAsync(jsonMessage);
+            }
+            catch (Exception ex)
+            {
+                ErrorOccurred?.Invoke(ex);
+            }
         }
 
         public async Task DisconnectAsync()

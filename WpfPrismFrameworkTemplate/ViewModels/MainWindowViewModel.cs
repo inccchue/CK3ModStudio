@@ -61,6 +61,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private bool _isAppBRunning=false;
         private PipeClientService _pipeClientService=new PipeClientService();
         private List<CultureNames> _RandomName = new List<CultureNames>();
+        public event Action SelectFamilyChangeOccurred;
 
         public DelegateCommand OpenFileCmd { get; private set; }
         public DelegateCommand<string> SearchCmd { get; private set; }
@@ -141,7 +142,26 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     HandyControl.Controls.Growl.Warning("与服务器断开连接");
                 }
             };
+            SelectFamilyChangeOccurred += () =>
+            {
+                if (SelectFamily != null)
+                {
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await PipeClientService.SendFamilyInfoAsync(SelectFamily);
+                        }
+                        catch (Exception ex)
+                        {
+                            // 处理异常
+                            Console.WriteLine($"发送失败: {ex.Message}");
+                        }
+                    });
+                }
+            };
         }
+
 
         public PipeClientService PipeClientService
         {
@@ -219,7 +239,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public Family SelectFamily
         {
             get => _SelectFamily;
-            set => SetProperty(ref _SelectFamily, value);
+            set
+            {
+                SetProperty(ref _SelectFamily, value);
+                SelectFamilyChangeOccurred?.Invoke();
+            }
         }
         public People SelectPeople
         {
