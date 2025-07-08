@@ -23,10 +23,11 @@ namespace WpfPrismFrameworkTemplate.Model
         private StreamWriter _writer;
         private CancellationTokenSource _cancellationTokenSource;
         private Timer _serverCheckTimer;
-        private bool _isConnected = false;
         private bool _isPolling = false;
 
-        public event Action<string> MessageReceived;
+        public bool _IsShowDebugInfo = false;
+
+        public event Action<PipeMessage> MessageReceived;
         public event Action<Exception> ErrorOccurred;
         public event Action Connected;
         public event Action Disconnected;
@@ -40,15 +41,15 @@ namespace WpfPrismFrameworkTemplate.Model
         // 轮询间隔（毫秒）
         public int PollingInterval { get; set; } = 3000; // 默认3秒
 
+        public bool IsShowDebugInfo
+        {
+            get => _IsShowDebugInfo;
+            set => SetProperty(ref _IsShowDebugInfo, value);
+        }
+
         public bool IsConnected
         {
-            get => _isConnected && _pipeClient?.IsConnected == true;
-            set 
-            {
-                if (_isConnected == value) return; // 状态未改变则不处理
-                SetProperty(ref _isConnected, value);
-                ServerStatusChanged?.Invoke();
-            }
+            get => _pipeClient!=null && _pipeClient.IsConnected == true;
         }
       
 
@@ -57,16 +58,17 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             if (_isPolling) return;
 
-            _isPolling = true;
+            
             _serverCheckTimer = new Timer(async _ => await CheckServerAndConnect(), null, 0, PollingInterval);
         }
 
         // 停止轮询
         public void StopPolling()
         {
-            _isPolling = false;
             _serverCheckTimer?.Dispose();
             _serverCheckTimer = null;
+            _isPolling = false;
+            
         }
 
         // 检查服务器并尝试连接
@@ -74,19 +76,22 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             try
             {
-                bool serverRunning = await _heartbeatChecker.IsAppBRunningAsync();
+                if (!IsConnected)
+                {
+                    bool serverRunning = await _heartbeatChecker.IsAppBRunningAsync();
+                    if (serverRunning)
+                    {
+                        // 服务器运行且未连接，尝试建立连接
+                        bool isSuccessConnect = await ConnectAndStartListeningAsync();
+                        if (isSuccessConnect)
+                        {
+                            ShowDebugInfo("已连接到管道服务器");
+                        }
+                    }
+                }
+                
 
-                if (serverRunning && !IsConnected)
-                {
-                    // 服务器运行且未连接，尝试建立连接
-                    IsConnected = await ConnectAndStartListeningAsync();
-                }
-                else if (!serverRunning && IsConnected)
-                {
-                    // 服务器停止但仍显示连接，断开连接
-                    await DisconnectAsync();
-                    
-                }
+               
             }
             catch (Exception ex)
             {
@@ -97,42 +102,62 @@ namespace WpfPrismFrameworkTemplate.Model
         // 连接到服务器并开始持续监听
         public async Task<bool> ConnectAndStartListeningAsync()
         {
-            if (IsConnected) return true;
-
+            NamedPipeClientStream tempPipeClient = null;
             try
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                _pipeClient = new NamedPipeClientStream(
+                tempPipeClient = new NamedPipeClientStream(
                     ".",
                     PipeConstants.PIPE_NAME,
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous); // 添加异步选项
 
-                Console.WriteLine("正在连接到管道服务器...");
-                await _pipeClient.ConnectAsync(5000);
+                await tempPipeClient.ConnectAsync(_cancellationTokenSource.Token);
 
-                if (_pipeClient.IsConnected)
+                if (tempPipeClient !=null&& tempPipeClient.IsConnected)
                 {
-                    _reader = new StreamReader(_pipeClient, Encoding.UTF8);
-                    _writer = new StreamWriter(_pipeClient, Encoding.UTF8) { AutoFlush = true };
-                    IsConnected = true;
-                    Connected?.Invoke();
+                    // 只有在成功连接后才赋值给字段
+                    _pipeClient = tempPipeClient;
 
-                    Console.WriteLine("已连接到管道服务器");
+                    _reader = new StreamReader(tempPipeClient);
+                    _writer = new StreamWriter(tempPipeClient) { AutoFlush = true };
+
+                    Connected?.Invoke();                   
+
 
                     // 启动监听任务（在后台监听服务器返回的消息）
                     _ = Task.Run(async () => await ListenForMessagesAsync(), _cancellationTokenSource.Token);
 
                     return true;
                 }
+                else
+                {
+                    ShowDebugInfo("连接失败：管道未连接");
+                    tempPipeClient?.Dispose();
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ShowDebugInfo("连接被取消");
+                tempPipeClient?.Dispose();
+                return false;
+            }
+            catch (TimeoutException ex)
+            {
+                ShowDebugInfo($"连接超时: {ex.Message}");
+                tempPipeClient?.Dispose();
+                ErrorOccurred?.Invoke(ex);
+                return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"连接失败: {ex.Message}");
+                ShowDebugInfo($"连接失败: {ex.Message}");
+                tempPipeClient?.Dispose();
                 ErrorOccurred?.Invoke(ex);
                 await DisconnectAsync();
+                return false;
             }
-            return false;
         }
 
         // 持续监听服务器消息
@@ -140,19 +165,32 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             try
             {
-                while (!_cancellationTokenSource.Token.IsCancellationRequested && _pipeClient.IsConnected)
+                while (!_cancellationTokenSource.Token.IsCancellationRequested&& _pipeClient!=null && _pipeClient.IsConnected)
                 {
-                    string message = await _reader.ReadLineAsync();
-
-                    if (message != null)
+                    try
                     {
-                        MessageReceived?.Invoke(message);
-                        await HandleMessageAsync(message);
+                        string message = await _reader.ReadLineAsync();
+                        ShowDebugInfo($"收到服务器响应: {message}");
+                        if (message != null)
+                        {                           
+                            await HandleMessageAsync(message);
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else
+                    catch (IOException)
                     {
+                        ShowDebugInfo("管道连接中断");
                         break;
                     }
+                    catch (ObjectDisposedException)
+                    {
+                        ShowDebugInfo("管道已被释放");
+                        break;
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -170,25 +208,12 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             try
             {
-                string response = "";
                 PipeMessage pipeMessage = JsonConvert.DeserializeObject<PipeMessage>(message); // Fix applied here
-
-                switch (pipeMessage.MessageType)
-                {
-
-                    default:
-                        Console.WriteLine($"Unknown message type: {pipeMessage.MessageType}");
-                        break;
-                }
-
-                if (!string.IsNullOrEmpty(response))
-                {
-                    await SendMessageAsync(response);
-                }
+                MessageReceived?.Invoke(pipeMessage);
             }
             catch (JsonException)
             {
-                Console.WriteLine($"Invalid message format: {message}");
+                ShowDebugInfo($"Invalid message format: {message}");
             }
             catch (Exception ex)
             {
@@ -196,16 +221,11 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        protected virtual string ProcessCustomMessage(string message)
-        {
-            return $"已收到消息: {message}";
-        }
-
         public async Task<bool> SendMessageAsync(string message)
         {
             try
             {
-                if (IsConnected && _writer != null && _pipeClient.IsConnected)
+                if (IsConnected && _writer != null)
                 {
                     await _writer.WriteLineAsync(message);
                     await _writer.FlushAsync();
@@ -214,6 +234,7 @@ namespace WpfPrismFrameworkTemplate.Model
             }
             catch (Exception ex)
             {
+                ShowDebugInfo($@"发送消息失败:{ex.Message}");
                 ErrorOccurred?.Invoke(ex);
             }
 
@@ -247,8 +268,6 @@ namespace WpfPrismFrameworkTemplate.Model
 
         public async Task DisconnectAsync()
         {
-            IsConnected = false;
-
             _cancellationTokenSource?.Cancel();
 
             try
@@ -274,7 +293,14 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        
+        public void ShowDebugInfo(string info)
+        {
+            if (IsShowDebugInfo)
+            {
+                Console.WriteLine(info);
+                HandyControl.Controls.Growl.Info(info);
+            }
+        }
 
         public void Dispose()
         {

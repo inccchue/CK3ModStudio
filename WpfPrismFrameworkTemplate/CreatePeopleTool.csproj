@@ -106,8 +106,12 @@
     <Compile Include="ViewModels\FileReadWriteUserControlViewModel.cs" />
     <Compile Include="ViewModels\GenealogyUserControlViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\StatisticsUserControlViewModel.cs" />
     <Compile Include="Views\RandomNameEditor.xaml.cs">
       <DependentUpon>RandomNameEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StatisticsUserControl.xaml.cs">
+      <DependentUpon>StatisticsUserControl.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AssignmentWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -181,6 +185,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\StatisticsUserControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -251,6 +259,12 @@
     </PackageReference>
     <PackageReference Include="K4os.Hash.xxHash">
       <Version>1.0.8</Version>
+    </PackageReference>
+    <PackageReference Include="LiveCharts">
+      <Version>0.9.7</Version>
+    </PackageReference>
+    <PackageReference Include="LiveCharts.Wpf">
+      <Version>0.9.7</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces">
       <Version>5.0.0</Version>
@@ -369,6 +383,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\queshao.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\tongji.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

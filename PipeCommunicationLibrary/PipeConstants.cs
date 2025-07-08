@@ -15,13 +15,14 @@ namespace PipeCommunicationLibrary
         GetClientInfo,
         ShutdownRequest,
         ShutdownConfirmed,
-        SendFamilyInfo
+        SendFamilyInfo,
+        SendCoAPic
     }
 
     public class PipeMessage
     {
         public PipeMessageType MessageType { get; set; }
-        public string Content { get; set; }
+        public object Content { get; set; }
     }
 
     public class CommonFamily

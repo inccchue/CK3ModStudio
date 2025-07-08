@@ -17,6 +17,7 @@
     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
     xmlns:ui="http://schemas.modernwpf.com/2019"
+    xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
 xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
 xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     Title="{Binding Title}"
@@ -61,6 +62,15 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
     <adonisControls:AdonisWindow.TitleBarContent>
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15" ToolTip="显示统计数据"   Command="{Binding GotoStatisticsCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" >
+                        <Image Source="/Images/tongji.png" Height="20"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
 hc:BorderElement.CornerRadius="15" ToolTip="转换到纹章收集软件"   Command="{Binding GotoCoaCmd}"
 >
@@ -442,6 +452,12 @@ FontWeight="Bold" />
                 </hc:TabItem>
                 <hc:TabItem Header="实时文件内容"  Foreground="Black" FontWeight="Heavy">
                     <ContentControl prism:RegionManager.RegionName="FileContentRegion" />
+                </hc:TabItem>
+                <hc:TabItem Header="实时纹章内容"  Foreground="Black" FontWeight="Heavy">
+                    <TextBox Margin="5" Text="{Binding CoAContent,Mode=OneWay}" IsReadOnly="True"/>
+                </hc:TabItem>
+                <hc:TabItem Header="实时纹章图片"  Foreground="Black" FontWeight="Heavy">
+                    <Image Source="{Binding ReceivedImage}"/>
                 </hc:TabItem>
 
             </TabControl>

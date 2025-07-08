@@ -2,6 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using Microsoft.Win32;
 using ModernWpf.Controls;
+using PipeCommunicationLibrary;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -28,6 +29,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
@@ -62,6 +64,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private PipeClientService _pipeClientService=new PipeClientService();
         private List<CultureNames> _RandomName = new List<CultureNames>();
         public event Action SelectFamilyChangeOccurred;
+        public string _CoAContent = "";
+        private BitmapImage _receivedImage;
 
         public DelegateCommand OpenFileCmd { get; private set; }
         public DelegateCommand<string> SearchCmd { get; private set; }
@@ -85,6 +89,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand GotoFileSettingCmd { get; private set; }
         public DelegateCommand GotoFileContentCmd { get; private set; }
         public DelegateCommand GotoTimelineCmd { get; private set; }
+        public DelegateCommand GotoStatisticsCmd { get; private set; }
         public DelegateCommand GotoCoaCmd { get; private set; }
         public DelegateCommand LoadedCommand { get; private set; }
         public DelegateCommand SaveAllFileCommand { get; private set; }
@@ -123,6 +128,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             SaveAllFileCommand = new DelegateCommand(SaveAllFile);
             GotoTimelineCmd = new DelegateCommand(GotoTimeline);
             GotoCoaCmd = new DelegateCommand(GotoCoa);
+            GotoStatisticsCmd = new DelegateCommand(GotoStatistics);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
@@ -130,18 +136,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             eventAggregator.GetEvent<SelectFamilyChangeEvent>().Subscribe(OnFamilyUpdated);
             Load();
 
-            PipeClientService.StartPolling();
-            PipeClientService.ServerStatusChanged += () =>
-            {
-                if (PipeClientService.IsConnected)
-                {
-                    HandyControl.Controls.Growl.Success("已连接到服务器");
-                }
-                else
-                {
-                    HandyControl.Controls.Growl.Warning("与服务器断开连接");
-                }
-            };
+           
             SelectFamilyChangeOccurred += () =>
             {
                 if (SelectFamily != null)
@@ -162,7 +157,16 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             };
         }
 
-
+        public BitmapImage ReceivedImage
+        {
+            get => _receivedImage;
+            set => SetProperty(ref _receivedImage, value);
+        }
+        public string CoAContent
+        {
+            get => _CoAContent;
+            set => SetProperty(ref _CoAContent, value);
+        }
         public PipeClientService PipeClientService
         {
             get => _pipeClientService;
@@ -286,6 +290,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     break;
                 case nameof(FileReadWrite.DomainDefFile):
                     CountyParser.ParseCountiesFromFile(Counties, FileReadWrite.DomainDefFile);
+                    break;
+                case nameof(FileReadWrite.IsShowDebugInfo):
+                    PipeClientService.IsShowDebugInfo = FileReadWrite.IsShowDebugInfo;
                     break;
             }
 
@@ -478,6 +485,29 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     region.Remove(view);
                 }
             }
+
+        }
+        private void GotoStatistics()
+        {
+            // 获取该区域
+            
+            IRegion region = _regionManager.Regions["ContentRegion"];
+            var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(StatisticsUserControl));
+            if (viewInstance == null)
+            {
+                var parameters = new NavigationParameters();
+                parameters.Add("FamilyList", FamilyList);
+                parameters.Add("Counties", Counties);
+                _regionManager.RequestNavigate("ContentRegion", "Statistics", parameters);
+            }
+            else
+            {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+            }
+            
 
         }
         private void GotoTimeline()
@@ -1093,13 +1123,68 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 EventBindingAllFamily();
                 PopulateReligionOptions();
                 PopulateCultureOptions();
-                
+                InitPipeService();
             }
             catch (Exception ex)
             {
                 // 处理错误
                 //MessageBox.Show($"加载家族数据失败：{ex.Message}");
             }
+        }
+
+        // 将字节数组转换为BitmapImage
+        private BitmapImage ByteArrayToBitmapImage(byte[] imageData)
+        {
+            if (imageData == null || imageData.Length == 0)
+                return null;
+
+            var bitmapImage = new BitmapImage();
+            using (var stream = new MemoryStream(imageData))
+            {
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = stream;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze(); // 冻结以提高性能和线程安全
+            }
+            return bitmapImage;
+        }
+
+        private void InitPipeService()
+        {
+            try
+            {
+                PipeClientService.StartPolling();
+                PipeClientService.ServerStatusChanged += () =>
+                {
+                    if (PipeClientService.IsConnected)
+                    {
+                        HandyControl.Controls.Growl.Success("已连接到服务器");
+                    }
+                    else
+                    {
+                        HandyControl.Controls.Growl.Warning("与服务器断开连接");
+                    }
+                };
+
+                PipeClientService.MessageReceived += (PipeMessage message) =>
+                {
+                    if (message.MessageType == PipeMessageType.SendFamilyInfo)
+                    {
+                        CoAContent = message.Content as string;
+                    }
+                    else if (message.MessageType == PipeMessageType.SendCoAPic)
+                    {
+                        ReceivedImage = ByteArrayToBitmapImage(Convert.FromBase64String(message.Content as string));
+                    }
+                };
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            
         }
 
         private void EventBindingAllFamily()

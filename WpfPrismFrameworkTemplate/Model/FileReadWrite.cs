@@ -27,6 +27,7 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _RandomNameFilePath;
         private bool _EnableAutoSave=true;
         private bool _EnableRandomAge = true;
+        private bool _IsShowDebugInfo = false;
 
         public FileReadWrite()
         {
@@ -129,6 +130,15 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             get => _EnableRandomAge;
             set => SetProperty(ref _EnableRandomAge, value);
+        }
+
+        [Category("调试设置")]
+        [DisplayName("是否显示调试信息")]
+        [Description("是否显示调试信息")]
+        public bool IsShowDebugInfo
+        {
+            get => _IsShowDebugInfo;
+            set => SetProperty(ref _IsShowDebugInfo, value);
         }
     }
 }

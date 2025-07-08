@@ -35,6 +35,7 @@ namespace WpfPrismFrameworkTemplate
             containerRegistry.RegisterForNavigation<FileReadWriteUserControl, FileReadWriteUserControlViewModel>("FileReadWrite");
             containerRegistry.RegisterForNavigation<FileContentUserControl, FileContentUserControlViewModel>("FileContent");
             containerRegistry.RegisterForNavigation<CountyTimelineUserControl, CountyTimelineUserControlViewModel>("CountyTimeline");
+            containerRegistry.RegisterForNavigation<StatisticsUserControl, StatisticsUserControlViewModel>("Statistics");
         }
 	}
 }
