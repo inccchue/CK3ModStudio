@@ -12,6 +12,11 @@ using WpfPrismFrameworkTemplate.Model;
 
 namespace WpfPrismFrameworkTemplate.ViewModels
 {
+    public enum StatisType
+    {
+        各文化人数,
+        各家族人数
+    }
     public class StatisticsUserControlViewModel : BindableBase, INavigationAware
     {
         private ObservableCollection<Family> _FamilyList = new ObservableCollection<Family>();
@@ -20,9 +25,35 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public SeriesCollection PieSeriesCollection { get; set; } = new SeriesCollection();
         public ChartValues<int> SeriesValues { get; set; } = new ChartValues<int>();
         public ObservableCollection<string> XLabels { get; set; } = new ObservableCollection<string>() { };
+        public DelegateCommand<string> SelectCmd { get; private set; }
+        public StatisType _SelectedStatisType = StatisType.各家族人数;
         public StatisticsUserControlViewModel()
         {
+            SelectCmd = new DelegateCommand<string>(Select);
+        }
+        public StatisType SelectedStatisType
+        {
+            get => _SelectedStatisType;
+            set => SetProperty(ref _SelectedStatisType, value);
+        }
+        private void Select(string statisName)
+        {
+            try
+            {
+                if (Enum.TryParse(statisName, out StatisType result))
+                {
+                    SelectedStatisType = result;
+                }
+                else
+                {
+                    Console.WriteLine($"无法将\"{statisName}\"转换为StatisType枚举值。");
+                }
+            }
+            catch (Exception ex)
+            {
 
+                Console.WriteLine($"{ex.Message}");
+            }
         }
         public void PopulateChartData()
         {

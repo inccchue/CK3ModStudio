@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using WindowsAPICodePack.Dialogs;
 using Xceed.Wpf.Toolkit.PropertyGrid;
 using Xceed.Wpf.Toolkit.PropertyGrid.Editors;
 
@@ -68,11 +69,6 @@ namespace WpfPrismFrameworkTemplate.Views
                     filter = "Domain files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
                     title = "Select Domain Definition File";
                 }
-                else if (propertyName.Contains("CoaDef"))
-                {
-                    filter = "CoA files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
-                    title = "Select CoA Definition File";
-                }
                 else if (propertyName.Contains("English"))
                 {
                     filter = "Localization files (*.yml;*.xml)|*.yml;*.xml|All files (*.*)|*.*";
@@ -92,6 +88,20 @@ namespace WpfPrismFrameworkTemplate.Views
                 {
                     filter = "Character files (*.txt;*.xml)|*.txt;*.xml|All files (*.*)|*.*";
                     title = "Select Character Definition File";
+                }
+                else if (propertyName.Contains("CoaDefine")|| propertyName.Contains("CoaSave"))
+                {
+                    var tmpDialog = new CommonOpenFileDialog
+                    {
+                        IsFolderPicker = true,
+                        Title = "Select Folder"
+                    };
+
+                    if (tmpDialog.ShowDialog() == CommonFileDialogResult.Ok)
+                    {
+                        Value = tmpDialog.FileName;
+                    }
+                    return;
                 }
             }
 

@@ -58,10 +58,20 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <cv:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
         <cv:HasSpouseEventToVisibilityConverter x:Key="HasSpouseEventToVisibilityConverter"/>
         <cv:ConnectToImageConverter x:Key="ConnectToImageConverter"/>
+        <cv:NameToPhotoPathConverter x:Key="NameToPhotoPathConverter"/>
     </Window.Resources>
     <adonisControls:AdonisWindow.TitleBarContent>
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
+hc:BorderElement.CornerRadius="15" ToolTip="显示数据库"   Command="{Binding GotoDatabaseCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" >
+                        <Image Source="/Images/database.png" Height="15"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
 hc:BorderElement.CornerRadius="15" ToolTip="显示统计数据"   Command="{Binding GotoStatisticsCmd}"
 >
@@ -148,7 +158,7 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                     <MenuItem Header="删除人物" Command="{Binding DelPeopleCmd}" />
                 </MenuItem>
             </Menu>
-            <Image Margin="10,5,10,5" Source="{Binding PipeClientService.IsConnected,Converter={StaticResource ConnectToImageConverter}}" Height="15" Width="15"
+            <Image Margin="10,5,10,5" Source="{Binding IsPipeServiceConnect,Converter={StaticResource ConnectToImageConverter}}" Height="15" Width="15"
                    ToolTip="指示是否与纹章收集软件建立连接"/>
         </WrapPanel>
     </adonisControls:AdonisWindow.TitleBarContent>
@@ -189,7 +199,7 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                             <StackPanel.ToolTip>
                                 <ToolTip>
                                     <Border BorderBrush="Black" BorderThickness="1" Background="White" Padding="5">
-                                        <Image Source="/Images/tuxinghua.png" Width="200" Height="150" Stretch="Uniform"/>
+                                        <Image Source="{Binding FamilyName,Mode=OneWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NameToPhotoPathConverter}}"/>
                                     </Border>
                                 </ToolTip>
                             </StackPanel.ToolTip>
@@ -457,7 +467,7 @@ FontWeight="Bold" />
                     <TextBox Margin="5" Text="{Binding CoAContent,Mode=OneWay}" IsReadOnly="True"/>
                 </hc:TabItem>
                 <hc:TabItem Header="实时纹章图片"  Foreground="Black" FontWeight="Heavy">
-                    <Image Source="{Binding ReceivedImage}"/>
+                    <Image Source="{Binding SelectFamily.FamilyName,Converter={StaticResource NameToPhotoPathConverter}}"/>
                 </hc:TabItem>
 
             </TabControl>

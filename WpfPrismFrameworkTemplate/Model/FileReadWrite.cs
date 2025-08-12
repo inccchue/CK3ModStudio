@@ -24,6 +24,8 @@ namespace WpfPrismFrameworkTemplate.Model
         private string _localizationEnglishFile;
         private string _localizationChineseFile;
         private string _CoaCollectSoftwarePath;
+        private string _CoaSavePath;
+        private string _CoaDefinePath;
         private string _RandomNameFilePath;
         private bool _EnableAutoSave=true;
         private bool _EnableRandomAge = true;
@@ -64,16 +66,6 @@ namespace WpfPrismFrameworkTemplate.Model
             set => SetProperty(ref _domainDefFile, value);
         }
 
-        [Category("定义文件")]
-        [DisplayName("纹章定义文件")]
-        [Description("选择或输入纹章(CoA)定义文件的路径")]
-        [Editor(typeof(FilePathSelectorEditor), typeof(FilePathSelectorEditor))]
-        public string CoaDefFile
-        {
-            get => _coaDefFile;
-            set => SetProperty(ref _coaDefFile, value);
-        }
-
         [Category("本地化文件")]
         [DisplayName("英语翻译文件")]
         [Description("选择或输入英语本地化翻译文件的路径")]
@@ -111,6 +103,26 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             get => _CoaCollectSoftwarePath;
             set => SetProperty(ref _CoaCollectSoftwarePath, value);
+        }
+
+        [Category("纹章收集设置")]
+        [DisplayName("纹章图片保存路径")]
+        [Description("选择纹章图片保存路径")]
+        [Editor(typeof(FilePathSelectorEditor), typeof(FilePathSelectorEditor))]
+        public string CoaSavePath
+        {
+            get => _CoaSavePath;
+            set => SetProperty(ref _CoaSavePath, value);
+        }
+
+        [Category("纹章收集设置")]
+        [DisplayName("纹章定义文件路径")]
+        [Description("选择纹章定义文件路径")]
+        [Editor(typeof(FilePathSelectorEditor), typeof(FilePathSelectorEditor))]
+        public string CoaDefinePath
+        {
+            get => _CoaDefinePath;
+            set => SetProperty(ref _CoaDefinePath, value);
         }
 
         [Category("随机设置")]

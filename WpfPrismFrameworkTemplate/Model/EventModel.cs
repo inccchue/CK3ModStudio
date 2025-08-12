@@ -37,6 +37,18 @@ namespace WpfPrismFrameworkTemplate.Model
         RemoveSingleCharacter,
     }
 
+    public enum MsgLevel
+    {
+        [Description("普通消息")]
+        Normal,
+        [Description("成功消息")]
+        Success,
+        [Description("警告消息")]
+        Warning,
+        [Description("报警消息")]
+        Alarm,
+    }
+
     public class SaveMessageEvent : PubSubEvent
     {
     }
@@ -91,6 +103,16 @@ namespace WpfPrismFrameworkTemplate.Model
         public object value { get; set; }
     }
     public class UpdateContentEvent : PubSubEvent<UpdateContentEventArgs>
+    {
+    }
+
+    public class DebugMsgEventArgs
+    {
+        public MsgLevel level { get; set; }
+        public string content { get; set; }
+        public DateTime timestamp { get; set; }
+    }
+    public class DebugMsgEvent : PubSubEvent<DebugMsgEventArgs>
     {
     }
 }

@@ -19,66 +19,94 @@
 xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
 xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"          
              prism:ViewModelLocator.AutoWireViewModel="True" >
+    <UserControl.Resources>
+        <cv:StatisTypeAndHeaderToVisibilityConverter x:Key="StatisTypeAndHeaderToVisibilityConverter"/>
+        
+    </UserControl.Resources>
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <!--<RowDefinition Height="30"/>-->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
-            <!--<ColumnDefinition Width="0"/>
-            <ColumnDefinition Width="6*"/>-->
         </Grid.ColumnDefinitions>
-        <UniformGrid Columns="2" Rows="2">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="各家族人数" HorizontalAlignment="Center" FontWeight="Heavy" VerticalAlignment="Center"/>
-                <lvc:CartesianChart Padding="5" VerticalContentAlignment="Stretch" Grid.Row="1">
+        <hc:SideMenu BorderThickness="1">
+            <hc:SideMenuItem Header="家族统计数据" FontSize="16" FontWeight="Heavy">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="/Images/family.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+                <hc:SideMenuItem Header="各家族人数" Command="{Binding SelectCmd}" CommandParameter="{Binding Header,RelativeSource={RelativeSource Self}}">
+                </hc:SideMenuItem>
+            </hc:SideMenuItem>
+            <hc:SideMenuItem Header="杂项统计数据" FontSize="16" FontWeight="Heavy">
+                <hc:SideMenuItem.Icon>
+                    <Image Source="/Images/misc.png" Width="24" Height="24"/>
+                </hc:SideMenuItem.Icon>
+                <hc:SideMenuItem Header="各文化人数" Command="{Binding SelectCmd}" CommandParameter="{Binding Header,RelativeSource={RelativeSource Self}}">
+                </hc:SideMenuItem>
+            </hc:SideMenuItem>
+        </hc:SideMenu>
+        <Grid Grid.Column="1" x:Name="各家族人数" Margin="10">
+            <Grid.Visibility>
+                <MultiBinding Converter="{StaticResource StatisTypeAndHeaderToVisibilityConverter}">
+                    <Binding Path="SelectedStatisType" />
+                    <Binding RelativeSource="{RelativeSource Self}" Path="Name" />
+                </MultiBinding>
+            </Grid.Visibility>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="各家族人数" HorizontalAlignment="Center" FontWeight="Heavy" VerticalAlignment="Center"/>
+            <lvc:CartesianChart Padding="5" VerticalContentAlignment="Stretch" Grid.Row="1">
 
-                    <lvc:CartesianChart.Series>
+                <lvc:CartesianChart.Series>
 
-                        <lvc:ColumnSeries
+                    <lvc:ColumnSeries
 Values="{Binding SeriesValues}" >
 
-                        </lvc:ColumnSeries>
+                    </lvc:ColumnSeries>
 
-                    </lvc:CartesianChart.Series>
-                    <lvc:CartesianChart.AxisX>
-                        <lvc:Axis Labels="{Binding XLabels}"  FontWeight="Heavy"
+                </lvc:CartesianChart.Series>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Labels="{Binding XLabels}"  FontWeight="Heavy"
             ShowLabels="True"
             Foreground="Black"
             FontSize="12"
             >
-                            <!--设置显示步长-->
-                            <lvc:Axis.Separator>
-                                <lvc:Separator Step="1" StrokeThickness="0"/>
-                            </lvc:Axis.Separator>
-                        </lvc:Axis>
-                    </lvc:CartesianChart.AxisX>
-                </lvc:CartesianChart>
-            </Grid>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="各文化人数" HorizontalAlignment="Center" FontWeight="Heavy" VerticalAlignment="Center"/>
-                <lvc:CartesianChart Grid.Row="1" Padding="5">
-                    <lvc:PieChart LegendLocation="Bottom" Series="{Binding PieSeriesCollection}">
-                    </lvc:PieChart>
-                </lvc:CartesianChart>
-            </Grid>
-            
-        </UniformGrid>
-        
+                        <!--设置显示步长-->
+                        <lvc:Axis.Separator>
+                            <lvc:Separator Step="1" StrokeThickness="0"/>
+                        </lvc:Axis.Separator>
+                    </lvc:Axis>
+                </lvc:CartesianChart.AxisX>
+            </lvc:CartesianChart>
+        </Grid>
+        <Grid Grid.Column="1" x:Name="各文化人数" Margin="10">
+            <Grid.Visibility>
+                <MultiBinding Converter="{StaticResource StatisTypeAndHeaderToVisibilityConverter}">
+                    <Binding Path="SelectedStatisType" />
+                    <Binding RelativeSource="{RelativeSource Self}" Path="Name" />
+                </MultiBinding>
+            </Grid.Visibility>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="各文化人数" HorizontalAlignment="Center" FontWeight="Heavy" VerticalAlignment="Center"/>
+            <lvc:CartesianChart Grid.Row="1" Padding="5">
+                <lvc:PieChart LegendLocation="Bottom" Series="{Binding PieSeriesCollection}">
+                </lvc:PieChart>
+            </lvc:CartesianChart>
+        </Grid>
+
     </Grid>
 </UserControl>

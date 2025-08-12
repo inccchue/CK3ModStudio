@@ -1,15 +1,18 @@
-﻿using Prism.Mvvm;
+﻿using Google.Protobuf.WellKnownTypes;
+using Prism.Mvvm;
 using Prism.Regions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
+using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 
 namespace WpfPrismFrameworkTemplate.Model
@@ -78,6 +81,35 @@ namespace WpfPrismFrameworkTemplate.Model
             }
             _members.CollectionChanged += Members_CollectionChanged;
 
+        }
+
+        public void SaveCoAPic(BitmapImage ReceivedImage)
+        {
+            string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FamilyCoA");
+            string filePath = Path.Combine(folderPath, string.Format(@"{0}.png", FamilyName));
+            try
+            {
+                // 如果文件夹不存在则创建
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // 将 BitmapImage 转换为 BitmapEncoder 可处理的格式
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(ReceivedImage));
+
+                // 创建文件流并保存图像
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    encoder.Save(fileStream);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"{ex.Message}");
+            }
         }
 
         // 添加一个方法来管理成员

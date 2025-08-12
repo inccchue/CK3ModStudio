@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="WpfPrismFrameworkTemplate.Views.DatabaseUserControl"
+                                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:ctrlz="clr-namespace:ControlzEx.Behaviors;assembly=ControlzEx"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:viewmodels="clr-namespace:WpfPrismFrameworkTemplate.ViewModels"
+    xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
+    xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model" 
+    xmlns:helper="clr-namespace:WpfPrismFrameworkTemplate.Helper"
+    xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
+    xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"          
+             prism:ViewModelLocator.AutoWireViewModel="True" >
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="150"/>
+        </Grid.RowDefinitions>
+        <TabControl Foreground="Black" dd:DragDrop.IsDragSource="True"
+                    dd:DragDrop.IsDropTarget="True"
+                    SelectedIndex="{Binding CurrentTabIndex, Mode=OneWayToSource}"
+                    >
+            <TabItem >
+                <TabItem.Header>
+                    <WrapPanel>
+                        <Image Source="/Images/SQLite.png" Height="15"/>
+                        <TextBlock Text="Sqlite"/>
+                    </WrapPanel>
+
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="0"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                </Grid>
+            </TabItem>
+            <TabItem >
+                <TabItem.Header>
+                    <WrapPanel>
+                        <Image Source="/Images/MySQL.png" Height="20" Width="18"/>
+                        <TextBlock Text="MySQL"/>
+                    </WrapPanel>
+
+                </TabItem.Header>
+
+            </TabItem>
+            <TabItem >
+                <TabItem.Header>
+                    <WrapPanel>
+                        <Image Source="/Images/SqlServer.png" Height="15"/>
+                        <TextBlock Text="SqlServer"/>
+                    </WrapPanel>
+
+                </TabItem.Header>
+
+            </TabItem>
+        </TabControl>
+        <WrapPanel Grid.Row="1" Margin="2">
+            <Button Content="测试" Style="{StaticResource ButtonSuccess}" Command="{Binding TestCmd}"/>
+        </WrapPanel>
+        <RichTextBox Grid.Row="2" Margin="2" 
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto"
+                     IsReadOnly="True"
+                     Background="#FFF5F5F5"
+                     FontFamily="Consolas"
+                     FontSize="14">
+            <RichTextBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="保存" Command="{Binding SaveCharacterDefFileCmd}"/>
+                    <MenuItem Header="另存为" Command="{Binding SaveAsCharacterDefFileCmd}"/>
+                    <MenuItem Header="清空" Command="{Binding ClearDebugMsgCmd}"/>
+                </ContextMenu>
+            </RichTextBox.ContextMenu>
+            <i:Interaction.Behaviors>
+                <helper:RichTextBoxBindingBehavior Document="{Binding DebugMsg}" />
+            </i:Interaction.Behaviors>
+        </RichTextBox>
+    </Grid>
+</UserControl>

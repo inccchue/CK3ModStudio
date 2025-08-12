@@ -8,18 +8,18 @@
              x:Name="_uc">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" 
-                 Margin="3"
+        <TextBox Grid.Column="1" 
+                 Margin="5"
                  Text="{Binding Value, ElementName=_uc}" 
                  IsReadOnly="True"
                  VerticalContentAlignment="Center" Style="{StaticResource TextBoxExtend}"/>
-        <Button Grid.Column="1" 
+        <Button Grid.Column="0" 
                 Content="..." 
                 Width="25" 
-                Margin="2" 
+                Margin="5" 
                 Click="BrowseButton_Click" />
     </Grid>
 </UserControl>

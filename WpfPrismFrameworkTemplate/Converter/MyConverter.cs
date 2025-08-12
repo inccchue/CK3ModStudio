@@ -3,18 +3,84 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
+using WpfPrismFrameworkTemplate.ViewModels;
 using static System.ComponentModel.TypeConverter;
 
 namespace WpfPrismFrameworkTemplate.Converter
 {
+    public class StatisTypeAndHeaderToVisibilityConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values[0] is StatisType selectedType && values[1] is string header)
+            {
+                StatisType result;
+                if (Enum.TryParse(header, out result))
+                {
+                    return selectedType == result ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class NameToPhotoPathConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FamilyCoA");
+            string filePath = Path.Combine(folderPath, string.Format(@"{0}.png", (string)value));
+
+            try
+            {
+                // 如果文件夹不存在则创建
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                if (!File.Exists(filePath))
+                {
+                    return new BitmapImage();
+                }
+
+                
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.StreamSource = stream;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad; // 确保加载到内存
+                bitmap.EndInit();
+                return bitmap;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class LiegeEntriesToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

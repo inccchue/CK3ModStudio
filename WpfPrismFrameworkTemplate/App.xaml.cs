@@ -27,15 +27,20 @@ namespace WpfPrismFrameworkTemplate
 		{
             containerRegistry.RegisterSingleton<MainWindowViewModel>();
             containerRegistry.RegisterSingleton<IFamilyRepository, FamilyRepository>();
+            containerRegistry.RegisterSingleton<GenealogyUserControl>();
+            containerRegistry.RegisterSingleton<SqlServerDatabaseHelper>(
+            _ => new SqlServerDatabaseHelper());
+
             containerRegistry.RegisterDialog<AssignmentWindow>(nameof(AssignmentWindow));
             containerRegistry.RegisterDialog<CommonAssignmentWindow>(nameof(CommonAssignmentWindow));
             containerRegistry.RegisterDialog<FamilyTreeWindow>(nameof(FamilyTreeWindow));
-            containerRegistry.RegisterSingleton<GenealogyUserControl>();
+            
             containerRegistry.RegisterForNavigation<GenealogyUserControl, GenealogyUserControlViewModel>("Genealogy");
             containerRegistry.RegisterForNavigation<FileReadWriteUserControl, FileReadWriteUserControlViewModel>("FileReadWrite");
             containerRegistry.RegisterForNavigation<FileContentUserControl, FileContentUserControlViewModel>("FileContent");
             containerRegistry.RegisterForNavigation<CountyTimelineUserControl, CountyTimelineUserControlViewModel>("CountyTimeline");
             containerRegistry.RegisterForNavigation<StatisticsUserControl, StatisticsUserControlViewModel>("Statistics");
+            containerRegistry.RegisterForNavigation<DatabaseUserControl, DatabaseUserControlViewModel>("Database");
         }
 	}
 }

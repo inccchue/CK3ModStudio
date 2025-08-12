@@ -66,6 +66,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public event Action SelectFamilyChangeOccurred;
         public string _CoAContent = "";
         private BitmapImage _receivedImage;
+        private bool _IsPipeServiceConnect = false;
 
         public DelegateCommand OpenFileCmd { get; private set; }
         public DelegateCommand<string> SearchCmd { get; private set; }
@@ -90,6 +91,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand GotoFileContentCmd { get; private set; }
         public DelegateCommand GotoTimelineCmd { get; private set; }
         public DelegateCommand GotoStatisticsCmd { get; private set; }
+        public DelegateCommand GotoDatabaseCmd { get; private set; }
         public DelegateCommand GotoCoaCmd { get; private set; }
         public DelegateCommand LoadedCommand { get; private set; }
         public DelegateCommand SaveAllFileCommand { get; private set; }
@@ -129,11 +131,13 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             GotoTimelineCmd = new DelegateCommand(GotoTimeline);
             GotoCoaCmd = new DelegateCommand(GotoCoa);
             GotoStatisticsCmd = new DelegateCommand(GotoStatistics);
+            GotoDatabaseCmd = new DelegateCommand(GotoDatabase);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
             eventAggregator.GetEvent<FileSettingChangeEvent>().Subscribe(LoadPathChangeFileContent);
             eventAggregator.GetEvent<SelectFamilyChangeEvent>().Subscribe(OnFamilyUpdated);
+            DebugHelper.Initialize(eventAggregator);
             Load();
 
            
@@ -157,6 +161,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             };
         }
 
+        public bool IsPipeServiceConnect
+        {
+            get => _IsPipeServiceConnect;
+            set => SetProperty(ref _IsPipeServiceConnect, value);
+        }
         public BitmapImage ReceivedImage
         {
             get => _receivedImage;
@@ -485,6 +494,29 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     region.Remove(view);
                 }
             }
+
+        }
+        private void GotoDatabase()
+        {
+            // 获取该区域
+
+            IRegion region = _regionManager.Regions["ContentRegion"];
+            var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(DatabaseUserControl));
+            if (viewInstance == null)
+            {
+                var parameters = new NavigationParameters();
+                parameters.Add("FamilyList", FamilyList);
+                parameters.Add("Counties", Counties);
+                _regionManager.RequestNavigate("ContentRegion", "Database", parameters);
+            }
+            else
+            {
+                foreach (var view in region.Views)
+                {
+                    region.Remove(view);
+                }
+            }
+
 
         }
         private void GotoStatistics()
@@ -1155,16 +1187,15 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             try
             {
                 PipeClientService.StartPolling();
-                PipeClientService.ServerStatusChanged += () =>
+                PipeClientService.Connected += () =>
                 {
-                    if (PipeClientService.IsConnected)
-                    {
-                        HandyControl.Controls.Growl.Success("已连接到服务器");
-                    }
-                    else
-                    {
-                        HandyControl.Controls.Growl.Warning("与服务器断开连接");
-                    }
+                    IsPipeServiceConnect = true;
+                    HandyControl.Controls.Growl.Success("已连接到服务器");
+                };
+                PipeClientService.Disconnected += () =>
+                {
+                    IsPipeServiceConnect = false;
+                    HandyControl.Controls.Growl.Warning("与服务器断开连接");
                 };
 
                 PipeClientService.MessageReceived += (PipeMessage message) =>
@@ -1176,6 +1207,10 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     else if (message.MessageType == PipeMessageType.SendCoAPic)
                     {
                         ReceivedImage = ByteArrayToBitmapImage(Convert.FromBase64String(message.Content as string));
+                        if (SelectFamily != null)
+                        {
+                            SelectFamily.SaveCoAPic(ReceivedImage);
+                        }
                     }
                 };
             }
