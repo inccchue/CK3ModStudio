@@ -1,6 +1,4 @@
-﻿using Google.Protobuf.Compiler;
-using Google.Protobuf.WellKnownTypes;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using ModernWpf.Controls;
 using PipeCommunicationLibrary;
 using Prism.Commands;
@@ -14,23 +12,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
 using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Xml.Linq;
 using WpfPrismFrameworkTemplate.Helper;
 using WpfPrismFrameworkTemplate.Model;
 using WpfPrismFrameworkTemplate.Views;
@@ -48,10 +35,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private ObservableCollection<County> _counties = new ObservableCollection<County>();
         private People _SelectPeople;
         private Family _SelectFamily;
-        private string _title = "CK3创建人物工具(作者:Fred)";
-        private string _FileContent = "";
-        private string _HighlightedContent = "";
-        private object _selectedItem;
+        private string _title = "CK3 Mod Studio (作者:Fred)";
         private readonly FamilyRepository _repository;
         private IEventAggregator _eventAggregator;
         private bool _EnableDatabaseSync = false;
@@ -60,7 +44,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private readonly IRegionManager _regionManager;
         private string _searchText;
         private FileReadWrite _fileReadWrite;
-        private bool _isAppBRunning=false;
         private PipeClientService _pipeClientService=new PipeClientService();
         private List<CultureNames> _RandomName = new List<CultureNames>();
         public event Action SelectFamilyChangeOccurred;
@@ -69,7 +52,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private bool _IsPipeServiceConnect = false;
 
         public DelegateCommand OpenFileCmd { get; private set; }
-        public DelegateCommand<string> SearchCmd { get; private set; }
         public DelegateCommand CreatePersonContentCmd { get; private set; }
         public DelegateCommand CreateFamilyContentCmd { get; private set; }
         public DelegateCommand CreateAllFamilyContentCmd { get; private set; }
@@ -93,6 +75,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         public DelegateCommand GotoStatisticsCmd { get; private set; }
         public DelegateCommand GotoDatabaseCmd { get; private set; }
         public DelegateCommand GotoCoaCmd { get; private set; }
+        public DelegateCommand GotoLandedTitlesCmd { get; private set; }
         public DelegateCommand LoadedCommand { get; private set; }
         public DelegateCommand SaveAllFileCommand { get; private set; }
         public MainWindowViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IRegionManager regionManager)
@@ -106,7 +89,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             _repository = new FamilyRepository(eventAggregator);
 
             OpenFileCmd = new DelegateCommand(OpenFile);
-            SearchCmd = new DelegateCommand<string>(SearchContent);
             CreatePersonContentCmd = new DelegateCommand(CreatePersonContent);
             CreateFamilyContentCmd = new DelegateCommand(CreateFamilyContent);
             CreateAllFamilyContentCmd = new DelegateCommand(CreateAllFamilyContent);
@@ -132,6 +114,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             GotoCoaCmd = new DelegateCommand(GotoCoa);
             GotoStatisticsCmd = new DelegateCommand(GotoStatistics);
             GotoDatabaseCmd = new DelegateCommand(GotoDatabase);
+            GotoLandedTitlesCmd = new DelegateCommand(GotoLandedTitles);
             eventAggregator.GetEvent<SaveMessageEvent>().Subscribe(Save);
             eventAggregator.GetEvent<ParentChangedEvent>().Subscribe(HandleTextChanged);
             eventAggregator.GetEvent<QuerySubmittedEvent>().Subscribe(HandleQuerySubmitted);
@@ -268,16 +251,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 GetFamilyForSelectedPeople();
                 
             }
-        }
-        public string HighlightedContent
-        {
-            get => _HighlightedContent;
-            set => SetProperty(ref _HighlightedContent, value);
-        }
-        public string FileContent
-        {
-            get { return _FileContent; }
-            set { SetProperty(ref _FileContent, value); }
         }
         public string Title
         {
@@ -519,10 +492,26 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
 
         }
+        private void GotoLandedTitles()
+        {
+            IRegion region = _regionManager.Regions["ContentRegion"];
+            IRegion region2 = _regionManager.Regions["MiddleRegion"];
+            foreach (var view in region2.Views) region2.Remove(view);
+            var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == "LandedTitlesUserControl");
+            if (viewInstance == null)
+            {
+                _regionManager.RequestNavigate("ContentRegion", "LandedTitles");
+            }
+            else
+            {
+                foreach (var view in region.Views) region.Remove(view);
+            }
+        }
+
         private void GotoStatistics()
         {
             // 获取该区域
-            
+
             IRegion region = _regionManager.Regions["ContentRegion"];
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(StatisticsUserControl));
             if (viewInstance == null)
@@ -740,7 +729,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 LifeEvent selPeopleBirthEvent = SelectPeople.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Birth);
                 LifeEvent selPeopleDeathEvent = SelectPeople.LifeEventList.FirstOrDefault(e => e.EventType == LifeEventType.Death);
 
-                if (selPeopleBirthEvent != null || selPeopleBirthEvent != null)
+                if (selPeopleBirthEvent != null || selPeopleDeathEvent != null)
                 {
                     // 填充这些集合
                     foreach (var family in FamilyList)
@@ -876,21 +865,9 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             {
                 return;
             }
-        //    dynamic obj = new ExpandoObject();
-        //    obj.事件类型 = LifeEventType.Birth;
-        //    DialogParameters parm = new DialogParameters
-        //{
-        //    { "value", obj }
-        //};
-        //    _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
-        //    {
-        //        if (arg.Result == ButtonResult.OK)
-        //        {
-        //            obj = arg.Parameters.GetValue<ExpandoObject>("value");
-        //        }
-        //    });
 
             LifeEvent tmpLifeEvent = new LifeEvent();
+            bool confirmed = false;
 
             DialogParameters parm = new DialogParameters
     {
@@ -901,9 +878,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 if (arg.Result == ButtonResult.OK)
                 {
                     tmpLifeEvent = arg.Parameters.GetValue<LifeEvent>("value");
+                    confirmed = true;
                 }
             });
-            SelectPeople.LifeEventList.Add(tmpLifeEvent);
+
+            if (confirmed)
+            {
+                SelectPeople.LifeEventList.Add(tmpLifeEvent);
+            }
         }
         private void OutputAllFamilyFile()
         {
@@ -1164,62 +1146,19 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
         }
 
-        // 将字节数组转换为BitmapImage
-        private BitmapImage ByteArrayToBitmapImage(byte[] imageData)
-        {
-            if (imageData == null || imageData.Length == 0)
-                return null;
-
-            var bitmapImage = new BitmapImage();
-            using (var stream = new MemoryStream(imageData))
-            {
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = stream;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze(); // 冻结以提高性能和线程安全
-            }
-            return bitmapImage;
-        }
-
         private void InitPipeService()
         {
-            try
+            PipeClientService.StartPolling();
+            PipeClientService.Connected += () =>
             {
-                PipeClientService.StartPolling();
-                PipeClientService.Connected += () =>
-                {
-                    IsPipeServiceConnect = true;
-                    HandyControl.Controls.Growl.Success("已连接到服务器");
-                };
-                PipeClientService.Disconnected += () =>
-                {
-                    IsPipeServiceConnect = false;
-                    HandyControl.Controls.Growl.Warning("与服务器断开连接");
-                };
-
-                PipeClientService.MessageReceived += (PipeMessage message) =>
-                {
-                    if (message.MessageType == PipeMessageType.SendFamilyInfo)
-                    {
-                        CoAContent = message.Content as string;
-                    }
-                    else if (message.MessageType == PipeMessageType.SendCoAPic)
-                    {
-                        ReceivedImage = ByteArrayToBitmapImage(Convert.FromBase64String(message.Content as string));
-                        if (SelectFamily != null)
-                        {
-                            SelectFamily.SaveCoAPic(ReceivedImage);
-                        }
-                    }
-                };
-            }
-            catch (Exception)
+                IsPipeServiceConnect = true;
+                HandyControl.Controls.Growl.Success("已连接到服务器");
+            };
+            PipeClientService.Disconnected += () =>
             {
-
-                throw;
-            }
-            
+                IsPipeServiceConnect = false;
+                HandyControl.Controls.Growl.Warning("与服务器断开连接");
+            };
         }
 
         private void EventBindingAllFamily()
@@ -1337,50 +1276,37 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         // 打开文件的逻辑
         private void OpenFile()
         {
-            //// 打开文件对话框
-            //var openFileDialog = new Microsoft.Win32.OpenFileDialog
-            //{
-            //    Title = "选择文件",
-            //    Filter = "所有文件|*.*"
-            //};
-
-            //if (openFileDialog.ShowDialog() == true)
-            //{
-            //    FileContent = File.ReadAllText(openFileDialog.FileName);
-            //    HighlightedContent = FileContent; // 默认显示为原始内容
-            //}
-            _dialogService.ShowDialog(nameof(FamilyTreeWindow), arg =>
-            {
-                if (arg.Result == ButtonResult.OK)
-                {
-                    
-                }
-            });
+            _dialogService.ShowDialog(nameof(FamilyTreeWindow), arg => { });
         }
 
         private void AddPeople()
         {
-            if(SelectFamily!=null)
-            {
-                dynamic obj = new ExpandoObject();
-                obj.性别 = GenderType.Male;
-                obj.名字 = "";
-                DialogParameters parm = new DialogParameters
+            if (SelectFamily == null) return;
+
+            dynamic obj = new ExpandoObject();
+            obj.性别 = GenderType.Male;
+            obj.名字 = "";
+            bool confirmed = false;
+
+            DialogParameters parm = new DialogParameters
         {
             { "value", obj }
         };
-                _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
+            _dialogService.ShowDialog(nameof(AssignmentWindow), parm, arg =>
+            {
+                if (arg.Result == ButtonResult.OK)
                 {
-                    if (arg.Result == ButtonResult.OK)
-                    {
-                        obj = arg.Parameters.GetValue<ExpandoObject>("value");
-                    }
-                });
+                    obj = arg.Parameters.GetValue<ExpandoObject>("value");
+                    confirmed = true;
+                }
+            });
+
+            if (confirmed)
+            {
                 string religion = ReligionOptions.LastOrDefault();
                 string culture = CultureOptions.LastOrDefault();
-                SelectFamily.Members.Add(new People(SelectFamily.FindMemberWithMaxIdNumber()+1, obj.名字, obj.性别,SelectFamily.FamilyName, religion,culture));
+                SelectFamily.Members.Add(new People(SelectFamily.FindMemberWithMaxIdNumber() + 1, obj.名字, obj.性别, SelectFamily.FamilyName, religion, culture));
             }
-            
         }
         private void DelPeople()
         {
@@ -1409,6 +1335,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             dynamic obj = new ExpandoObject();
             obj.英文家族名 = "";
             obj.中文家族名 = "";
+            bool confirmed = false;
+
             DialogParameters parm = new DialogParameters
         {
             { "value", obj }
@@ -1418,10 +1346,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 if (arg.Result == ButtonResult.OK)
                 {
                     obj = arg.Parameters.GetValue<ExpandoObject>("value");
+                    confirmed = true;
                 }
             });
-            var family = new Family(obj.英文家族名, obj.中文家族名);
-            FamilyList.Add(family);
+
+            if (confirmed)
+            {
+                FamilyList.Add(new Family(obj.英文家族名, obj.中文家族名));
+            }
         }
         private void DelFamily()
         {
@@ -1452,61 +1384,6 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             FamilyList = new ObservableCollection<Family>();
             FamilyList=oldfamilyList;
         }
-
-        private void SearchContent(string searchTerm)
-        {
-            if (string.IsNullOrEmpty(searchTerm) || string.IsNullOrEmpty(FileContent))
-            {
-                HighlightedContent = FileContent;
-                return;
-            }
-
-            // 使用正则表达式高亮匹配的内容
-            var regex = new Regex(Regex.Escape(searchTerm), RegexOptions.IgnoreCase);
-            HighlightedContent = regex.Replace(FileContent, match => $"<Highlight>{match.Value}</Highlight>");
-        }
-
-        private FlowDocument CreateHighlightDocument(string content, string searchTerm)
-        {
-            var doc = new FlowDocument();
-            var paragraph = new Paragraph();
-
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                paragraph.Inlines.Add(new Run(content));
-            }
-            else
-            {
-                var regex = new Regex(Regex.Escape(searchTerm), RegexOptions.IgnoreCase);
-                var matches = regex.Matches(content);
-
-                int lastIndex = 0;
-                foreach (Match match in matches)
-                {
-                    if (match.Index > lastIndex)
-                    {
-                        paragraph.Inlines.Add(new Run(content.Substring(lastIndex, match.Index - lastIndex)));
-                    }
-
-                    var highlightRun = new Run(match.Value)
-                    {
-                        Background = Brushes.Yellow // 高亮背景
-                    };
-                    paragraph.Inlines.Add(highlightRun);
-
-                    lastIndex = match.Index + match.Length;
-                }
-
-                if (lastIndex < content.Length)
-                {
-                    paragraph.Inlines.Add(new Run(content.Substring(lastIndex)));
-                }
-            }
-
-            doc.Blocks.Add(paragraph);
-            return doc;
-        }
-
 
         // IDestructible 接口实现，在 ViewModel 销毁时调用
         public void Destroy()

@@ -58,11 +58,19 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         <cv:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
         <cv:HasSpouseEventToVisibilityConverter x:Key="HasSpouseEventToVisibilityConverter"/>
         <cv:ConnectToImageConverter x:Key="ConnectToImageConverter"/>
-        <cv:NameToPhotoPathConverter x:Key="NameToPhotoPathConverter"/>
     </Window.Resources>
     <adonisControls:AdonisWindow.TitleBarContent>
         <WrapPanel Grid.Row="0" VerticalAlignment="Center" Background="DarkRed" HorizontalAlignment="Right">
             <CheckBox Content="与数据库同步" Visibility="Collapsed" IsChecked="{Binding EnableDatabaseSync}" Foreground="White" FontWeight="Heavy" Style="{StaticResource CheckBoxBaseStyle}"/>
+            <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="White"
+hc:BorderElement.CornerRadius="15" ToolTip="法理编辑器"   Command="{Binding GotoLandedTitlesCmd}"
+>
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚜" FontSize="16" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
             <Button Style="{StaticResource ButtonWarning}" Background="#0000" BorderThickness="0" Foreground="Black"
 hc:BorderElement.CornerRadius="15" ToolTip="显示数据库"   Command="{Binding GotoDatabaseCmd}"
 >
@@ -147,15 +155,13 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                     <MenuItem Header="生成整个内容" Command="{Binding CreateAllFamilyContentCmd}" />
                 </MenuItem>
                 <MenuItem Header="输出" Foreground="White" FontWeight="Heavy">
-                    <MenuItem Header="输出个人内容" Command="{Binding OutputPersonContentCmd}" />
-                    <MenuItem Header="输出家族内容" Command="{Binding OutputFamilyContentCmd}" />
-                    <MenuItem Header="输出整个内容" Command="{Binding OutputAllFamilyContentCmd}" />
+                    <MenuItem Header="输出个人内容" Command="{Binding OutputPersonFileCommand}" />
+                    <MenuItem Header="输出家族内容" Command="{Binding OutputFamilyFileCommand}" />
+                    <MenuItem Header="输出整个内容" Command="{Binding OutputAllFamilyFileCommand}" />
                 </MenuItem>
                 <MenuItem Header="编辑" Foreground="White" FontWeight="Heavy">
                     <MenuItem Header="添加家族" Command="{Binding AddFamilyCmd}" />
                     <MenuItem Header="删除家族" Command="{Binding DelFamilyCmd}" />
-                    <MenuItem Header="添加人物" Command="{Binding AddPeopleCmd}" />
-                    <MenuItem Header="删除人物" Command="{Binding DelPeopleCmd}" />
                 </MenuItem>
             </Menu>
             <Image Margin="10,5,10,5" Source="{Binding IsPipeServiceConnect,Converter={StaticResource ConnectToImageConverter}}" Height="15" Width="15"
@@ -163,7 +169,7 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
         </WrapPanel>
     </adonisControls:AdonisWindow.TitleBarContent>
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closed">
+        <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction Command="{Binding CloseCommand}"/>
         </i:EventTrigger>
         <i:EventTrigger EventName="Loaded">
@@ -189,20 +195,22 @@ hc:BorderElement.CornerRadius="15" ToolTip="保存所有文件内容"   Command=
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
-            <TreeView ItemsSource="{Binding FamilyList}" SelectedItemChanged="TreeView_SelectedItemChanged"  dd:DragDrop.IsDragSource="True" Grid.Column="0" Grid.Row="0"
-         dd:DragDrop.IsDropTarget="True" HorizontalContentAlignment="Left" Style="{StaticResource TreeView.Small}">
+            <TreeView ItemsSource="{Binding FamilyList}" SelectedItemChanged="TreeView_SelectedItemChanged"
+                      PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown"
+                      dd:DragDrop.IsDragSource="True" Grid.Column="0" Grid.Row="0"
+                      dd:DragDrop.IsDropTarget="True" HorizontalContentAlignment="Left" Style="{StaticResource TreeView.Small}">
                     <TreeView.Resources>
                         <!-- 家族模板 -->
                         <HierarchicalDataTemplate DataType="{x:Type model:Family}"
                                         ItemsSource="{Binding Members}">
                             <StackPanel Orientation="Horizontal">
-                            <StackPanel.ToolTip>
-                                <ToolTip>
+                            <!--<StackPanel.ToolTip>
+                                --><!--<ToolTip>
                                     <Border BorderBrush="Black" BorderThickness="1" Background="White" Padding="5">
                                         <Image Source="{Binding FamilyName,Mode=OneWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NameToPhotoPathConverter}}"/>
                                     </Border>
-                                </ToolTip>
-                            </StackPanel.ToolTip>
+                                </ToolTip>--><!--
+                            </StackPanel.ToolTip>-->
                                 <TextBlock Text="{Binding FamilyName}" 
                                  FontWeight="Bold"/>
                                 <TextBlock Text="{Binding Members.Count, 
@@ -466,9 +474,9 @@ FontWeight="Bold" />
                 <hc:TabItem Header="实时纹章内容"  Foreground="Black" FontWeight="Heavy">
                     <TextBox Margin="5" Text="{Binding CoAContent,Mode=OneWay}" IsReadOnly="True"/>
                 </hc:TabItem>
-                <hc:TabItem Header="实时纹章图片"  Foreground="Black" FontWeight="Heavy">
-                    <Image Source="{Binding SelectFamily.FamilyName,Converter={StaticResource NameToPhotoPathConverter}}"/>
-                </hc:TabItem>
+                <!--<hc:TabItem Header="实时纹章图片"  Foreground="Black" FontWeight="Heavy">
+                    //<Image Source="{Binding SelectFamily.FamilyName,Converter={StaticResource NameToPhotoPathConverter}}"/>
+                </hc:TabItem>-->
 
             </TabControl>
             

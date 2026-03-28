@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WpfPrismFrameworkTemplate.Model;
 using WpfPrismFrameworkTemplate.ViewModels;
 using AdonisUI.Controls;
@@ -33,15 +23,52 @@ namespace WpfPrismFrameworkTemplate.Views
             if (DataContext is MainWindowViewModel viewModel)
             {
                 if (e.NewValue is People)
-                {
                     viewModel.SelectPeople = (People)e.NewValue;
-                }
                 else if (e.NewValue is Family)
-                {
                     viewModel.SelectFamily = (Family)e.NewValue;
-                }
-                
             }
+        }
+
+        private void TreeView_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var vm = DataContext as MainWindowViewModel;
+            if (vm == null) return;
+
+            var treeView = (TreeView)sender;
+            var item = GetTreeViewItemAtPoint(e.OriginalSource as DependencyObject);
+
+            ContextMenu cm = new ContextMenu();
+
+            if (item != null)
+            {
+                // 右键点击节点：直接同步更新 ViewModel，不依赖 SelectedItemChanged 事件
+                item.IsSelected = true;
+                if (item.DataContext is Family family)
+                {
+                    vm.SelectFamily = family;
+                    cm.Items.Add(new MenuItem { Header = "添加成员", Command = vm.AddPeopleCmd });
+                    cm.Items.Add(new MenuItem { Header = "删除家族", Command = vm.DelFamilyCmd });
+                }
+                else if (item.DataContext is People people)
+                {
+                    vm.SelectPeople = people;
+                    cm.Items.Add(new MenuItem { Header = "删除成员", Command = vm.DelPeopleCmd });
+                }
+            }
+            else
+            {
+                // 右键点击空白区域
+                cm.Items.Add(new MenuItem { Header = "添加家族", Command = vm.AddFamilyCmd });
+            }
+
+            treeView.ContextMenu = cm;
+        }
+
+        private TreeViewItem GetTreeViewItemAtPoint(DependencyObject source)
+        {
+            while (source != null && !(source is TreeViewItem))
+                source = VisualTreeHelper.GetParent(source);
+            return source as TreeViewItem;
         }
 
         private void AutoSuggestBox_TextChanged(ModernWpf.Controls.AutoSuggestBox sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs args)

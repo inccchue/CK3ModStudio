@@ -27,7 +27,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
         public bool _IsShowDebugInfo = false;
 
-        public event Action<PipeMessage> MessageReceived;
+        //public event Action<PipeMessage> MessageReceived;
         public event Action<Exception> ErrorOccurred;
         public event Action Connected;
         public event Action Disconnected;
@@ -57,8 +57,7 @@ namespace WpfPrismFrameworkTemplate.Model
         public void StartPolling()
         {
             if (_isPolling) return;
-
-            
+            _isPolling = true;
             _serverCheckTimer = new Timer(async _ => await CheckServerAndConnect(), null, 0, PollingInterval);
         }
 
@@ -203,13 +202,11 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        // Fix for CS1503: Change JsonSerializer.Deserialize to JsonConvert.DeserializeObject
-        private async Task HandleMessageAsync(string message)
+        private Task HandleMessageAsync(string message)
         {
             try
             {
-                PipeMessage pipeMessage = JsonConvert.DeserializeObject<PipeMessage>(message); // Fix applied here
-                MessageReceived?.Invoke(pipeMessage);
+                JsonConvert.DeserializeObject<PipeMessage>(message);
             }
             catch (JsonException)
             {
@@ -219,6 +216,7 @@ namespace WpfPrismFrameworkTemplate.Model
             {
                 ErrorOccurred?.Invoke(ex);
             }
+            return Task.CompletedTask;
         }
 
         public async Task<bool> SendMessageAsync(string message)

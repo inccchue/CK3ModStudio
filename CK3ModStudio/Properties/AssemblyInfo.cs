@@ -7,11 +7,11 @@ using System.Windows;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("WpfPrismFrameworkTemplate")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("CK3ModStudio")]
+[assembly: AssemblyDescription("CK3 Mod creation tool for families, characters, dynasties and landed titles")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("WpfPrismFrameworkTemplate")]
+[assembly: AssemblyProduct("CK3ModStudio")]
 [assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

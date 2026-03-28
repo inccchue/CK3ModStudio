@@ -41,6 +41,7 @@ namespace WpfPrismFrameworkTemplate
             containerRegistry.RegisterForNavigation<CountyTimelineUserControl, CountyTimelineUserControlViewModel>("CountyTimeline");
             containerRegistry.RegisterForNavigation<StatisticsUserControl, StatisticsUserControlViewModel>("Statistics");
             containerRegistry.RegisterForNavigation<DatabaseUserControl, DatabaseUserControlViewModel>("Database");
+            containerRegistry.RegisterForNavigation<LandedTitlesUserControl, LandedTitlesViewModel>("LandedTitles");
         }
 	}
 }

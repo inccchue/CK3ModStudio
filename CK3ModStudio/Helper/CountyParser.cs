@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +15,9 @@ namespace WpfPrismFrameworkTemplate.Helper
     {
         public static void SaveCountiesToFile(ObservableCollection<County> Counties, string filePath)
         {
+            if (string.IsNullOrEmpty(filePath)) return;
+            var saveDir = Path.GetDirectoryName(filePath);
+            if (!File.Exists(filePath) && !string.IsNullOrEmpty(saveDir) && !Directory.Exists(saveDir)) return;
             try
             {
                 var stringBuilder = new StringBuilder();
@@ -23,6 +25,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                 // 遍历每个伯爵领地
                 foreach (var county in Counties.OrderBy(c => c.Name))
                 {
+                    if (string.IsNullOrEmpty(county.Name)) continue;
                     // 写入伯爵领地名称（首字母小写，因为原文件格式是小写开头）
                     string countyName = char.ToLower(county.Name[0]) + county.Name.Substring(1);
                     stringBuilder.AppendLine($"c_{countyName} = {{");
@@ -91,6 +94,7 @@ namespace WpfPrismFrameworkTemplate.Helper
 
         public static void ParseCountiesFromFile(ObservableCollection<County> Counties, string filePath)
         {
+            if (string.IsNullOrEmpty(filePath)) return;
             try
             {
                 Counties.Clear();

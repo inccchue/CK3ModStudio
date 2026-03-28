@@ -24,9 +24,8 @@ namespace WpfPrismFrameworkTemplate.Helper
                 };
                 if (File.Exists(DATA_FILE_PATH))
                 {
-                    string json =File.ReadAllText(DATA_FILE_PATH);
-                    loadedFamilies = JsonConvert.DeserializeObject<ObservableCollection<Family>>(json, settings);
-                    
+                    string json = File.ReadAllText(DATA_FILE_PATH);
+                    loadedFamilies = JsonConvert.DeserializeObject<ObservableCollection<Family>>(json, settings) ?? new ObservableCollection<Family>();
                 }
             }
             catch (Exception ex)
@@ -50,8 +49,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                 if (File.Exists(FILE_SETTING_PATH))
                 {
                     string json = File.ReadAllText(FILE_SETTING_PATH);
-                    fileSetting = JsonConvert.DeserializeObject<FileReadWrite>(json, settings);
-
+                    fileSetting = JsonConvert.DeserializeObject<FileReadWrite>(json, settings) ?? new FileReadWrite();
                 }
             }
             catch (Exception ex)

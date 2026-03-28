@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="WpfPrismFrameworkTemplate.Views.GenealogyUserControl"
+<UserControl x:Class="WpfPrismFrameworkTemplate.Views.GenealogyUserControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +8,7 @@
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:viewmodels="clr-namespace:WpfPrismFrameworkTemplate.ViewModels"
     xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
-    xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model" 
+    xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model"
     xmlns:helper="clr-namespace:WpfPrismFrameworkTemplate.Helper"
     xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -17,7 +17,7 @@
     xmlns:ui="http://schemas.modernwpf.com/2019"
              xmlns:localui="clr-namespace:WpfPrismFrameworkTemplate.Views"
 xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
-xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"          
+xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <UserControl.Resources>
         <DataTemplate x:Key="LifeEventTemplate">
@@ -63,7 +63,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                     <Button Command="hc:ControlCommands.Close" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" Foreground="White"/>
                     <StackPanel Grid.Row="1">
                         <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
-                        <localui:RandomNameEditor 
+                        <localui:RandomNameEditor
 Value="{Binding SelectPeople}"
 NameSource="{Binding RandomNameList}"
 Margin="0,5"/>
@@ -72,7 +72,7 @@ Margin="0,5"/>
                                           hc:TitleElement.Title="文化"
 hc:TitleElement.TitlePlacement="Top"
                                                  Style="{StaticResource ComboBoxExtend}"
-                                                 ItemsSource="{Binding CultureOptions}" 
+                                                 ItemsSource="{Binding CultureOptions}"
                                                  SelectedItem="{Binding SelectPeople.Culture}"
                                                   >
                                 <i:Interaction.Triggers>
@@ -82,12 +82,11 @@ hc:TitleElement.TitlePlacement="Top"
                                 </i:Interaction.Triggers>
                             </ComboBox>
                             <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新宗教"
-                                          hc:TitleElement.Title="宗教"
-hc:TitleElement.TitlePlacement="Top"
-                                                 Style="{StaticResource ComboBoxExtend}"
-                                                 ItemsSource="{Binding ReligionOptions}" 
-                                                 SelectedItem="{Binding SelectPeople.Religion}"
-                                                  >
+                                      hc:TitleElement.Title="宗教"
+                                      hc:TitleElement.TitlePlacement="Top"
+                                      Style="{StaticResource ComboBoxExtend}"
+                                      ItemsSource="{Binding ReligionOptions}"
+                                      SelectedItem="{Binding SelectPeople.Religion}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseDoubleClick">
                                         <i:InvokeCommandAction Command="{Binding AddReligionCommand}"/>
@@ -103,8 +102,6 @@ hc:TitleElement.TitlePlacement="Top"
                                     TextChanged="AutoSuggestBox_TextChanged"
     QuerySubmitted="AutoSuggestBox_QuerySubmitted"
     SuggestionChosen="AutoSuggestBox_SuggestionChosen">
-
-                                    <!-- 自定义项目模板 -->
                                     <ui:AutoSuggestBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
@@ -121,9 +118,8 @@ hc:TitleElement.TitlePlacement="Top"
                                                         <RowDefinition Height="Auto" />
                                                         <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
-
                                                     <TextBlock Grid.Column="0" Grid.Row="0"
-Text="{Binding IdName}" 
+Text="{Binding IdName}"
 FontWeight="Bold" />
                                                     <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
                                                         <TextBlock.Text>
@@ -135,13 +131,11 @@ FontWeight="Bold" />
                                                     </TextBlock>
                                                     <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
                                                 </Grid>
-                                                <Border Grid.Row="1" 
-                    BorderThickness="0,0,0,1" 
-                    BorderBrush="#20000000" 
+                                                <Border Grid.Row="1"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#20000000"
                     Margin="0" />
                                             </Grid>
-
-
                                         </DataTemplate>
                                     </ui:AutoSuggestBox.ItemTemplate>
                                 </ui:AutoSuggestBox>
@@ -155,8 +149,6 @@ FontWeight="Bold" />
                                     TextChanged="AutoSuggestBox_TextChanged"
     QuerySubmitted="AutoSuggestBox_QuerySubmitted"
     SuggestionChosen="AutoSuggestBox_SuggestionChosen">
-
-                                    <!-- 自定义项目模板 -->
                                     <ui:AutoSuggestBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
@@ -173,9 +165,8 @@ FontWeight="Bold" />
                                                         <RowDefinition Height="Auto" />
                                                         <RowDefinition Height="Auto" />
                                                     </Grid.RowDefinitions>
-
                                                     <TextBlock Grid.Column="0" Grid.Row="0"
-Text="{Binding IdName}" 
+Text="{Binding IdName}"
 FontWeight="Bold" />
                                                     <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
                                                         <TextBlock.Text>
@@ -187,13 +178,11 @@ FontWeight="Bold" />
                                                     </TextBlock>
                                                     <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
                                                 </Grid>
-                                                <Border Grid.Row="1" 
-                    BorderThickness="0,0,0,1" 
-                    BorderBrush="#20000000" 
+                                                <Border Grid.Row="1"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#20000000"
                     Margin="0" />
                                             </Grid>
-
-
                                         </DataTemplate>
                                     </ui:AutoSuggestBox.ItemTemplate>
                                 </ui:AutoSuggestBox>
@@ -208,8 +197,6 @@ FontWeight="Bold" />
                                     TextChanged="AutoSuggestBox_TextChanged"
     QuerySubmitted="AutoSuggestBox_QuerySubmitted"
     SuggestionChosen="AutoSuggestBox_SuggestionChosen">
-
-                                <!-- 自定义项目模板 -->
                                 <ui:AutoSuggestBox.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
@@ -226,9 +213,8 @@ FontWeight="Bold" />
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
-
                                                 <TextBlock Grid.Column="0" Grid.Row="0"
-Text="{Binding IdName}" 
+Text="{Binding IdName}"
 FontWeight="Bold" />
                                                 <TextBlock Opacity="0.6" Foreground="Red" Grid.Row="1" FontSize="10">
                                                     <TextBlock.Text>
@@ -240,26 +226,23 @@ FontWeight="Bold" />
                                                 </TextBlock>
                                                 <TextBlock Grid.Row="2" FontSize="8" Text="{Binding LifeEventList, Mode=OneWay,StringFormat=' {0}', Converter={StaticResource BirthDeathConverter}}" FontWeight="Heavy"/>
                                             </Grid>
-                                            <Border Grid.Row="1" 
-                    BorderThickness="0,0,0,1" 
-                    BorderBrush="#20000000" 
+                                            <Border Grid.Row="1"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#20000000"
                     Margin="0" />
                                         </Grid>
-
-
                                     </DataTemplate>
                                 </ui:AutoSuggestBox.ItemTemplate>
                             </ui:AutoSuggestBox>
                         </StackPanel>
                         <TextBlock Text="选中人物的事件列表" FontWeight="Bold" Margin="5,10,0,0" />
-                        <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False" 
-                                      >
+                        <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn Header="额外信息">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Content="修改" Style="{StaticResource ButtonSuccess.Small}"
-                                                        Command="{Binding DataContext.ModifyLifeEventCmd, 
+                                                        Command="{Binding DataContext.ModifyLifeEventCmd,
                                      ElementName=eventsDataGrid}"
                                                         CommandParameter="{Binding}"/>
                                         </DataTemplate>
@@ -267,7 +250,7 @@ FontWeight="Bold" />
                                     <DataGridTemplateColumn.CellEditingTemplate>
                                         <DataTemplate>
                                             <Button Content="修改" Style="{StaticResource ButtonSuccess.Small}"
-                                                        Command="{Binding DataContext.ModifyLifeEventCmd, 
+                                                        Command="{Binding DataContext.ModifyLifeEventCmd,
                                      ElementName=eventsDataGrid}"
                                                         CommandParameter="{Binding}"/>
                                         </DataTemplate>
@@ -275,7 +258,6 @@ FontWeight="Bold" />
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
-
                         <UniformGrid Columns="2" Rows="1">
                             <Button Content="增加事件" Command="{Binding AddLifeEventCmd}" Style="{StaticResource ButtonSuccess}" HorizontalAlignment="Stretch" Margin="5"/>
                             <Button Content="删除当前选中事件" Command="{Binding DelLifeEventCmd}" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Stretch" Margin="5"/>
@@ -291,21 +273,18 @@ FontWeight="Bold" />
             </TreeView.InputBindings>
             <TreeView.ItemContainerStyle>
                 <Style TargetType="TreeViewItem">
-                    <!-- 绑定到 IsExpanded 属性 -->
                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                    
                 </Style>
             </TreeView.ItemContainerStyle>
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type model:People}" ItemsSource="{Binding Children}">
                     <WrapPanel HorizontalAlignment="Left">
-
                         <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource AddGeometry}" Foreground="Green"
                                 Command="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext.AddNewChildCmd}"
                                 CommandParameter="{Binding}"/>
                         <Button Style="{StaticResource ButtonIcon.Small}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" Foreground="Red"
-        Command="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext.DelCmd}"
-        CommandParameter="{Binding}"
+                                Command="{Binding RelativeSource={RelativeSource AncestorType=TreeView}, Path=DataContext.DelCmd}"
+                                CommandParameter="{Binding}"
                                 Visibility="{Binding Children, Converter={StaticResource HasChildrenToVisibilityConverter}}"/>
                         <Image Source="{Binding Gender, Converter={StaticResource GenderToImageConverter}}" Grid.Column="0" Height="16" Width="16"/>
                         <TextBlock Text="{Binding IdName}" />

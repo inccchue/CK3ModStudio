@@ -82,9 +82,12 @@ namespace WpfPrismFrameworkTemplate.Model
             try
             {
                 if (string.IsNullOrEmpty(FilePath))
-                {
                     return;
-                }
+
+                // 目录不存在时静默跳过（文件路径尚未配置到实际存在的位置）
+                var dir = Path.GetDirectoryName(FilePath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    return;
 
                 // 提取纯文本
                 TextRange textRange = new TextRange(Content.ContentStart, Content.ContentEnd);
