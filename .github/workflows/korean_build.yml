@@ -14,7 +14,9 @@ jobs:
       - name: Safely Translate UI and Display Strings
         shell: pwsh
         run: |
-          # 1. 화면 UI 파일 (.xaml) 전체 치환 (C# 코드가 아니므로 문법 에러 발생 안 함)
+          $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
+
+          # 1. XAML 화면 UI 사전
           $xamlDict = [ordered]@{
             '作者:Fred'               = '제작: Fred'
             '生成'                    = '코드 생성'
@@ -70,13 +72,19 @@ jobs:
 
           Get-ChildItem -Path "CK3ModStudio" -Recurse -Filter "*.xaml" | ForEach-Object {
             $content = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)
+            $modified = $false
             foreach ($k in $xamlDict.Keys) {
-              $content = $content.Replace($k, $xamlDict[$k])
+              if ($content.Contains($k)) {
+                $content = $content.Replace($k, $xamlDict[$k])
+                $modified = $true
+              }
             }
-            [System.IO.File]::WriteAllText($_.FullName, $content, [System.Text.Encoding]::UTF8)
+            if ($modified) {
+              [System.IO.File]::WriteAllText($_.FullName, $content, $utf8WithBom)
+            }
           }
 
-          # 2. C# 파일 (.cs) 정밀 치환 (오직 따옴표 안의 팝업 텍스트 및 환경설정 표시명만 치환하여 코드 보호)
+          # 2. C# 팝업 및 환경설정 표시명 사전
           $csDict = [ordered]@{
             '"请先选择一个家族"'                                   = '"먼저 가문을 선택하세요"'
             '"解析名称文件失败，请检查文件格式或路径是否正确。"'   = '"이름 파일 파싱 실패. 게임 설치 경로를 확인하세요."'
@@ -103,10 +111,16 @@ jobs:
 
           Get-ChildItem -Path "CK3ModStudio" -Recurse -Filter "*.cs" | ForEach-Object {
             $content = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)
+            $modified = $false
             foreach ($k in $csDict.Keys) {
-              $content = $content.Replace($k, $csDict[$k])
+              if ($content.Contains($k)) {
+                $content = $content.Replace($k, $csDict[$k])
+                $modified = $true
+              }
             }
-            [System.IO.File]::WriteAllText($_.FullName, $content, [System.Text.Encoding]::UTF8)
+            if ($modified) {
+              [System.IO.File]::WriteAllText($_.FullName, $content, $utf8WithBom)
+            }
           }
 
       - name: Setup MSBuild
@@ -119,7 +133,7 @@ jobs:
         run: nuget restore CK3ModStudio.sln
 
       - name: Build Solution
-        run: msbuild CK3ModStudio.sln /p:Configuration=Release
+        run: msbuild CK3ModStudio.sln /p:Configuration=Release /v:minimal
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
