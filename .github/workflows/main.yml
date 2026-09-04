@@ -1,0 +1,32 @@
+name: Build CK3ModStudio
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore CK3ModStudio.sln
+
+      - name: Build Solution
+        run: msbuild CK3ModStudio.sln /p:Configuration=Release
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CK3ModStudio-Windows
+          path: |
+            **/bin/Release/
+            **/bin/x64/Release/
