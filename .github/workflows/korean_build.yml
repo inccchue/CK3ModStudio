@@ -1,4 +1,4 @@
-name: Build CK3ModStudio Korean Clean
+name: Build CK3ModStudio Safe Korean
 
 on:
   workflow_dispatch:
@@ -11,10 +11,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Clean Translate UI Strings
+      - name: Safely Translate UI and Display Strings
         shell: pwsh
         run: |
-          $dict = [ordered]@{
+          # 1. 화면 UI 파일 (.xaml) 전체 치환 (C# 코드가 아니므로 문법 에러 발생 안 함)
+          $xamlDict = [ordered]@{
             '作者:Fred'               = '제작: Fred'
             '生成'                    = '코드 생성'
             '输出'                    = '내보내기'
@@ -48,30 +49,12 @@ jobs:
             '杂项统计数据'            = '기타 통계 데이터'
             '各家族人数'              = '가문별 인원수'
             '人数'                    = '인원수'
-            '保存设置'                = '저장설정'
-            '是否允许自动保存'        = '자동저장허용'
-            '定义文件'                = '정의파일'
-            '领地定义文件'            = '영지정의파일'
-            '王朝定义文件'            = '왕조정의파일'
-            '角色定义文件'            = '인물정의파일'
-            '本地化文件'              = '현지화파일'
-            '汉语翻译文件'            = '중국어번역파일'
-            '英语翻译文件'            = '영어번역파일'
-            '纹章收集设置'            = '문장수집설정'
-            '纹章图片保存路径'        = '문장이미지저장경로'
-            '纹章定义文件路径'        = '문장정의파일경로'
-            '纹章收集软件启动路径'    = '문장수집프로그램경로'
-            '调试设置'                = '디버그설정'
-            '是否显示调试信息'        = '디버그정보표시'
-            '随机设置'                = '무작위설정'
-            '是否开启随机年龄'        = '무작위나이적용'
-            '请先选择一个家族'        = '먼저 가문을 선택하세요'
-            '解析名称文件失败，请检查文件格式或路径是否正确。' = '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요.'
-            '就绪'                    = '준비 완료'
-            '确定'                    = '확인'
-            '取消'                    = '취소'
-            '错误'                    = '오류'
-            '提示'                    = '알림'
+            '时间轴'                  = '타임라인'
+            '世系图'                  = '가계도'
+            '数据库'                  = '데이터베이스'
+            '连接'                    = '연결'
+            '断开'                    = '연결해제'
+            '配置'                    = '환경설정'
             '特质'                    = '특성'
             '能力'                    = '능력치'
             '外交'                    = '외교'
@@ -80,28 +63,50 @@ jobs:
             '谋略'                    = '지략'
             '学识'                    = '학습'
             '勇武'                    = '기량'
-            '时间轴'                  = '타임라인'
-            '世系图'                  = '가계도'
-            '数据库'                  = '데이터베이스'
-            '连接'                    = '연결'
-            '断开'                    = '연결해제'
-            '配置'                    = '환경설정'
+            '就绪'                    = '준비 완료'
+            '确定'                    = '확인'
+            '取消'                    = '취소'
           }
 
-          $files = Get-ChildItem -Path "CK3ModStudio" -Recurse -File | Where-Object { $_.Extension -match '\.(xaml|cs)$' }
-          foreach ($file in $files) {
-            $content = [System.IO.File]::ReadAllText($file.FullName, [System.Text.Encoding]::UTF8)
-            $changed = $false
-            foreach ($k in $dict.Keys) {
-              if ($content.Contains($k)) {
-                $content = $content.Replace($k, $dict[$k])
-                $changed = $true
-              }
+          Get-ChildItem -Path "CK3ModStudio" -Recurse -Filter "*.xaml" | ForEach-Object {
+            $content = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)
+            foreach ($k in $xamlDict.Keys) {
+              $content = $content.Replace($k, $xamlDict[$k])
             }
-            if ($changed) {
-              [System.IO.File]::WriteAllText($file.FullName, $content, [System.Text.Encoding]::UTF8)
-              Write-Host "치환 완료: $($file.Name)"
+            [System.IO.File]::WriteAllText($_.FullName, $content, [System.Text.Encoding]::UTF8)
+          }
+
+          # 2. C# 파일 (.cs) 정밀 치환 (오직 따옴표 안의 팝업 텍스트 및 환경설정 표시명만 치환하여 코드 보호)
+          $csDict = [ordered]@{
+            '"请先选择一个家族"'                                   = '"먼저 가문을 선택하세요"'
+            '"解析名称文件失败，请检查文件格式或路径是否正确。"'   = '"이름 파일 파싱 실패. 게임 설치 경로를 확인하세요."'
+            '"错误"'                                               = '"오류"'
+            '"提示"'                                               = '"알림"'
+            'DisplayName("是否允许自动保存")'                      = 'DisplayName("자동 저장 허용")'
+            'DisplayName("领地定义文件")'                          = 'DisplayName("영지 정의 파일")'
+            'DisplayName("王朝定义文件")'                          = 'DisplayName("왕조 정의 파일")'
+            'DisplayName("角色定义文件")'                          = 'DisplayName("인물 정의 파일")'
+            'DisplayName("汉语翻译文件")'                          = 'DisplayName("중국어 번역 파일")'
+            'DisplayName("英语翻译文件")'                          = 'DisplayName("영어 번역 파일")'
+            'DisplayName("纹章图片保存路径")'                      = 'DisplayName("문장 이미지 저장 경로")'
+            'DisplayName("纹章定义文件路径")'                      = 'DisplayName("문장 정의 파일 경로")'
+            'DisplayName("纹章收集软件启动路径")'                  = 'DisplayName("문장 수집 프로그램 실행 경로")'
+            'DisplayName("是否显示调试信息")'                      = 'DisplayName("디버그 정보 표시")'
+            'DisplayName("是否开启随机年龄")'                      = 'DisplayName("무작위 나이 적용")'
+            'Category("保存设置")'                                 = 'Category("저장 설정")'
+            'Category("定义文件")'                                 = 'Category("정의 파일")'
+            'Category("本地化文件")'                               = 'Category("현지화 파일")'
+            'Category("纹章收集设置")'                             = 'Category("문장 수집 설정")'
+            'Category("调试设置")'                                 = 'Category("디버그 설정")'
+            'Category("随机设置")'                                 = 'Category("무작위 설정")'
+          }
+
+          Get-ChildItem -Path "CK3ModStudio" -Recurse -Filter "*.cs" | ForEach-Object {
+            $content = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)
+            foreach ($k in $csDict.Keys) {
+              $content = $content.Replace($k, $csDict[$k])
             }
+            [System.IO.File]::WriteAllText($_.FullName, $content, [System.Text.Encoding]::UTF8)
           }
 
       - name: Setup MSBuild
@@ -119,7 +124,7 @@ jobs:
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CK3ModStudio-Korean-Clean
+          name: CK3ModStudio-Korean-Fixed
           path: |
             **/bin/Release/
             **/bin/x64/Release/
