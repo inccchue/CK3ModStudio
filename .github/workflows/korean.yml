@@ -1,0 +1,121 @@
+name: Build CK3ModStudio Korean Final
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Replace All Chinese UI to Korean
+        shell: pwsh
+        run: |
+          $dict = [ordered]@{
+            # [메인 창 상단 메뉴 및 타이틀]
+            '作者:Fred' = '제작: Fred'
+            '生成' = '코드 생성'
+            '输出' = '내보내기'
+            '编辑' = '편집'
+            
+            # [1번 화면: 인물 및 속성 설정 탭]
+            '属性设置' = '속성 설정'
+            '实时个人内容' = '실시간 인물 코드'
+            '实时文件内容' = '실시간 파일 코드'
+            '实时纹章内容' = '실시간 문장 코드'
+            '姓名' = '이름'
+            '文化' = '문화'
+            '宗教' = '종교'
+            '父亲' = '부친'
+            '母亲' = '모친'
+            '配偶' = '배우자'
+            '搜索人物...' = '인물 검색...'
+            '选中人物的事件列表' = '선택된 인물의 사건 목록'
+            '额外信息' = '추가 정보'
+            '增加事件' = '사건 추가'
+            '删除当前选中事件' = '선택 사건 삭제'
+            
+            # [2번 화면: 작위 및 영지 설정 화면]
+            '打开' = '열기'
+            '保存' = '저장'
+            '另存为' = '다른 이름으로 저장'
+            '搜索法理...' = '규범 권역 검색...'
+            '移动' = '이동'
+            '+ 帝国' = '+ 제국'
+            '+ 王国' = '+ 왕국'
+            '+ 公国' = '+ 공작'
+            '+ 伯国' = '+ 백작'
+            '请先选择一个家族' = '먼저 가문을 선택하세요'
+            '← 点击左侧法理查看详情' = '← 좌측 규범 권역을 클릭하여 상세 정보를 확인하세요'
+            '点击左侧法理查看详情' = '좌측 규범 권역을 클릭하여 상세 정보를 확인하세요'
+            '就绪' = '준비 완료'
+
+            # [공통 속성, 특성, 시스템 팝업]
+            '特质' = '특성'
+            '宗族' = '가문'
+            '家族' = '집안'
+            '能力' = '능력치'
+            '外交' = '외교'
+            '军事' = '무력'
+            '管理' = '관리'
+            '谋略' = '지략'
+            '学识' = '학습'
+            '勇武' = '기량'
+            '健康' = '건강'
+            '年龄' = '나이'
+            '性别' = '성별'
+            '男' = '남'
+            '女' = '여'
+            '出生日期' = '생년월일'
+            '死亡日期' = '사망일자'
+            '头衔' = '작위'
+            '领地' = '영지'
+            '设置' = '설정'
+            '游戏路径' = '게임 경로'
+            '模组路径' = '모드 경로'
+            '确定' = '확인'
+            '取消' = '취소'
+            '错误' = '오류'
+            '提示' = '알림'
+            '解析名称文件失败，请检查文件格式或路径是否正确。' = '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요.'
+          }
+
+          # 하위 폴더 내 모든 XAML 및 CS 파일을 빠짐없이 검색하여 치환
+          $files = Get-ChildItem -Path . -Recurse -File | Where-Object { $_.Extension -match '\.(xaml|cs)$' }
+          foreach ($file in $files) {
+            $content = [System.IO.File]::ReadAllText($file.FullName, [System.Text.Encoding]::UTF8)
+            $changed = $false
+            foreach ($k in $dict.Keys) {
+              if ($content.Contains($k)) {
+                $content = $content.Replace($k, $dict[$k])
+                $changed = $true
+              }
+            }
+            if ($changed) {
+              [System.IO.File]::WriteAllText($file.FullName, $content, [System.Text.Encoding]::UTF8)
+              Write-Host "번역 완료: $($file.Name)"
+            }
+          }
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore CK3ModStudio.sln
+
+      - name: Build Solution
+        run: msbuild CK3ModStudio.sln /p:Configuration=Release
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CK3ModStudio-Korean-Final
+          path: |
+            **/bin/Release/
+            **/bin/x64/Release/
