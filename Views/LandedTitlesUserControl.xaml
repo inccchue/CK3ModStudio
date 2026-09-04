@@ -1,0 +1,363 @@
+<UserControl x:Class="WpfPrismFrameworkTemplate.Views.LandedTitlesUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cv="clr-namespace:WpfPrismFrameworkTemplate.Converter"
+             xmlns:model="clr-namespace:WpfPrismFrameworkTemplate.Model"
+             Background="#2B3452">
+    <UserControl.Resources>
+        <cv:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+        <cv:BoolToVisibilityConverter x:Key="BoolVis"/>
+
+        <!-- 공통 버튼 스타일：포커스 시 검게 변하는 문제 해결 -->
+        <Style x:Key="LandedBtn" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.38"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 트리 노드 스타일 -->
+        <Style x:Key="TitleTreeItem" TargetType="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="Foreground" Value="#D8E2F5"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeViewItem">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border x:Name="PART_Header" Grid.Row="0"
+                                    Background="Transparent" CornerRadius="5" Padding="2,1" Margin="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ToggleButton x:Name="Expander" Grid.Column="0"
+                                                  IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                                  Focusable="False" Background="Transparent" BorderThickness="0"
+                                                  FocusVisualStyle="{x:Null}" Width="16" Height="16">
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="ToggleButton">
+                                                            <Border Background="Transparent">
+                                                                <TextBlock x:Name="Arrow" Text="▶" FontSize="9"
+                                                                           Foreground="#7A8FC0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsChecked" Value="True">
+                                                                    <Setter TargetName="Arrow" Property="Text" Value="▼"/>
+                                                                    <Setter TargetName="Arrow" Property="Foreground" Value="#7EB3F7"/>
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                    <ContentPresenter Grid.Column="1" ContentSource="Header" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Margin="16,0,0,0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False">
+                                <Setter TargetName="Expander" Property="Visibility" Value="Hidden"/>
+                            </Trigger>
+                            <Trigger Property="IsExpanded" Value="False">
+                                <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="PART_Header" Property="Background" Value="#3D5A8C"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="PART_Header" Property="Background" Value="#364063"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 트리 노드 데이터 템플릿 -->
+        <HierarchicalDataTemplate x:Key="TitleTemplate"
+                                  DataType="{x:Type model:LandedTitle}"
+                                  ItemsSource="{Binding Children}">
+            <Border x:Name="ItemBorder" Padding="4,3" CornerRadius="4" Margin="1"
+                    Background="Transparent"
+                    MouseLeftButtonDown="TitleItem_MouseLeftButtonDown"
+                    MouseMove="TitleItem_MouseMove"
+                    AllowDrop="True"
+                    DragEnter="TitleItem_DragEnter"
+                    DragLeave="TitleItem_DragLeave"
+                    Drop="TitleItem_Drop"
+                    Tag="{Binding}">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="5" Height="18" CornerRadius="2.5" Margin="0,0,7,0"
+                            Background="{Binding RankColorBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding RankIcon}" FontSize="13" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Key}" Foreground="#D8E2F5" FontSize="12" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </HierarchicalDataTemplate>
+
+        <!-- 상세 영역 라벨 스타일 -->
+        <Style x:Key="DetailLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#7A8FC0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,4,8,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="DetailValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#D8E2F5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ComboBox 스타일（수도 선택용） -->
+        <Style x:Key="DarkCombo" TargetType="ComboBox">
+            <Setter Property="Background" Value="#364063"/>
+            <Setter Property="Foreground" Value="#D8E2F5"/>
+            <Setter Property="BorderBrush" Value="#48577A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 도구모음 -->
+        <Border Grid.Row="0" Background="#1E2740" Padding="10,7">
+            <WrapPanel VerticalAlignment="Center">
+                <!-- 파일 작업 -->
+                <Button Content="📂 열기" Click="OpenFile_Click" Style="{StaticResource LandedBtn}"
+                        Background="#4A6FA5" Foreground="White" Margin="0,0,5,0"/>
+                <Button Content="💾 저장" Click="SaveFile_Click" Style="{StaticResource LandedBtn}"
+                        Background="#4A6FA5" Foreground="White" Margin="0,0,5,0"/>
+                <Button Content="다른 이름으로 저장" Click="SaveAsFile_Click" Style="{StaticResource LandedBtn}"
+                        Background="#364063" Foreground="#D8E2F5" Margin="0,0,14,0"/>
+
+                <Rectangle Fill="#48577A" Width="1" Margin="0,2,14,2" VerticalAlignment="Stretch"/>
+
+                <!-- 검색창 -->
+                <Border Background="#364063" BorderBrush="#48577A" BorderThickness="1"
+                        CornerRadius="5" Padding="7,4" Margin="0,0,5,0" Width="190" VerticalAlignment="Center">
+                    <Grid>
+                        <TextBlock x:Name="SearchHint" Text="🔍 작위 검색..." Foreground="#7A8FC0" FontSize="12"
+                                   IsHitTestVisible="False" VerticalAlignment="Center"/>
+                        <TextBox x:Name="TxtSearch" Background="Transparent" BorderThickness="0"
+                                 Foreground="#D8E2F5" FontSize="12" VerticalAlignment="Center"
+                                 TextChanged="TxtSearch_TextChanged" FocusVisualStyle="{x:Null}"
+                                 CaretBrush="#7EB3F7"/>
+                    </Grid>
+                </Border>
+
+                <!-- 이동 버튼 -->
+                <Button x:Name="BtnMove" Content="↕ 이동" Click="MoveTitle_Click"
+                        Style="{StaticResource LandedBtn}" Background="#5AAECC" Foreground="White"
+                        Margin="0,0,14,0" IsEnabled="False"/>
+
+                <Rectangle Fill="#48577A" Width="1" Margin="0,2,14,2" VerticalAlignment="Stretch"/>
+
+                <!-- 작위 추가 버튼 -->
+                <Button Content="+ 제국" Click="AddEmpire_Click" Style="{StaticResource LandedBtn}"
+                        Background="#8B44CC" Foreground="White" Margin="0,0,5,0"/>
+                <Button Content="+ 왕국" Click="AddKingdom_Click" Style="{StaticResource LandedBtn}"
+                        Background="#CC3355" Foreground="White" Margin="0,0,5,0"/>
+                <Button Content="+ 공작령" Click="AddDuchy_Click" Style="{StaticResource LandedBtn}"
+                        Background="#2277CC" Foreground="White" Margin="0,0,5,0"/>
+                <Button Content="+ 백작령" Click="AddCounty_Click" Style="{StaticResource LandedBtn}"
+                        Background="#2A8844" Foreground="White"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- 주 콘텐츠 영역 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*" MinWidth="240"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 트리 패널 -->
+            <Border Grid.Column="0" Background="#222B44">
+                <TreeView x:Name="TitleTree"
+                          Background="Transparent" BorderThickness="0"
+                          ItemsSource="{Binding FilteredTitles}"
+                          ItemTemplate="{StaticResource TitleTemplate}"
+                          ItemContainerStyle="{StaticResource TitleTreeItem}"
+                          SelectedItemChanged="TitleTree_SelectedItemChanged"
+                          VirtualizingStackPanel.IsVirtualizing="True"
+                          VirtualizingStackPanel.VirtualizationMode="Recycling"
+                          ScrollViewer.CanContentScroll="True"
+                          Padding="4">
+                    <TreeView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel/>
+                        </ItemsPanelTemplate>
+                    </TreeView.ItemsPanel>
+                    <TreeView.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#D8E2F5"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#D8E2F5"/>
+                    </TreeView.Resources>
+                </TreeView>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"
+                          Background="#364063" Cursor="SizeWE"/>
+
+            <!-- 상세 패널 -->
+            <Border Grid.Column="2" Background="#2B3452">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                    <StackPanel>
+                        <!-- 미선택 안내 -->
+                        <TextBlock x:Name="NoSelectionText" Text="← 좌측 작위를 클릭해 상세정보 보기"
+                                   Foreground="#7A8FC0" FontSize="13"
+                                   HorizontalAlignment="Center" Margin="0,30,0,0" TextWrapping="Wrap"/>
+
+                        <!-- 상세 내용 -->
+                        <StackPanel x:Name="DetailContent" Visibility="Collapsed">
+
+                            <!-- 등급 머리글 -->
+                            <Border x:Name="RankHeader" CornerRadius="10" Padding="14,10" Margin="0,0,0,14">
+                                <StackPanel>
+                                    <TextBlock x:Name="TxtRankIcon" FontSize="26" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtRankLabel" Foreground="White" FontWeight="Bold"
+                                               FontSize="15" HorizontalAlignment="Center"/>
+                                    <TextBlock x:Name="TxtTitleKey" Foreground="White" FontSize="12"
+                                               HorizontalAlignment="Center" Opacity="0.75" Margin="0,2,0,0"
+                                               TextWrapping="Wrap" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- 속성 영역 -->
+                            <Border Background="#364063" CornerRadius="8" Padding="10,8" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource DetailLabel}" Text="상위"/>
+                                    <TextBlock x:Name="TxtParent" Grid.Row="0" Grid.Column="1" Style="{StaticResource DetailValue}"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource DetailLabel}" Text="수도"/>
+                                    <TextBlock x:Name="TxtCapitalDetail" Grid.Row="1" Grid.Column="1" Style="{StaticResource DetailValue}"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource DetailLabel}" Text="지역"/>
+                                    <TextBlock x:Name="TxtProvinceDetail" Grid.Row="2" Grid.Column="1" Style="{StaticResource DetailValue}"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Style="{StaticResource DetailLabel}" Text="하위 개수"/>
+                                    <TextBlock x:Name="TxtChildCount" Grid.Row="3" Grid.Column="1" Style="{StaticResource DetailValue}"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Style="{StaticResource DetailLabel}" Text="색상"/>
+                                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,4">
+                                        <Border x:Name="ColorSwatch" Width="28" Height="16" CornerRadius="4"
+                                                VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock x:Name="TxtColorRgb" Foreground="#7A8FC0" FontSize="11" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 백작령 수도 설정（오직County표시） -->
+                            <Border x:Name="CapitalPanel" Background="#2E4A38" CornerRadius="8"
+                                    Padding="10,8" Margin="0,0,0,10" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="🏛 수도 남작령 조정" Foreground="#5EC98C" FontSize="11"
+                                               FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <TextBlock Text="목록 첫 번째 남작령이 수도가 됨，선택 시 맨 위로 이동" Foreground="#7A9C84"
+                                               FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                                    <ComboBox x:Name="CapitalCombo" Style="{StaticResource DarkCombo}"
+                                              DisplayMemberPath="Key"
+                                              SelectionChanged="CapitalCombo_SelectionChanged"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Rectangle Fill="#48577A" Height="1" Margin="0,0,0,10"/>
+
+                            <!-- 조작 버튼 -->
+                            <TextBlock Text="— 조 작 —" Foreground="#7A8FC0" FontSize="10" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                            <Button Content="↕ 이 작위 이동" Click="MoveTitle_Click"
+                                    Style="{StaticResource LandedBtn}" Background="#5AAECC" Foreground="White"
+                                    Margin="0,0,0,5" HorizontalAlignment="Stretch"/>
+                            <Button Content="+ 하위 추가" Click="AddChildTitle_Click"
+                                    Style="{StaticResource LandedBtn}" Background="#3A8A5A" Foreground="White"
+                                    Margin="0,0,0,5" HorizontalAlignment="Stretch"/>
+                            <Button Content="📋 키 값 복사" Click="CopyKey_Click"
+                                    Style="{StaticResource LandedBtn}" Background="#364063" Foreground="#D8E2F5"
+                                    HorizontalAlignment="Stretch" Margin="0,0,0,5"/>
+                            <!-- 백작령만 표시：하위 생성mod파일 -->
+                            <Button x:Name="BtnGenerateSubmod" Content="⚙ 하위 생성mod파일"
+                                    Click="GenerateSubmod_Click" Visibility="Collapsed"
+                                    Style="{StaticResource LandedBtn}" Background="#4A6FA5" Foreground="White"
+                                    HorizontalAlignment="Stretch"
+                                    ToolTip="이 백작령용으로 생성 AGOT 하위mod필요한 히스토리、로컬라이제이션 등 파일"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- 상태줄 -->
+        <Border Grid.Row="2" Background="#1A2236" Padding="10,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="#7A8FC0" FontSize="11" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtDirty" Grid.Column="1" Text="● 저장 안 됨" Foreground="#F0A060"
+                           FontSize="11" VerticalAlignment="Center"
+                           Visibility="{Binding IsDirty, Converter={StaticResource BoolVis}}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

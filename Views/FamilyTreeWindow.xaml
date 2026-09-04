@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="WpfPrismFrameworkTemplate.Views.FamilyTreeWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"             
+             prism:ViewModelLocator.AutoWireViewModel="True" Width="1000"
+             
+Height="600">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WinLoadedCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="1" Background="DarkRed"></Border>
+        <Border Grid.Column="1" BorderBrush="LightGray" BorderThickness="1"></Border>
+        <UniformGrid Columns="1" Rows="2" VerticalAlignment="Top" Background="White" Margin="5">
+            <Grid Background="Blue" 
+        Margin="5"
+Height="50" 
+HorizontalAlignment="Stretch" 
+>
+                <TextBlock 
+  Foreground="White"
+  Text="남성"
+  VerticalAlignment="Center"
+  HorizontalAlignment="Center"
+  Style="{StaticResource TextBlockDefaultSuccess}"
+  FontWeight="Bold"
+  MouseMove="TextBlock_MouseMove"
+  PreviewMouseLeftButtonDown="TextBlock_PreviewMouseLeftButtonDown"
+  PreviewMouseLeftButtonUp="TextBlock_PreviewMouseLeftButtonUp"/>
+            </Grid>
+            <Grid Background="Red" 
+        Margin="5"
+Height="50" 
+HorizontalAlignment="Stretch" >
+                <TextBlock 
+  Foreground="White"
+  Text="여성"
+  VerticalAlignment="Center"
+  HorizontalAlignment="Center"
+  Style="{StaticResource TextBlockDefaultSuccess}"
+  FontWeight="Bold"
+  MouseMove="TextBlock_MouseMove"
+  PreviewMouseLeftButtonDown="TextBlock_PreviewMouseLeftButtonDown"
+  PreviewMouseLeftButtonUp="TextBlock_PreviewMouseLeftButtonUp"/>
+            </Grid>
+        </UniformGrid>
+        
+
+        <ScrollViewer Grid.Column="1" Grid.RowSpan="2" Name="CanvasScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <!--MouseWheel="Canvas_MouseWheel"-->
+            <Grid Background="Transparent" >
+                <!-- 이 빈 Border 확실히 하기 위한 Canvas 항상 충분한 공간이 있도록 -->
+                <Border Name="CanvasContainer" Width="3000" Height="3000">
+                    <Canvas x:Name="DestinationCanvas" Background="AliceBlue" AllowDrop="True" DragEnter="Canvas_DragEnter"
+                      Drop="Canvas_Drop" DragOver="Canvas_DragOver" MouseRightButtonDown="Canvas_MouseRightButtonDown">
+                        <!-- Canvas 이제 확대/축소 변환이 적용됨 -->
+                        <Canvas.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="CanvasScaleTransform" ScaleX="1" ScaleY="1" />
+                                <TranslateTransform x:Name="CanvasTranslateTransform" X="0" Y="0" />
+                            </TransformGroup>
+                        </Canvas.RenderTransform>
+                    </Canvas>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- 확대/축소 컨트롤 추가 -->
+        <UniformGrid Grid.Row="1" Columns="3" Rows="1">
+            <Button Content="+" Click="ZoomIn_Click" Margin="2"/>
+            <Button Content="-" Click="ZoomOut_Click" Margin="2"/>
+            <Button Content="Reset" Click="ZoomReset_Click" Margin="2"/>
+        </UniformGrid>
+        <!--<Canvas 
+            x:Name="DestinationCanvas" 
+            Grid.Column="1" 
+            Background="White"
+            AllowDrop="True" 
+            DragEnter="Canvas_DragEnter"
+            DragOver="Canvas_DragOver"
+            Drop="Canvas_Drop"/>-->
+    </Grid>
+</UserControl>
