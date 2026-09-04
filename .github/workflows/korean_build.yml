@@ -1,0 +1,125 @@
+name: Build CK3ModStudio Korean Clean
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Clean Translate UI Strings
+        shell: pwsh
+        run: |
+          $dict = [ordered]@{
+            '作者:Fred'               = '제작: Fred'
+            '生成'                    = '코드 생성'
+            '输出'                    = '내보내기'
+            '编辑'                    = '편집'
+            '属性设置'                = '속성 설정'
+            '实时个人内容'            = '실시간 인물 코드'
+            '实时文件内容'            = '실시간 파일 코드'
+            '实时纹章内容'            = '실시간 문장 코드'
+            '姓名'                    = '이름'
+            '文化'                    = '문화'
+            '宗教'                    = '종교'
+            '父亲'                    = '부친'
+            '母亲'                    = '모친'
+            '配偶'                    = '배우자'
+            '搜索人物...'             = '인물 검색...'
+            '选中人物的事件列表'      = '선택된 인물의 사건 목록'
+            '额外信息'                = '추가 정보'
+            '增加事件'                = '사건 추가'
+            '删除当前选中事件'        = '선택 사건 삭제'
+            '打开'                    = '열기'
+            '保存'                    = '저장'
+            '另存为'                  = '다른 이름으로 저장'
+            '搜索法理...'             = '규범 권역 검색...'
+            '移动'                    = '이동'
+            '+ 帝国'                  = '+ 제국'
+            '+ 王国'                  = '+ 왕국'
+            '+ 公国'                  = '+ 공작'
+            '+ 伯国'                  = '+ 백작'
+            '点击左侧法理查看详情'    = '좌측 규범 권역을 클릭하여 상세 정보를 확인하세요'
+            '家族统计数据'            = '가문 통계 데이터'
+            '杂项统计数据'            = '기타 통계 데이터'
+            '各家族人数'              = '가문별 인원수'
+            '人数'                    = '인원수'
+            '保存设置'                = '저장설정'
+            '是否允许自动保存'        = '자동저장허용'
+            '定义文件'                = '정의파일'
+            '领地定义文件'            = '영지정의파일'
+            '王朝定义文件'            = '왕조정의파일'
+            '角色定义文件'            = '인물정의파일'
+            '本地化文件'              = '현지화파일'
+            '汉语翻译文件'            = '중국어번역파일'
+            '英语翻译文件'            = '영어번역파일'
+            '纹章收集设置'            = '문장수집설정'
+            '纹章图片保存路径'        = '문장이미지저장경로'
+            '纹章定义文件路径'        = '문장정의파일경로'
+            '纹章收集软件启动路径'    = '문장수집프로그램경로'
+            '调试设置'                = '디버그설정'
+            '是否显示调试信息'        = '디버그정보표시'
+            '随机设置'                = '무작위설정'
+            '是否开启随机年龄'        = '무작위나이적용'
+            '请先选择一个家族'        = '먼저 가문을 선택하세요'
+            '解析名称文件失败，请检查文件格式或路径是否正确。' = '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요.'
+            '就绪'                    = '준비 완료'
+            '确定'                    = '확인'
+            '取消'                    = '취소'
+            '错误'                    = '오류'
+            '提示'                    = '알림'
+            '特质'                    = '특성'
+            '能力'                    = '능력치'
+            '外交'                    = '외교'
+            '军事'                    = '무력'
+            '管理'                    = '관리'
+            '谋略'                    = '지략'
+            '学识'                    = '학습'
+            '勇武'                    = '기량'
+            '时间轴'                  = '타임라인'
+            '世系图'                  = '가계도'
+            '数据库'                  = '데이터베이스'
+            '连接'                    = '연결'
+            '断开'                    = '연결해제'
+            '配置'                    = '환경설정'
+          }
+
+          $files = Get-ChildItem -Path "CK3ModStudio" -Recurse -File | Where-Object { $_.Extension -match '\.(xaml|cs)$' }
+          foreach ($file in $files) {
+            $content = [System.IO.File]::ReadAllText($file.FullName, [System.Text.Encoding]::UTF8)
+            $changed = $false
+            foreach ($k in $dict.Keys) {
+              if ($content.Contains($k)) {
+                $content = $content.Replace($k, $dict[$k])
+                $changed = $true
+              }
+            }
+            if ($changed) {
+              [System.IO.File]::WriteAllText($file.FullName, $content, [System.Text.Encoding]::UTF8)
+              Write-Host "치환 완료: $($file.Name)"
+            }
+          }
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore CK3ModStudio.sln
+
+      - name: Build Solution
+        run: msbuild CK3ModStudio.sln /p:Configuration=Release
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CK3ModStudio-Korean-Clean
+          path: |
+            **/bin/Release/
+            **/bin/x64/Release/
