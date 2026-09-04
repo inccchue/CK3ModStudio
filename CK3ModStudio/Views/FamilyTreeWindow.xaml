@@ -30,7 +30,7 @@ HorizontalAlignment="Stretch"
 >
                 <TextBlock 
   Foreground="White"
-  Text="男性"
+  Text="남성"
   VerticalAlignment="Center"
   HorizontalAlignment="Center"
   Style="{StaticResource TextBlockDefaultSuccess}"
@@ -45,7 +45,7 @@ Height="50"
 HorizontalAlignment="Stretch" >
                 <TextBlock 
   Foreground="White"
-  Text="女性"
+  Text="여성"
   VerticalAlignment="Center"
   HorizontalAlignment="Center"
   Style="{StaticResource TextBlockDefaultSuccess}"
@@ -60,11 +60,11 @@ HorizontalAlignment="Stretch" >
         <ScrollViewer Grid.Column="1" Grid.RowSpan="2" Name="CanvasScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <!--MouseWheel="Canvas_MouseWheel"-->
             <Grid Background="Transparent" >
-                <!-- 这个空的 Border 用于确保 Canvas 始终有足够的空间 -->
+                <!-- 이 빈 Border 확실히 하기 위한 Canvas 항상 충분한 공간이 있도록 -->
                 <Border Name="CanvasContainer" Width="3000" Height="3000">
                     <Canvas x:Name="DestinationCanvas" Background="AliceBlue" AllowDrop="True" DragEnter="Canvas_DragEnter"
                       Drop="Canvas_Drop" DragOver="Canvas_DragOver" MouseRightButtonDown="Canvas_MouseRightButtonDown">
-                        <!-- Canvas 现在应用了缩放变换 -->
+                        <!-- Canvas 이제 확대/축소 변환이 적용됨 -->
                         <Canvas.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform x:Name="CanvasScaleTransform" ScaleX="1" ScaleY="1" />
@@ -76,7 +76,7 @@ HorizontalAlignment="Stretch" >
             </Grid>
         </ScrollViewer>
 
-        <!-- 添加缩放控制 -->
+        <!-- 확대/축소 컨트롤 추가 -->
         <UniformGrid Grid.Row="1" Columns="3" Rows="1">
             <Button Content="+" Click="ZoomIn_Click" Margin="2"/>
             <Button Content="-" Click="ZoomOut_Click" Margin="2"/>

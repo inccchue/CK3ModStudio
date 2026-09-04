@@ -16,13 +16,13 @@ namespace WpfPrismFrameworkTemplate.Model
         {
             if (!IsValidDateFormat(value))
             {
-                MessageBox.Show($"日期格式无效: {value}。格式必须为 yyyy.MM.dd，年份范围0-9999，月份范围1-12，日范围1-31");
+                MessageBox.Show($"날짜 형식이 유효하지 않습니다: {value}。형식은 반드시 yyyy.MM.dd，이어야 합니다 (연도 0-9999, 월 1-12, 일 1-31)");
             }
             else
             {
                 Value = value;
             }
-                //throw new ArgumentException($"日期格式无效: {value}。格式必须为 yyyy.MM.dd，年份范围0-9999，月份范围1-12，日范围1-31");
+                //throw new ArgumentException($"날짜 형식이 유효하지 않습니다: {value}。형식은 반드시 yyyy.MM.dd，이어야 합니다 (연도 0-9999, 월 1-12, 일 1-31)");
 
             
         }
@@ -113,7 +113,7 @@ namespace WpfPrismFrameworkTemplate.Model
         public static bool operator <(CustomDate left, CustomDate right)
         {
             if (left == null)
-                return right != null;  // 修改为 right != null
+                return right != null;  // 수정为 right != null
             if (right == null)
                 return false;
 

@@ -18,7 +18,7 @@ xmlns:ui="http://schemas.modernwpf.com/2019"
              prism:ViewModelLocator.AutoWireViewModel="True" >
     <Grid Background="White">
         <TabControl Style="{StaticResource TabControlInLine}">
-            <hc:TabItem Header="角色定义文件">
+            <hc:TabItem Header="캐릭터 정의 파일">
                 <RichTextBox>
                     <RichTextBox.InputBindings>
                         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveCharacterDefFileCmd}"/>
@@ -28,7 +28,7 @@ xmlns:ui="http://schemas.modernwpf.com/2019"
                     </i:Interaction.Behaviors>
                 </RichTextBox>
             </hc:TabItem>
-            <hc:TabItem Header="王朝定义文件">
+            <hc:TabItem Header="왕조 정의 파일">
                 <RichTextBox>
                     <RichTextBox.InputBindings>
                         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveDynastyDefFileCmd}"/>
@@ -38,7 +38,7 @@ xmlns:ui="http://schemas.modernwpf.com/2019"
                     </i:Interaction.Behaviors>
                 </RichTextBox>
             </hc:TabItem>
-            <hc:TabItem Header="英文翻译文件">
+            <hc:TabItem Header="영문 번역 파일">
                 <RichTextBox>
                     <RichTextBox.InputBindings>
                         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveLocalizationEnglishFileCmd}"/>
@@ -48,7 +48,7 @@ xmlns:ui="http://schemas.modernwpf.com/2019"
                     </i:Interaction.Behaviors>
                 </RichTextBox>
             </hc:TabItem>
-            <hc:TabItem Header="中文翻译文件">
+            <hc:TabItem Header="중문 번역 파일">
                 <RichTextBox>
                     <RichTextBox.InputBindings>
                         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveLocalizationChineseFileCmd}"/>
@@ -58,7 +58,7 @@ xmlns:ui="http://schemas.modernwpf.com/2019"
                     </i:Interaction.Behaviors>
                 </RichTextBox>
             </hc:TabItem>
-            <hc:TabItem Header="领地定义文件">
+            <hc:TabItem Header="영지 정의 파일">
 
             </hc:TabItem>
         </TabControl>

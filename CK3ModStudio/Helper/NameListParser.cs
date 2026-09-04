@@ -13,15 +13,15 @@ using WpfPrismFrameworkTemplate.Model;
 namespace WpfPrismFrameworkTemplate.Helper
 {
     /// <summary>
-    /// 名称文件解析器类，用于解析包含名称列表的文本文件
+    /// 名称파일解析器类，用于解析包含名称列表的文本파일
     /// </summary>
     public class NameFileParser
     {
         /// <summary>
-        /// 解析指定文件路径中的名称列表文件
+        /// 解析指定파일경로中的名称列表파일
         /// </summary>
-        /// <param name="filePath">文件路径</param>
-        /// <returns>包含解析结果的字典，键为文化名称</returns>
+        /// <param name="filePath">파일경로</param>
+        /// <returns>包含解析结果的字典，키为문화名称</returns>
         public static List<CultureNames> ParseCultures(string path)
         {
             List<CultureNames> result = new List<CultureNames>();
@@ -29,7 +29,7 @@ namespace WpfPrismFrameworkTemplate.Helper
             {
                 string content = File.ReadAllText(path);               
 
-                // 查找所有文化块
+                // 查找所有문화块
                 string pattern = @"name_list_(\w+)\s*=\s*{(.*?)mercenary_names\s*=";
                 var matches = Regex.Matches(content, pattern, RegexOptions.Singleline);
 
@@ -40,7 +40,7 @@ namespace WpfPrismFrameworkTemplate.Helper
 
                     CultureNames culture = new CultureNames { CultureName = cultureName };
 
-                    // 解析男性名字
+                    // 解析남성名字
                     string maleNamesPattern = @"male_names\s*=\s*{(.*?)}\s*female_names";
                     Match maleMatch = Regex.Match(cultureBlock, maleNamesPattern, RegexOptions.Singleline);
                     if (maleMatch.Success)
@@ -49,7 +49,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                         culture.MaleNames = ExtractNames(maleNamesBlock);
                     }
 
-                    // 解析女性名字
+                    // 解析여성名字
                     string femaleNamesPattern = @"female_names\s*=\s*{(.*?)}\s*dynasty_of_location_prefix";
                     Match femaleMatch = Regex.Match(cultureBlock, femaleNamesPattern, RegexOptions.Singleline);
                     if (femaleMatch.Success)
@@ -63,7 +63,7 @@ namespace WpfPrismFrameworkTemplate.Helper
             }
             catch (Exception)
             {
-                MessageBox.Show("解析名称文件失败，请检查文件格式或路径是否正确。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("이름 파일 파싱에 실패했습니다. 파일 형식이나 경로가 올바른지 확인해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             
 
@@ -71,7 +71,7 @@ namespace WpfPrismFrameworkTemplate.Helper
         }
 
         /// <summary>
-        /// 从内容中提取指定类型的名称列表
+        /// 부터内容中提取指定类型的名称列表
         /// </summary>
         /// <param name="content">要解析的内容</param>
         /// <param name="pattern">匹配模式</param>
@@ -133,7 +133,7 @@ namespace WpfPrismFrameworkTemplate.Helper
     }
 
     /// <summary>
-    /// 存储单个文化的各类名称
+    /// 存储单个문화的各类名称
     /// </summary>
     public class CultureNames
     {

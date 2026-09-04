@@ -59,7 +59,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Background="DarkRed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                    <TextBlock Margin="10,0,0,0" Text="属性设置" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Left" Foreground="White"/>
+                    <TextBlock Margin="10,0,0,0" Text="속성 설정" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Left" Foreground="White"/>
                     <Button Command="hc:ControlCommands.Close" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}" Foreground="White"/>
                     <StackPanel Grid.Row="1">
                         <hc:PropertyGrid SelectedObject="{Binding SelectPeople}" />
@@ -68,8 +68,8 @@ Value="{Binding SelectPeople}"
 NameSource="{Binding RandomNameList}"
 Margin="0,5"/>
                         <UniformGrid Rows="2" Columns="2">
-                            <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新文化"
-                                          hc:TitleElement.Title="文化"
+                            <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="더블클릭으로 새 문화 추가"
+                                          hc:TitleElement.Title="문화"
 hc:TitleElement.TitlePlacement="Top"
                                                  Style="{StaticResource ComboBoxExtend}"
                                                  ItemsSource="{Binding CultureOptions}"
@@ -81,8 +81,8 @@ hc:TitleElement.TitlePlacement="Top"
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </ComboBox>
-                            <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="双击添加新宗教"
-                                      hc:TitleElement.Title="宗教"
+                            <ComboBox VerticalAlignment="Center" Margin="5" ToolTip="더블클릭으로 새 종교 추가"
+                                      hc:TitleElement.Title="종교"
                                       hc:TitleElement.TitlePlacement="Top"
                                       Style="{StaticResource ComboBoxExtend}"
                                       ItemsSource="{Binding ReligionOptions}"
@@ -94,9 +94,9 @@ hc:TitleElement.TitlePlacement="Top"
                                 </i:Interaction.Triggers>
                             </ComboBox>
                             <StackPanel>
-                                <TextBlock Text="父亲" Margin="10,0,0,0"/>
+                                <TextBlock Text="아버지" Margin="10,0,0,0"/>
                                 <ui:AutoSuggestBox x:Name="DadAutoSuggestBox"
-            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            PlaceholderText="인물 검색..." VerticalAlignment="Center" Margin="5"
             Text="{Binding SelectPeople.Dad, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
             ItemsSource="{Binding Suggestions}"
                                     TextChanged="AutoSuggestBox_TextChanged"
@@ -141,9 +141,9 @@ FontWeight="Bold" />
                                 </ui:AutoSuggestBox>
                             </StackPanel>
                             <StackPanel>
-                                <TextBlock Text="母亲" Margin="10,0,0,0"/>
+                                <TextBlock Text="어머니" Margin="10,0,0,0"/>
                                 <ui:AutoSuggestBox x:Name="MomAutoSuggestBox"
-            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            PlaceholderText="인물 검색..." VerticalAlignment="Center" Margin="5"
             Text="{Binding SelectPeople.Mom, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
             ItemsSource="{Binding Suggestions}"
                                     TextChanged="AutoSuggestBox_TextChanged"
@@ -189,9 +189,9 @@ FontWeight="Bold" />
                             </StackPanel>
                         </UniformGrid>
                         <StackPanel Visibility="{Binding SelectPeople.LifeEventList,Converter={StaticResource HasSpouseEventToVisibilityConverter}}">
-                            <TextBlock Text="配偶" Margin="10,0,0,0"/>
+                            <TextBlock Text="배우자" Margin="10,0,0,0"/>
                             <ui:AutoSuggestBox x:Name="SpouseAutoSuggestBox"
-            PlaceholderText="搜索人物..." VerticalAlignment="Center" Margin="5"
+            PlaceholderText="인물 검색..." VerticalAlignment="Center" Margin="5"
             Text="{Binding SelectPeople.Spouse, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
             ItemsSource="{Binding Suggestions}"
                                     TextChanged="AutoSuggestBox_TextChanged"
@@ -235,13 +235,13 @@ FontWeight="Bold" />
                                 </ui:AutoSuggestBox.ItemTemplate>
                             </ui:AutoSuggestBox>
                         </StackPanel>
-                        <TextBlock Text="选中人物的事件列表" FontWeight="Bold" Margin="5,10,0,0" />
+                        <TextBlock Text="선택된 인물의 이벤트 목록" FontWeight="Bold" Margin="5,10,0,0" />
                         <DataGrid x:Name="eventsDataGrid" ItemsSource="{Binding SelectPeople.LifeEventList}" HorizontalAlignment="Stretch" SelectedItem="{Binding SelectLifeEvent}"  CanUserAddRows="False">
                             <DataGrid.Columns>
-                                <DataGridTemplateColumn Header="额外信息">
+                                <DataGridTemplateColumn Header="추가 정보">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Content="修改" Style="{StaticResource ButtonSuccess.Small}"
+                                            <Button Content="수정" Style="{StaticResource ButtonSuccess.Small}"
                                                         Command="{Binding DataContext.ModifyLifeEventCmd,
                                      ElementName=eventsDataGrid}"
                                                         CommandParameter="{Binding}"/>
@@ -249,7 +249,7 @@ FontWeight="Bold" />
                                     </DataGridTemplateColumn.CellTemplate>
                                     <DataGridTemplateColumn.CellEditingTemplate>
                                         <DataTemplate>
-                                            <Button Content="修改" Style="{StaticResource ButtonSuccess.Small}"
+                                            <Button Content="수정" Style="{StaticResource ButtonSuccess.Small}"
                                                         Command="{Binding DataContext.ModifyLifeEventCmd,
                                      ElementName=eventsDataGrid}"
                                                         CommandParameter="{Binding}"/>
@@ -259,15 +259,15 @@ FontWeight="Bold" />
                             </DataGrid.Columns>
                         </DataGrid>
                         <UniformGrid Columns="2" Rows="1">
-                            <Button Content="增加事件" Command="{Binding AddLifeEventCmd}" Style="{StaticResource ButtonSuccess}" HorizontalAlignment="Stretch" Margin="5"/>
-                            <Button Content="删除当前选中事件" Command="{Binding DelLifeEventCmd}" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Stretch" Margin="5"/>
+                            <Button Content="이벤트 추가" Command="{Binding AddLifeEventCmd}" Style="{StaticResource ButtonSuccess}" HorizontalAlignment="Stretch" Margin="5"/>
+                            <Button Content="현재 선택된 이벤트 삭제" Command="{Binding DelLifeEventCmd}" Style="{StaticResource ButtonDanger}" HorizontalAlignment="Stretch" Margin="5"/>
                         </UniformGrid>
                     </StackPanel>
                 </Grid>
             </Border>
         </hc:Drawer>
         <TreeView Grid.Row="1" ItemsSource="{Binding FamilyTree}" SelectedItemChanged="TreeView_SelectedItemChanged"
-                  ToolTip="Ctrl+Q修改当前选中人物的信息">
+                  ToolTip="Ctrl+Q현재 선택된 인물 정보 수정">
             <TreeView.InputBindings>
                 <KeyBinding Key="Q" Modifiers="Ctrl" Command="{Binding ModifyCmd}"/>
             </TreeView.InputBindings>

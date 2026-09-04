@@ -19,7 +19,7 @@ using Unity;
 namespace WpfPrismFrameworkTemplate.Model
 {
     /// <summary>
-    /// 文件基类，定义公共属性和方法
+    /// 파일基类，定义公共属性和方法
     /// </summary>
     public abstract class FileModel : BindableBase
     {
@@ -66,13 +66,13 @@ namespace WpfPrismFrameworkTemplate.Model
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载文件出错: {ex.Message}");
+                MessageBox.Show($"파일 로드 오류: {ex.Message}");
                 return;
             }
         }
 
         /// <summary>
-        /// 添加新内容的抽象方法，由子类实现
+        /// 添加新内容的抽象方法，由하위类实现
         /// </summary>
         /// <param name="newContent">要添加的新内容</param>
         public abstract void UpdateAllContent(ObservableCollection<Family> familyList);
@@ -84,7 +84,7 @@ namespace WpfPrismFrameworkTemplate.Model
                 if (string.IsNullOrEmpty(FilePath))
                     return;
 
-                // 目录不存在时静默跳过（文件路径尚未配置到实际存在的位置）
+                // 目录不存在时静默跳过（파일경로尚未配置까지实际存在的位置）
                 var dir = Path.GetDirectoryName(FilePath);
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                     return;
@@ -95,12 +95,12 @@ namespace WpfPrismFrameworkTemplate.Model
                 string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
                 string result = string.Join(Environment.NewLine, lines.Where(line => !string.IsNullOrWhiteSpace(line)));
 
-                // 写入文件
+                // 기록파일
                 File.WriteAllText(FilePath, result);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存文件出错: {ex.Message}");
+                MessageBox.Show($"파일 저장 오류: {ex.Message}");
             }
         }
         protected void RemoveContentInBlocks(string delContent)
@@ -181,7 +181,7 @@ namespace WpfPrismFrameworkTemplate.Model
                     // 检查完整文本是否包含要替换的内容
                     if (fullText.Contains(oldContent))
                     {
-                        // 找到oldContent在完整文本中的位置
+                        // 找까지oldContent在完整文本中的位置
                         int index = fullText.IndexOf(oldContent);
 
                         // 清除原有的所有Run
@@ -195,7 +195,7 @@ namespace WpfPrismFrameworkTemplate.Model
                         if (!string.IsNullOrEmpty(beforeText))
                         {
                             Run beforeRun = new Run(beforeText);
-                            // 保持原有颜色（如果所有原Run颜色相同的话）
+                            // 保持原有색상（예果所有原Run색상相同的话）
                             if (originalRuns.Count > 0 && originalRuns.All(r => r.Foreground?.ToString() == originalRuns[0].Foreground?.ToString()))
                             {
                                 beforeRun.Foreground = originalRuns[0].Foreground;
@@ -203,14 +203,14 @@ namespace WpfPrismFrameworkTemplate.Model
                             paragraph.Inlines.Add(beforeRun);
                         }
 
-                        // 添加替换后的内容，只对不同的部分设置特殊样式
+                        // 添加替换后的内容，只对不同的部分설정特殊스타일
                         AddDifferenceHighlightedRuns(paragraph, oldContent, newContent);
 
                         // 添加oldContent之后的文本
                         if (!string.IsNullOrEmpty(afterText))
                         {
                             Run afterRun = new Run(afterText);
-                            // 保持原有颜色
+                            // 保持原有색상
                             if (originalRuns.Count > 0 && originalRuns.All(r => r.Foreground?.ToString() == originalRuns[0].Foreground?.ToString()))
                             {
                                 afterRun.Foreground = originalRuns[0].Foreground;
@@ -218,7 +218,7 @@ namespace WpfPrismFrameworkTemplate.Model
                             paragraph.Inlines.Add(afterRun);
                         }
 
-                        return; // 找到并替换后直接返回
+                        return; // 找까지并替换后直接返回
                     }
                 }
             }
@@ -239,7 +239,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
                 if (oldLine == newLine)
                 {
-                    // 相同的行，保持原样式
+                    // 相同的行，保持原스타일
                     if (!string.IsNullOrEmpty(newLine))
                     {
                         paragraph.Inlines.Add(new Run(newLine));
@@ -273,7 +273,7 @@ namespace WpfPrismFrameworkTemplate.Model
             int i = 0, j = 0;
             string commonStart = "";
 
-            // 找到开头相同的部分
+            // 找까지开头相同的部分
             while (i < oldLine.Length && j < newLine.Length && oldLine[i] == newLine[j])
             {
                 commonStart += oldLine[i];
@@ -287,7 +287,7 @@ namespace WpfPrismFrameworkTemplate.Model
                 runs.Add(new Run(commonStart));
             }
 
-            // 找到结尾相同的部分
+            // 找까지结尾相同的部分
             string commonEnd = "";
             int oldEnd = oldLine.Length - 1;
             int newEnd = newLine.Length - 1;
@@ -320,7 +320,7 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     /// <summary>
-    /// 王朝定义文件模型
+    /// 왕조 정의 파일模型
     /// </summary>
     public class DynastyDefFileModel : FileModel
     {
@@ -429,7 +429,7 @@ namespace WpfPrismFrameworkTemplate.Model
                     // 去掉前缀，获取实际的家族名
                     string dynastyName = RemovePrefix(dynastyIdWithPrefix);
 
-                    // 保存完整定义
+                    // 저장完整定义
                     string definition = match.Value.Trim();
                     _dynasties[dynastyName] = definition;
                 }
@@ -451,7 +451,7 @@ namespace WpfPrismFrameworkTemplate.Model
         }
 
         /// <summary>
-        /// 添加前缀到家族名
+        /// 添加前缀까지家族名
         /// </summary>
         /// <param name="dynastyName">不带前缀的家族名</param>
         /// <returns>带前缀的家族ID</returns>
@@ -466,7 +466,7 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     /// <summary>
-    /// 角色定义文件模型
+    /// 캐릭터 정의 파일模型
     /// </summary>
     public class CharacterDefFileModel : FileModel
     {
@@ -609,7 +609,7 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     /// <summary>
-    /// 领域定义文件模型
+    /// 领域定义파일模型
     /// </summary>
     public class DomainDefFileModel : FileModel
     {
@@ -624,7 +624,7 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     /// <summary>
-    /// 纹章定义文件模型
+    /// 纹章定义파일模型
     /// </summary>
     public class CoaDefFileModel : FileModel
     {
@@ -639,7 +639,7 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     /// <summary>
-    /// 英文本地化文件模型
+    /// 英文本地化파일模型
     /// </summary>
     public class LocalizationEnglishFileModel : DynastyDefFileModel
     {
@@ -673,9 +673,9 @@ namespace WpfPrismFrameworkTemplate.Model
         }
 
         /// <summary>
-        /// 解析本地化文件内容，提取条目到字典中
+        /// 解析本地化파일内容，提取条目까지字典中
         /// </summary>
-        /// <param name="content">本地化文件内容</param>
+        /// <param name="content">本地化파일内容</param>
         public override void ParseDynastyDefinitions()
         {
             TextRange textRange = new TextRange(Content.ContentStart, Content.ContentEnd);
@@ -703,7 +703,7 @@ namespace WpfPrismFrameworkTemplate.Model
     }
 
     /// <summary>
-    /// 中文本地化文件模型
+    /// 中文本地化파일模型
     /// </summary>
     public class LocalizationChineseFileModel : LocalizationEnglishFileModel
     {

@@ -21,7 +21,7 @@ namespace WpfPrismFrameworkTemplate.Model
         /// </summary>
         /// <param name="eventType">事件类型</param>
         /// <param name="eventDate">事件日期</param>
-        /// <param name="additionalData">额外数据（如婚姻事件的配偶信息）</param>
+        /// <param name="additionalData">额外数据（예婚姻事件的배우자信息）</param>
         /// <returns>对应类型的生命事件对象</returns>
         public static LifeEvent CreateLifeEvent(LifeEventType eventType)
         {
@@ -70,7 +70,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
         // 事件日期（时间字符串）
         [DisplayName("事件日期")]
-        [Description("日期格式为 yyyy.MM.dd，年份范围0-9999，月份范围1-12，日范围1-31")]
+        [Description("日期格式为 yyyy.MM.dd，이어야 합니다 (연도 0-9999, 월 1-12, 일 1-31)")]
         public string EventDate
         {
             get { return _eventDate; }
@@ -82,14 +82,14 @@ namespace WpfPrismFrameworkTemplate.Model
                 }
                 else
                 {
-                    MessageBox.Show("日期格式不正确");
+                    MessageBox.Show("날짜 형식이 올바르지 않습니다");
                 }
             }
         }
 
         public static void RandomCreateBirthAndDeath(People targetPeople)
         {
-            // 如果没有父母信息，直接返回
+            // 예果没有父母信息，直接返回
             if (targetPeople.Dad == null && targetPeople.Mom == null)
             {
                 return;
@@ -99,7 +99,7 @@ namespace WpfPrismFrameworkTemplate.Model
             DateTime? minBirthDate = null;
             DateTime? maxBirthDate = null;
 
-            // 处理父亲的约束条件
+            // 处理아버지的约束条件
             if (targetPeople.Dad != null)
             {
                 DateTime? dadBirthDate = GetLifeEventDate(targetPeople.Dad, LifeEventType.Birth);
@@ -107,7 +107,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
                 if (dadBirthDate.HasValue)
                 {
-                    // 父亲至少16岁才能生孩子
+                    // 아버지至少16세才能生孩하위
                     DateTime dadMinParentAge = dadBirthDate.Value.AddYears(16);
                     minBirthDate = dadMinParentAge;
                 }
@@ -116,7 +116,7 @@ namespace WpfPrismFrameworkTemplate.Model
                 {
                     if(dadBirthDate.HasValue && dadBirthDate.Value > dadDeathDate.Value)
                     {
-                        // 如果父亲的出生日期晚于死亡日期，直接返回
+                        // 예果아버지的出生日期晚于死亡日期，直接返回
                         return;
                     }
                     if(dadBirthDate.HasValue&& (dadBirthDate.Value.AddYears(45)<= dadDeathDate))
@@ -125,14 +125,14 @@ namespace WpfPrismFrameworkTemplate.Model
                     }
                     else
                     {
-                        // 孩子最晚出生日期不能超过父亲死亡
+                        // 孩하위最晚出生日期不能超过아버지死亡
                         maxBirthDate = dadDeathDate.Value;
                     }
                         
                 }
             }
 
-            // 处理母亲的约束条件
+            // 处理어머니的约束条件
             if (targetPeople.Mom != null)
             {
                 DateTime? momBirthDate = GetLifeEventDate(targetPeople.Mom, LifeEventType.Birth);
@@ -140,7 +140,7 @@ namespace WpfPrismFrameworkTemplate.Model
 
                 if (momBirthDate.HasValue)
                 {
-                    // 母亲至少15岁才能生孩子
+                    // 어머니至少15세才能生孩하위
                     DateTime momMinParentAge = momBirthDate.Value.AddYears(15);
 
                     // 更新最小出生日期（取父母中的较大值）
@@ -179,29 +179,29 @@ namespace WpfPrismFrameworkTemplate.Model
                 }
             }
 
-            // 如果没有有效的出生日期范围，就不生成了
+            // 예果没有有效的出生날짜 범위，就不생성了
             if (!minBirthDate.HasValue || !maxBirthDate.HasValue || minBirthDate > maxBirthDate)
             {
                 return;
             }
 
-            // 在有效范围内随机生成出生日期
+            // 在有效范围内随机생성出生日期
             DateTime birthDate = RandomDateBetween(random, minBirthDate.Value, maxBirthDate.Value);
 
             // 添加出生事件
             AddLifeEvent(targetPeople, LifeEventType.Birth, birthDate);
 
-            // 生成符合平均寿命为45岁的正态分布的死亡日期，范围在15-70岁之间
-            double meanAge = 45.0; // 平均寿命
+            // 생성符合평균 수명为45세的正态分布的死亡日期，范围在15-70세之间
+            double meanAge = 45.0; // 평균 수명
             double stdDev = 12.0;  // 标准差 - 使得大部分值落在15-70范围内
 
-            // 使用正态分布生成年龄
+            // 使用正态分布생성年龄
             int ageInYears;
             do
             {
                 // 正态分布随机数
                 ageInYears = (int)Math.Round(NormalDistribution(random, meanAge, stdDev));
-            } while (ageInYears < 15 || ageInYears > 70); // 确保年龄在15-70岁之间
+            } while (ageInYears < 15 || ageInYears > 70); // 确保年龄在15-70세之间
 
             // 计算死亡日期
             DateTime deathDate = birthDate.AddYears(ageInYears);
@@ -226,7 +226,7 @@ namespace WpfPrismFrameworkTemplate.Model
             return CommonHelper.ParseDate(lifeEvent.EventDate);
         }
 
-        // 在两个日期之间随机生成一个日期，前5年概率最大，然后概率逐渐降低
+        // 在两个日期之间随机생성一个日期，前5年概率最大，然后概率逐渐降低
         private static DateTime RandomDateBetween(Random random, DateTime start, DateTime end)
         {
             int range = (end - start).Days;
@@ -236,7 +236,7 @@ namespace WpfPrismFrameworkTemplate.Model
             // 确定5年的天数
             int fiveYearsInDays = 5 * 365;
 
-            // 如果总范围小于5年，则使用有偏向起点的分布
+            // 예果总范围小于5年，则使用有偏向起点的分布
             if (range <= fiveYearsInDays)
             {
                 // 使用三角分布，偏向于起始点
@@ -246,7 +246,7 @@ namespace WpfPrismFrameworkTemplate.Model
             else
             {
                 // 优先考虑5年内的范围，使用指数衰减
-                // 生成一个0到1的随机数
+                // 생성一个0까지1的随机数
                 double randomValue = random.NextDouble();
 
                 // 应用指数分布公式: -ln(1-r)/lambda
@@ -267,7 +267,7 @@ namespace WpfPrismFrameworkTemplate.Model
             }
         }
 
-        // 三角分布随机数生成
+        // 三角分布随机数생성
         private static double TriangularDistribution(Random random, double min, double max, double mode)
         {
             double u = random.NextDouble();
@@ -279,11 +279,11 @@ namespace WpfPrismFrameworkTemplate.Model
                 return max - Math.Sqrt((1 - u) * (max - min) * (max - mode));
         }
 
-        // 生成正态分布的随机数
+        // 생성正态分布的随机数
         private static double NormalDistribution(Random random, double mean, double stdDev)
         {
-            // Box-Muller算法生成正态分布随机数
-            double u1 = 1.0 - random.NextDouble(); // 避免取到0
+            // Box-Muller算法생성正态分布随机数
+            double u1 = 1.0 - random.NextDouble(); // 避免取까지0
             double u2 = 1.0 - random.NextDouble();
             double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
             return mean + stdDev * randStdNormal;

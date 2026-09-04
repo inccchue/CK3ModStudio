@@ -26,7 +26,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                 foreach (var county in Counties.OrderBy(c => c.Name))
                 {
                     if (string.IsNullOrEmpty(county.Name)) continue;
-                    // 写入伯爵领地名称（首字母小写，因为原文件格式是小写开头）
+                    // 기록伯爵领地名称（首字母小写，因为原파일格式是小写开头）
                     string countyName = char.ToLower(county.Name[0]) + county.Name.Substring(1);
                     stringBuilder.AppendLine($"c_{countyName} = {{");
 
@@ -63,7 +63,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                         allEntries[otherEntry.StartDate].Add(otherEntry.Content);
                     }
 
-                    // 按日期排序并写入
+                    // 按日期排序并기록
                     var sortedDates = allEntries.Keys.OrderBy(date => CommonHelper.ParseDate(date)).ToList();
 
                     foreach (var date in sortedDates)
@@ -83,12 +83,12 @@ namespace WpfPrismFrameworkTemplate.Helper
                     stringBuilder.AppendLine(); // 添加空行分隔不同的伯爵领地
                 }
 
-                // 写入文件，覆盖原有内容
+                // 기록파일，覆盖原有内容
                 File.WriteAllText(filePath, stringBuilder.ToString(), Encoding.UTF8);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"파일 저장 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -120,7 +120,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                         // 解析所有日期条目
                         ExtractAllEntries(countyDetails, county);
 
-                        // 添加到列表，不论是否有持有者信息
+                        // 添加까지列表，不论是否有보유자 정보
                         Counties.Add(county);
                     }
                 }
@@ -130,7 +130,7 @@ namespace WpfPrismFrameworkTemplate.Helper
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"解析文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"파일 파싱 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -153,7 +153,7 @@ namespace WpfPrismFrameworkTemplate.Helper
 
                     if (holderMatch.Success)
                     {
-                        // 如果包含holder，添加到HolderEntries
+                        // 예果包含holder，添加까지HolderEntries
                         string holder = holderMatch.Groups[1].Value;
                         county.HolderEntries.Add(new HolderEntry
                         {
@@ -166,7 +166,7 @@ namespace WpfPrismFrameworkTemplate.Helper
                     Match liegeMatch = Regex.Match(blockContent, liegePattern);
                     if(liegeMatch.Success)
                     {
-                        // 如果包含liege，添加到HolderEntries
+                        // 예果包含liege，添加까지HolderEntries
                         string liege = liegeMatch.Groups[1].Value;
                         county.LiegeEntries.Add(new LiegeEntry
                         {
@@ -177,7 +177,7 @@ namespace WpfPrismFrameworkTemplate.Helper
 
                     if (!holderMatch.Success && !liegeMatch.Success)
                     {
-                        // 如果不包含holder，添加到OtherEntries
+                        // 예果不包含holder，添加까지OtherEntries
                         county.OtherEntries.Add(new OtherEntry
                         {
                             StartDate = date,
@@ -200,7 +200,7 @@ namespace WpfPrismFrameworkTemplate.Helper
 
         private static int ExtractYear(string dateString)
         {
-            // 从日期字符串中提取年份
+            // 부터日期字符串中提取年份
             var parts = dateString.Split('.');
             if (parts.Length >= 1 && int.TryParse(parts[0], out int year))
             {

@@ -35,7 +35,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private ObservableCollection<County> _counties = new ObservableCollection<County>();
         private People _SelectPeople;
         private Family _SelectFamily;
-        private string _title = "CK3 Mod Studio (作者:Fred)";
+        private string _title = "CK3 Mod Studio (작者:Fred)";
         private readonly FamilyRepository _repository;
         private IEventAggregator _eventAggregator;
         private bool _EnableDatabaseSync = false;
@@ -296,7 +296,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                // 保存搜索文本
+                // 저장搜索文本
                 SearchText = args.Text;
                 List<People> filtered;
                 UpdateFemaleAndMaleList();
@@ -449,7 +449,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileReadWriteUserControl));
-            // 如果找到了视图，则将其从区域中移除
+            // 예果找까지了视图，则将其부터区域中移除
             if (viewInstance == null)
             {
                 if (FileReadWrite == null)
@@ -535,7 +535,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         {
             if (SelectFamily == null)
             {
-                HandyControl.Controls.Growl.Error("请先选择一个家族");
+                HandyControl.Controls.Growl.Error("请先선택一个家族");
                 return;
             }
             // 获取该区域
@@ -548,7 +548,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(CountyTimelineUserControl));
-            // 如果找到了视图，则将其从区域中移除
+            // 예果找까지了视图，则将其부터区域中移除
             if (viewInstance == null)
             {
                 if (FileReadWrite == null)
@@ -607,7 +607,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"打开纹章收集软件时，发生异常，原因是{ex.Message}");
+                MessageBox.Show($"문장 수집 프로그램을 여는 중 예외가 발생했습니다. 원인: {ex.Message}");
             }
 
         }
@@ -624,7 +624,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             // 查找通过类型名注册的视图
             var viewInstance = region.Views.FirstOrDefault(v => v.GetType().Name == nameof(FileContentUserControl));
-            // 如果找到了视图，则将其从区域中移除
+            // 예果找까지了视图，则将其부터区域中移除
             if (viewInstance == null)
             {
                 var parameters = new NavigationParameters();
@@ -673,7 +673,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             if (SelectFamily == null)
             {
-                HandyControl.Controls.Growl.Error("请先选择一个家族");
+                HandyControl.Controls.Growl.Error("请先선택一个家族");
                 return;
             }
 
@@ -801,7 +801,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             
 
-            // 如果有选中的人员，将其从对应列表中移除
+            // 예果有选中的人员，将其부터对应列表中移除
             if (SelectPeople != null)
             {
                 if (SelectPeople.Gender == GenderType.Female)
@@ -892,20 +892,20 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 创建一个 SaveFileDialog 实例
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",  // 设置文件类型过滤
-                FileName = $"AllFamily"  // 设置默认文件名
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",  // 설정파일类型过滤
+                FileName = $"AllFamily"  // 설정默认파일名
             };
 
-            // 打开文件选择框，用户选择路径
+            // 열기파일선택框，用户선택경로
             bool? result = saveFileDialog.ShowDialog();
 
-            if (result == true) // 如果用户点击了“保存”
+            if (result == true) // 예果用户点击了“저장”
             {
-                string filePath = saveFileDialog.FileName; // 获取选择的文件路径
+                string filePath = saveFileDialog.FileName; // 获取선택的파일경로
 
                 try
                 {
-                    // 使用 StreamWriter 写入文件内容
+                    // 使用 StreamWriter 기록파일内容
                     using (StreamWriter writer = new StreamWriter(filePath))
                     {
                         string content = "";
@@ -914,14 +914,14 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                             content += family.ToString();
                             content += "\r\n";
                         }
-                        writer.Write(content); // 将传入的 content 写入文件
+                        writer.Write(content); // 将传入的 content 기록파일
                     }
 
-                    MessageBox.Show("文件已保存", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("파일이 저장되었습니다", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"파일 저장 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -934,30 +934,30 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 创建一个 SaveFileDialog 实例
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",  // 设置文件类型过滤
-                FileName = $"{SelectFamily.FamilyName}"  // 设置默认文件名
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",  // 설정파일类型过滤
+                FileName = $"{SelectFamily.FamilyName}"  // 설정默认파일名
             };
 
-            // 打开文件选择框，用户选择路径
+            // 열기파일선택框，用户선택경로
             bool? result = saveFileDialog.ShowDialog();
 
-            if (result == true) // 如果用户点击了“保存”
+            if (result == true) // 예果用户点击了“저장”
             {
-                string filePath = saveFileDialog.FileName; // 获取选择的文件路径
+                string filePath = saveFileDialog.FileName; // 获取선택的파일경로
 
                 try
                 {
-                    // 使用 StreamWriter 写入文件内容
+                    // 使用 StreamWriter 기록파일内容
                     using (StreamWriter writer = new StreamWriter(filePath))
                     {
-                        writer.Write(SelectFamily.ToString()); // 将传入的 content 写入文件
+                        writer.Write(SelectFamily.ToString()); // 将传入的 content 기록파일
                     }
 
-                    MessageBox.Show("文件已保存", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("파일이 저장되었습니다", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"파일 저장 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -970,37 +970,37 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 创建一个 SaveFileDialog 实例
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",  // 设置文件类型过滤
-                FileName = $"{SelectPeople.IdName}" // 设置默认文件名
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",  // 설정파일类型过滤
+                FileName = $"{SelectPeople.IdName}" // 설정默认파일名
             };
 
-            // 打开文件选择框，用户选择路径
+            // 열기파일선택框，用户선택경로
             bool? result = saveFileDialog.ShowDialog();
 
-            if (result == true) // 如果用户点击了“保存”
+            if (result == true) // 예果用户点击了“저장”
             {
-                string filePath = saveFileDialog.FileName; // 获取选择的文件路径
+                string filePath = saveFileDialog.FileName; // 获取선택的파일경로
 
                 try
                 {
-                    // 使用 StreamWriter 写入文件内容
+                    // 使用 StreamWriter 기록파일内容
                     using (StreamWriter writer = new StreamWriter(filePath))
                     {
-                        writer.Write(SelectPeople.GetString()); // 将传入的 content 写入文件
+                        writer.Write(SelectPeople.GetString()); // 将传入的 content 기록파일
                     }
 
-                    MessageBox.Show("文件已保存", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("파일이 저장되었습니다", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"保存文件时出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"파일 저장 중 오류: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
         private void PopulateReligionOptions()
         {
-            var religionSet = new HashSet<string>(); // 用于存储唯一的宗教名称
+            var religionSet = new HashSet<string>(); // 用于存储唯一的종교名称
 
             // 遍历 FamilyList 中的每个 Family
             foreach (var family in FamilyList)
@@ -1008,7 +1008,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 // 遍历每个 Family 中的 Members
                 foreach (var member in family.Members)
                 {
-                    // 如果 Religion 不为空并且不重复，添加到 religionSet 中
+                    // 예果 Religion 不为空并且不重复，添加까지 religionSet 中
                     if (!string.IsNullOrEmpty(member.Religion))
                     {
                         religionSet.Add(member.Religion);
@@ -1016,8 +1016,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 }
             }
 
-            // 将 HashSet 中的宗教名称添加到 ReligionOptions 中
-            ReligionOptions.Clear(); // 清空现有的宗教选项
+            // 将 HashSet 中的종교名称添加까지 ReligionOptions 中
+            ReligionOptions.Clear(); // 비우기现有的종교选项
             foreach (var religion in religionSet)
             {
                 ReligionOptions.Add(religion);
@@ -1026,7 +1026,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
         private void PopulateCultureOptions()
         {
-            var religionSet = new HashSet<string>(); // 用于存储唯一的宗教名称
+            var religionSet = new HashSet<string>(); // 用于存储唯一的종교名称
 
             // 遍历 FamilyList 中的每个 Family
             foreach (var family in FamilyList)
@@ -1034,7 +1034,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 // 遍历每个 Family 中的 Members
                 foreach (var member in family.Members)
                 {
-                    // 如果 Religion 不为空并且不重复，添加到 religionSet 中
+                    // 예果 Religion 不为空并且不重复，添加까지 religionSet 中
                     if (!string.IsNullOrEmpty(member.Culture))
                     {
                         religionSet.Add(member.Culture);
@@ -1044,15 +1044,15 @@ namespace WpfPrismFrameworkTemplate.ViewModels
 
             foreach (var item in RandomNameList)
             {
-                // 如果 Religion 不为空并且不重复，添加到 religionSet 中
+                // 예果 Religion 不为空并且不重复，添加까지 religionSet 中
                 if (!string.IsNullOrEmpty(item.CultureName))
                 {
                     religionSet.Add(item.CultureName);
                 }
             }
 
-            // 将 HashSet 中的宗教名称添加到 ReligionOptions 中
-            CultureOptions.Clear(); // 清空现有的宗教选项
+            // 将 HashSet 中的종교名称添加까지 ReligionOptions 中
+            CultureOptions.Clear(); // 비우기现有的종교选项
             foreach (var religion in religionSet)
             {
                 CultureOptions.Add(religion);
@@ -1062,7 +1062,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
         private void AddReligionExecute()
         {
             dynamic obj = new ExpandoObject();
-            obj.宗教名 = "";
+            obj.종교名 = "";
             DialogParameters parm = new DialogParameters
     {
         { "value", obj }
@@ -1074,15 +1074,15 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     obj = arg.Parameters.GetValue<ExpandoObject>("value");
                 }
             });
-            if (!ReligionOptions.Contains(obj.宗教名) && !string.IsNullOrWhiteSpace(obj.宗教名))
+            if (!ReligionOptions.Contains(obj.종교名) && !string.IsNullOrWhiteSpace(obj.종교名))
             {
-                ReligionOptions.Add(obj.宗教名);  // 如果不存在，则添加
+                ReligionOptions.Add(obj.종교名);  // 예果不存在，则添加
             }
         }
         private void AddCultureExecute()
         {
             dynamic obj = new ExpandoObject();
-            obj.文化名 = "";
+            obj.문화名 = "";
             DialogParameters parm = new DialogParameters
     {
         { "value", obj }
@@ -1094,10 +1094,10 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                     obj = arg.Parameters.GetValue<ExpandoObject>("value");
                 }
             });
-            // 判断CultureOptions中是否已经存在相同的文化名
-            if (!CultureOptions.Contains(obj.文化名) && !string.IsNullOrWhiteSpace(obj.文化名))
+            // 判断CultureOptions中是否已经存在相同的문화名
+            if (!CultureOptions.Contains(obj.문화名) && !string.IsNullOrWhiteSpace(obj.문화名))
             {
-                CultureOptions.Add(obj.文化名);  // 如果不存在，则添加
+                CultureOptions.Add(obj.문화名);  // 예果不存在，则添加
             }
 
         }
@@ -1111,7 +1111,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             // 遍历所有的 Family
             foreach (var family in FamilyList)
             {
-                // 如果当前 Family 的 Members 包含 SelectPeople，返回该 Family
+                // 예果当前 Family 的 Members 包含 SelectPeople，返回该 Family
                 if (family.Members.Contains(SelectPeople))
                 {
                     SelectFamily=family;
@@ -1141,8 +1141,8 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             }
             catch (Exception ex)
             {
-                // 处理错误
-                //MessageBox.Show($"加载家族数据失败：{ex.Message}");
+                // 处理오류
+                //MessageBox.Show($"가문 데이터 로드 실패: {ex.Message}");
             }
         }
 
@@ -1152,7 +1152,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             PipeClientService.Connected += () =>
             {
                 IsPipeServiceConnect = true;
-                HandyControl.Controls.Growl.Success("已连接到服务器");
+                HandyControl.Controls.Growl.Success("已连接까지服务器");
             };
             PipeClientService.Disconnected += () =>
             {
@@ -1273,7 +1273,7 @@ namespace WpfPrismFrameworkTemplate.ViewModels
             };
         }
 
-        // 打开文件的逻辑
+        // 열기파일的逻辑
         private void OpenFile()
         {
             _dialogService.ShowDialog(nameof(FamilyTreeWindow), arg => { });
@@ -1408,11 +1408,11 @@ namespace WpfPrismFrameworkTemplate.ViewModels
                 JsonHelper.SaveData(FamilyList);
                 CountyParser.SaveCountiesToFile(Counties, FileReadWrite.DomainDefFile);
                 JsonHelper.SaveFileSetting(FileReadWrite);
-                HandyControl.Controls.Growl.Success("保存文件成功");
+                HandyControl.Controls.Growl.Success("저장파일성공");
             }
             catch (Exception ex)
             {
-                HandyControl.Controls.Growl.Error($@"保存文件失败，原因是{ex.Message}");
+                HandyControl.Controls.Growl.Error($@"저장파일失败，原因是{ex.Message}");
             }
         }
 

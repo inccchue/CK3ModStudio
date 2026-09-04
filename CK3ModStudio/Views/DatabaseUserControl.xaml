@@ -71,7 +71,7 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
             </TabItem>
         </TabControl>
         <WrapPanel Grid.Row="1" Margin="2">
-            <Button Content="测试" Style="{StaticResource ButtonSuccess}" Command="{Binding TestCmd}"/>
+            <Button Content="테스트" Style="{StaticResource ButtonSuccess}" Command="{Binding TestCmd}"/>
         </WrapPanel>
         <RichTextBox Grid.Row="2" Margin="2" 
                      HorizontalScrollBarVisibility="Auto"
@@ -82,9 +82,9 @@ xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
                      FontSize="14">
             <RichTextBox.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="保存" Command="{Binding SaveCharacterDefFileCmd}"/>
-                    <MenuItem Header="另存为" Command="{Binding SaveAsCharacterDefFileCmd}"/>
-                    <MenuItem Header="清空" Command="{Binding ClearDebugMsgCmd}"/>
+                    <MenuItem Header="저장" Command="{Binding SaveCharacterDefFileCmd}"/>
+                    <MenuItem Header="다른 이름으로 저장" Command="{Binding SaveAsCharacterDefFileCmd}"/>
+                    <MenuItem Header="비우기" Command="{Binding ClearDebugMsgCmd}"/>
                 </ContextMenu>
             </RichTextBox.ContextMenu>
             <i:Interaction.Behaviors>
