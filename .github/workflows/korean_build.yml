@@ -14,14 +14,18 @@ jobs:
       - name: Safely Translate All UI, Tooltips, Menus and Dialogs
         shell: pwsh
         run: |
-          [System.Text.Encoding]::RegisterProvider([System.Text.CodePagesEncodingProvider]::Instance)
-          $gbk = [System.Text.Encoding]::GetEncoding(936)
-          $utf8Strict = New-Object System.Text.UTF8Encoding($false, $true)
           $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
 
           # 전수 번역 매핑 사전
           $dict = [ordered]@{
-            # [1. 창 제목 및 툴팁 잔여물]
+            # [1. 통계 열거형 식별자 (C# CS1003 문법 에러 방지 - 띄어쓰기 금지)]
+            '各家族平均寿命'           = '가문별평균수명'
+            '各文化人数'               = '문화별인원수'
+            '各宗教人数'               = '종교별인원수'
+            '性别比例'                 = '성별비율'
+            '各家族人数'               = '가문별인원수'
+
+            # [2. 툴팁(말풍선) 및 창 제목]
             '작者:Fred'                = '제작: Fred'
             '作者:Fred'                = '제작: Fred'
             '法理编辑器'               = '영지 작위 에디터'
@@ -41,7 +45,7 @@ jobs:
             '转换到영지정의界面'       = '영지 작위 화면으로 전환'
             '转换到时间轴界面'         = '타임라인 화면으로 전환'
 
-            # [2. 시스템 알림 팝업 (Toast) - GBK 인코딩 대응]
+            # [3. 시스템 경고/알림 팝업]
             '请先选择一个家族。'       = '먼저 가문을 선택하세요.'
             '请先选择一个家族！'       = '먼저 가문을 선택하세요!'
             '请先选择一个家族'         = '먼저 가문을 선택하세요'
@@ -53,7 +57,7 @@ jobs:
             '解析名称文件失败，请检查文件格式或路径是否正确。' = '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요.'
             '解析名称文件失败'         = '이름 파일 파싱 실패'
 
-            # [3. 상단 메뉴 드롭다운 하위 항목]
+            # [4. 상단 메뉴 드롭다운 하위 항목]
             '코드 생성个人内容'        = '인물 코드 생성'
             '코드 생성家族内容'        = '가문 코드 생성'
             '코드 생성整个内容'        = '전체 코드 생성'
@@ -70,20 +74,10 @@ jobs:
             '家族内容'                 = '가문 내용'
             '整个内容'                 = '전체 내용'
 
-            # [4. 통계 열거형 변수 (CS1003 컴파일 에러 방지 - 띄어쓰기 금지)]
-            '各家族平均寿命'           = '가문별평균수명'
-            '各文化人数'               = '문화별인원수'
-            '各宗教人数'               = '종교별인원수'
-            '性别比例'                 = '성별비율'
-            '各家族人数'               = '가문별인원수'
-            '各집안人数'               = '가문별인원수'
-
             # [5. 좌측 우클릭 컨텍스트 메뉴]
             '添加家族'                 = '가문 추가'
-            '添加가문'                 = '가문 추가'
             '添加人物'                 = '인물 추가'
             '删除家族'                 = '가문 삭제'
-            '删除가문'                 = '가문 삭제'
             '删除人物'                 = '인물 삭제'
 
             # [6. 가문/인물 편집 메인 화면]
@@ -140,7 +134,7 @@ jobs:
             '英文가문名'               = '영문가문명'
             '属性设置窗口'             = '가문 속성 설정'
 
-            # [9. 시스템 공통]
+            # [9. 시스템 공통 UI]
             '家族统计数据'             = '가문 통계 데이터'
             '杂项统计数据'             = '기타 통계 데이터'
             '人数'                     = '인원수'
@@ -169,18 +163,13 @@ jobs:
           }
 
           $sortedKeys = $dict.Keys | Sort-Object -Property Length -Descending
-          $targetFiles = Get-ChildItem -Path "CK3ModStudio" -Recurse -File | Where-Object { $_.Extension -match '\.(xaml|cs|resx)$' }
+          $targetFiles = Get-ChildItem -Path "CK3ModStudio" -Recurse -File | Where-Object { $_.Extension -match '\.(xaml|cs)$' }
 
           foreach ($file in $targetFiles) {
-            $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
-            $content = $null
-
-            # UTF-8 및 GBK(중국어 ANSI) 인코딩 자동 판별
-            try {
-              $content = $utf8Strict.GetString($bytes)
-            } catch {
-              $content = $gbk.GetString($bytes)
-            }
+            # StreamReader를 통해 BOM을 자동으로 제거하며 안전하게 텍스트 로드
+            $content = [System.IO.File]::ReadAllText($file.FullName, [System.Text.Encoding]::UTF8)
+            # 만약 잔여 BOM 문자가 있을 경우 시작 위치에서 완전 제거 (MC3000 에러 원천 차단)
+            $content = $content.TrimStart([char]0xFEFF)
 
             $changed = $false
             foreach ($k in $sortedKeys) {
@@ -190,16 +179,20 @@ jobs:
               }
             }
 
-            # WPF Name 식별자 공백 자동 제거 (MC3010 방지)
+            # XAML Name 식별자 내 공백 자동 제거 (MC3010 컴파일 에러 차단)
             if ($file.Extension -eq '.xaml') {
-              $content = [System.Text.RegularExpressions.Regex]::Replace($content, '(?<=(?:x:)?Name=")[^"]+', {
+              $newContent = [System.Text.RegularExpressions.Regex]::Replace($content, '(?<=(?:x:)?Name=")[^"]+', {
                 param($m)
                 return $m.Value.Replace(' ', '_')
               })
+              if ($newContent -ne $content) {
+                $content = $newContent
+                $changed = $true
+              }
             }
 
-            # 파일이 변경되었거나 원본이 GBK였던 경우 UTF-8 BOM으로 재저장
-            if ($changed -or ($null -ne $content)) {
+            # 내용이 실제 변경된 파일만 UTF-8 BOM으로 저장
+            if ($changed) {
               [System.IO.File]::WriteAllText($file.FullName, $content, $utf8WithBom)
             }
           }
