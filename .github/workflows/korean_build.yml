@@ -16,24 +16,28 @@ jobs:
         run: |
           [System.Text.Encoding]::RegisterProvider([System.Text.CodePagesEncodingProvider]::Instance)
           $gbk = [System.Text.Encoding]::GetEncoding(936)
-          $utf8Strict = New-Object System.Text.UTF8Encoding($false, $true)
           $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
 
-          # 전수 번역 매핑 사전
           $dict = [ordered]@{
-            # [1. 결합형 알림 메시지 완전 박멸 (최우선 치환)]
-            '请先选择一个가문'         = '먼저 가문을 선택하세요'
-            '请先选择一个家族'         = '먼저 가문을 선택하세요'
-            '请先选择가문'             = '먼저 가문을 선택하세요'
-            '请先选择家族'             = '먼저 가문을 선택하세요'
-            '请先选择一个'             = '먼저 선택하세요: '
-            '请先选择'                 = '먼저 선택하세요: '
-            '请选择一个'               = '먼저 선택하세요: '
-            '请选择'                   = '먼저 선택하세요: '
-            '解析名称文件失败，请检查文件格式或路径是否正确。' = '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요.'
-            '解析名称文件失败'         = '이름 파일 파싱 실패'
+            # [1. 통계 열거형 식별자 (CS1003 문법 에러 방지 - 띄어쓰기 금지)]
+            '各家族平均寿命'           = '가문별평균수명'
+            '各文化人数'               = '문화별인원수'
+            '各宗教人数'               = '종교별인원수'
+            '性别比例'                 = '성별비율'
+            '各家族人数'               = '가문별인원수'
+            '各집안人数'               = '가문별인원수'
 
-            # [2. 검증 메시지 및 속성창 잔여물]
+            # [2. 다이얼로그 창 타이틀 정상화]
+            '가문 속성 설정'           = '속성 설정 창'
+            '属性设置窗口'             = '속성 설정 창'
+
+            # [3. 속성창 내부 항목]
+            '宗教名'                   = '종교명'
+            '文化名'                   = '문화명'
+            '中文家族名'               = '한글가문명'
+            '中文가문名'               = '한글가문명'
+            '英文家族名'               = '영문가문명'
+            '英文가문名'               = '영문가문명'
             '键值后缀不能为空'         = '접미사 키 값은 비어 있을 수 없습니다'
             '仅统计有完整出生/死亡记录的人' = '출생/사망 기록이 모두 있는 인물만 집계'
             '个人信息'                 = '개인 정보'
@@ -42,15 +46,7 @@ jobs:
             '男性'                     = '남성'
             '女性'                     = '여성'
 
-            # [3. C# 열거형 변수 (CS1003 문법 에러 방지 - 띄어쓰기 금지)]
-            '各家族平均寿命'           = '가문별평균수명'
-            '各文化人数'               = '문화별인원수'
-            '各宗教人数'               = '종교별인원수'
-            '性别比例'                 = '성별비율'
-            '各家族人数'               = '가문별인원수'
-            '各집안人数'               = '가문별인원수'
-
-            # [4. 창 제목 및 툴팁 잔여물]
+            # [4. 메뉴 및 툴팁]
             '작者:Fred'                = '제작: Fred'
             '作者:Fred'                = '제작: Fred'
             '法理编辑器'               = '영지 작위 에디터'
@@ -87,10 +83,12 @@ jobs:
             '家族内容'                 = '가문 내용'
             '整个内容'                 = '전체 내용'
 
-            # [6. 좌측 우클릭 컨텍스트 메뉴]
+            # [6. 우클릭 메뉴]
             '添加家族'                 = '가문 추가'
             '添加가문'                 = '가문 추가'
             '添加人物'                 = '인물 추가'
+            '添加宗教'                 = '종교 추가'
+            '添加文化'                 = '문화 추가'
             '删除家族'                 = '가문 삭제'
             '删除가문'                 = '가문 삭제'
             '删除人物'                 = '인물 삭제'
@@ -123,7 +121,7 @@ jobs:
             '+ 伯国'                   = '+ 백작령'
             '点击左侧法理查看详情'     = '좌측 작위를 클릭해 상세정보 보기'
 
-            # [8. 하위 다이얼로그 (서브모드 생성, 작위 이동, DB 설정)]
+            # [8. 하위 다이얼로그 및 환경설정]
             '模组名称'                 = '모드 이름'
             '模组路径'                 = '모드 경로'
             '模组版本'                 = '모드 버전'
@@ -142,12 +140,6 @@ jobs:
             '测试连接'                 = '연결 테스트'
             '连接成功'                 = '연결 성공'
             '连接失败'                 = '연결 실패'
-            '随机名字'                 = '무작위 이름'
-            '随机姓氏'                 = '무작위 성씨'
-            '导入'                     = '가져오기'
-            '导出'                     = '내보내기'
-
-            # [9. 환경설정 및 팝업창]
             '随机名字/姓氏文件路径'     = '무작위 이름/성씨 파일 경로'
             '是否允许自动保存'         = '자동 저장 허용 여부'
             '领地定义文件'             = '영지 정의 파일'
@@ -166,13 +158,8 @@ jobs:
             '纹章收集设置'             = '문장 수집 설정'
             '调试设置'                 = '디버그 설정'
             '随机设置'                 = '무작위 설정'
-            '中文家族名'               = '한글가문명'
-            '中文가문名'               = '한글가문명'
-            '英文家族名'               = '영문가문명'
-            '英文가문名'               = '영문가문명'
-            '属性设置窗口'             = '가문 속성 설정'
 
-            # [10. 시스템 공통 UI 및 단일 명칭]
+            # [9. 시스템 공통 UI 및 단일 명칭]
             '家族统计数据'             = '가문 통계 데이터'
             '杂项统计数据'             = '기타 통계 데이터'
             '人数'                     = '인원수'
@@ -206,37 +193,30 @@ jobs:
 
           foreach ($file in $targetFiles) {
             $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
-            $content = $null
+            $content = ""
 
-            # UTF-8 및 GBK(중국어 ANSI) 자동 판별 디코딩
-            try {
-              $content = $utf8Strict.GetString($bytes)
-            } catch {
+            # [인코딩 처리] UTF-8 BOM 판별 및 GB2312(936) 강제 적용
+            if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+              $content = [System.Text.Encoding]::UTF8.GetString($bytes, 3, $bytes.Length - 3)
+            } elseif ($file.Extension -eq '.xaml') {
+              $content = [System.Text.Encoding]::UTF8.GetString($bytes)
+            } else {
+              # C# 소스 코드는 GB2312로 디코딩
               $content = $gbk.GetString($bytes)
             }
 
-            # 중복 BOM 제거
-            $content = $content.TrimStart([char]0xFEFF)
-
             $changed = $false
 
-            # C# 결합 문자열 구문 직접 치환
-            if ($file.Extension -eq '.cs') {
-              $codePatches = @{
-                '"请先选择一个" + "가문"' = '"먼저 가문을 선택하세요"'
-                '"请先选择一个" + "家族"' = '"먼저 가문을 선택하세요"'
-                '$"请先选择一个'          = '$"먼저 선택하세요: '
-                '"请先选择一个"'          = '"먼저 가문을 선택하세요"'
-              }
-              foreach ($cp in $codePatches.Keys) {
-                if ($content.Contains($cp)) {
-                  $content = $content.Replace($cp, $codePatches[$cp])
-                  $changed = $true
-                }
-              }
+            # [정규식] "请先选择..." 관련 모든 중국어 알림 구문 강제 박멸
+            $cleaned = [System.Text.RegularExpressions.Regex]::Replace($content, '请先选择.*?(?:家族|가문)', '먼저 가문을 선택하세요')
+            $cleaned = [System.Text.RegularExpressions.Regex]::Replace($cleaned, '请先选择.*?一个', '먼저 선택하세요: ')
+            $cleaned = [System.Text.RegularExpressions.Regex]::Replace($cleaned, '解析名称文件失败.*', '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요."')
+            if ($cleaned -ne $content) {
+              $content = $cleaned
+              $changed = $true
             }
 
-            # 전체 번역 사전 치환
+            # 전체 번역 매핑 사전 치환
             foreach ($k in $sortedKeys) {
               if ($content.Contains($k)) {
                 $content = $content.Replace($k, $dict[$k])
@@ -244,7 +224,7 @@ jobs:
               }
             }
 
-            # XAML Name 식별자 내 공백 자동 제거 (MC3010 방지)
+            # XAML Name 식별자 내 공백 자동 제거 (MC3010 컴파일 에러 방지)
             if ($file.Extension -eq '.xaml') {
               $newContent = [System.Text.RegularExpressions.Regex]::Replace($content, '(?<=(?:x:)?Name=")[^"]+', {
                 param($m)
