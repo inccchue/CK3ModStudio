@@ -16,7 +16,7 @@ jobs:
         run: |
           $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
 
-          # 1. 정밀 번역 매핑 사전
+          # 1. 전수 번역 매핑 사전 (UI + 백엔드 DB/로그)
           $dict = [ordered]@{
             # [통계 열거형 식별자 (CS1003 컴파일 에러 방지용 공백 제거)]
             '各家族平均寿命'           = '가문별평균수명'
@@ -25,6 +25,29 @@ jobs:
             '性别比例'                 = '성별비율'
             '各家族人数'               = '가문별인원수'
             '各집안人数'               = '가문별인원수'
+
+            # [백엔드 DB 및 콘솔 예외 로그]
+            '加载가문数据失败'         = '가문 데이터 로드 실패'
+            '保存가문数据失败'         = '가문 데이터 저장 실패'
+            '获取가문'                 = '가문 조회: '
+            '数据失败'                 = '데이터 처리 실패'
+            '가문 추가失败'             = '가문 추가 실패'
+            '更新가문数据失败'         = '가문 데이터 갱신 실패'
+            '가문 삭제失败'             = '가문 삭제 실패'
+            '데이터베이스初始化失败'   = '데이터베이스 초기화 실패'
+            '데이터베이스迁移失败'     = '데이터베이스 마이그레이션 실패'
+            '通用增删改查操作'         = '공통 CRUD 작업'
+            '请先调用 Initialize 方法初始化 DebugHelper！' = '먼저 Initialize 메서드를 호출하여 DebugHelper를 초기화하세요!'
+            '心跳文件不存在'           = '하트비트 파일이 존재하지 않음'
+            '心跳文件为空'             = '하트비트 파일이 비어 있음'
+            '心跳检测: 上次心跳'       = '하트비트 확인: 마지막 하트비트'
+            '心跳文件格式오류'         = '하트비트 파일 형식 오류'
+            '心跳检测异常:'            = '하트비트 감지 예외:'
+            '加载数据时出错:'          = '데이터 로드 중 오류 발생:'
+            '加载文件设置时出错:'      = '파일 설정 로드 중 오류 발생:'
+            '保存数据时出错:'          = '데이터 저장 중 오류 발생:'
+            '运行中'                   = '실행 중'
+            '已停止'                   = '중지됨'
 
             # [다이얼로그 및 유효성 검사 텍스트]
             '键值后缀不能为空'         = '접미사 키 값은 비어 있을 수 없습니다'
@@ -36,7 +59,7 @@ jobs:
             '解析名称文件失败，请检查文件格式或路径是否正确。' = '이름 파일 파싱 실패. 게임 설치 경로를 확인하세요.'
             '就绪'                     = '준비 완료'
 
-            # [기본 UI 및 속성창]
+            # [속성창 및 개인정보]
             '종교名'                   = '종교명'
             '문화名'                   = '문화명'
             '가문名'                   = '가문명'
@@ -152,7 +175,7 @@ jobs:
             $content = $content.TrimStart([char]0xFEFF)
             $changed = $false
 
-            # [핵심] 혼합형 알림 메시지 정규식 전수 박멸 (请...선택/选择...가문/家族)
+            # 혼합형 알림 메시지 정규식 전수 치환
             $regexPatterns = @(
               '请[^\"]*?(?:선택|选择)[^\"]*?(?:가문|家族)[^\"]*',
               '请先선택[^\"]*?가문',
@@ -167,7 +190,6 @@ jobs:
               }
             }
 
-            # 일반 사전 매핑 치환
             foreach ($k in $sortedKeys) {
               if ($content.Contains($k)) {
                 $content = $content.Replace($k, $dict[$k])
@@ -192,28 +214,34 @@ jobs:
             }
           }
 
-      - name: Audit Remaining Chinese Characters
+      - name: Audit Remaining Chinese Characters (Excluding Comments)
         shell: pwsh
         run: |
-          Write-Host "=== 빌드 전 소스 코드 내 잔여 중국어 검사 시작 ==="
+          Write-Host "=== 빌드 전 소스 코드 내 잔여 중국어(주석 제외) 검사 시작 ==="
           $chineseRegex = '[\u4e00-\u9fa5]'
           $remaining = @()
 
           Get-ChildItem -Path "CK3ModStudio" -Recurse -File | Where-Object { $_.Extension -match '\.(xaml|cs)$' } | ForEach-Object {
             $lines = [System.IO.File]::ReadAllLines($_.FullName, [System.Text.Encoding]::UTF8)
             for ($i = 0; $i -lt $lines.Count; $i++) {
-              # 주석 라인(//)은 제외하고 실제 코드 및 텍스트 검사
-              if ($lines[$i] -match $chineseRegex -and -not ($lines[$i].Trim().StartsWith('//'))) {
-                $remaining += "$($_.Name):L$($i+1) -> $($lines[$i].Trim())"
+              $raw = $lines[$i].Trim()
+              # 순수 주석 라인 및 C# #region 지시어 제외
+              if ($raw.StartsWith('//') -or $raw.StartsWith('#region') -or $raw.StartsWith('#endregion') -or $raw.StartsWith('/*') -or $raw.StartsWith('*')) {
+                continue
+              }
+              # 코드 뒷부분 인라인 주석(// ...) 제거 후 실제 실행 코드만 추출
+              $codeOnly = ($raw -replace '//.*$', '').Trim()
+              if ($codeOnly -match $chineseRegex) {
+                $remaining += "$($_.Name):L$($i+1) -> $codeOnly"
               }
             }
           }
 
           if ($remaining.Count -gt 0) {
-            Write-Host "::warning::남아있는 중국어 문자열 $($remaining.Count)건 발견:"
+            Write-Host "::warning::실제 실행 코드 내 잔여 중국어 $($remaining.Count)건 발견:"
             $remaining | Select-Object -First 30 | ForEach-Object { Write-Host "  [미번역] $_" }
           } else {
-            Write-Host "=== 모든 UI 및 소스 코드에서 중국어가 100% 제거되었습니다! ==="
+            Write-Host "=== 모든 실행 코드와 UI에서 중국어가 100% 제거되었습니다! ==="
           }
 
       - name: Setup MSBuild
